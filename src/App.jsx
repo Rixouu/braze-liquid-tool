@@ -165,8 +165,7 @@ export function LiquidSyntaxEditor() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row justify-between items-center py-6 border-b">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">Liquid Syntax Editor</h1>
-            <p className="text-2xl font-bold text-foreground">for Braze CRM</p>
+            <h1 className="text-2xl font-bold text-foreground">Liquid Syntax Editor for Braze</h1>
           </div>
           <p className="text-sm text-muted-foreground flex-1 max-w-xl text-center md:text-left md:px-4">
             Create and edit personalized messages with Liquid syntax. Choose a template, customize, and preview in real-time.
@@ -176,12 +175,12 @@ export function LiquidSyntaxEditor() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Template Selection</CardTitle>
-                <CardDescription>Choose a template to start with</CardDescription>
+                <CardTitle className="font-normal">Template Selection</CardTitle>
+                <CardDescription className="font-normal">Choose a template to start with</CardDescription>
               </CardHeader>
               <CardContent>
                 <Select onValueChange={handleTemplateChange} defaultValue={selectedTemplate.id}>
@@ -199,27 +198,13 @@ export function LiquidSyntaxEditor() {
                 <p className="text-sm text-muted-foreground mt-2">{selectedTemplate.description}</p>
               </CardContent>
             </Card>
-
-            <Card className="lg:hidden">
-              <CardHeader>
-                <CardTitle>Preview</CardTitle>
-                <CardDescription>Preview your message with Liquid syntax</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[200px] sm:h-[300px] w-full rounded-md border p-4">
-                  <pre className="font-mono text-sm whitespace-pre-wrap">
-                    {editedContent}
-                  </pre>
-                </ScrollArea>
-              </CardContent>
-            </Card>
           </div>
 
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Content Editing</CardTitle>
-                <CardDescription>Edit your message while preserving Liquid syntax</CardDescription>
+                <CardTitle className="font-normal">Content Editing</CardTitle>
+                <CardDescription className="font-normal">Edit your message while preserving Liquid syntax</CardDescription>
               </CardHeader>
               <CardContent>
                 <HighlightedLiquidEditor
@@ -227,22 +212,30 @@ export function LiquidSyntaxEditor() {
                   onChange={handleContentChange}
                 />
               </CardContent>
-              <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between">
-                <Button onClick={handleCopy} variant="outline" className="w-full sm:w-auto">
+              <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
+                <Button 
+                  onClick={handleCopy} 
+                  variant="outline" 
+                  className="w-full sm:w-auto font-normal bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
+                >
                   <Copy className="mr-2 h-4 w-4" />
                   Copy
                 </Button>
-                <Button onClick={handleReset} variant="outline" className="w-full sm:w-auto">
+                <Button 
+                  onClick={handleReset} 
+                  variant="outline" 
+                  className="w-full sm:w-auto font-normal bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700"
+                >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Reset
                 </Button>
               </CardFooter>
             </Card>
 
-            <Card className="hidden lg:block">
+            <Card>
               <CardHeader>
-                <CardTitle>Preview</CardTitle>
-                <CardDescription>Preview your message with Liquid syntax</CardDescription>
+                <CardTitle className="font-normal">Preview</CardTitle>
+                <CardDescription className="font-normal">Preview your message with Liquid syntax</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px] w-full rounded-md border p-4">
