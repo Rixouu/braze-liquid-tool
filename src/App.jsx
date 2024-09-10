@@ -176,41 +176,43 @@ export function LiquidSyntaxEditor() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-normal">Template Selection</CardTitle>
-                <CardDescription className="font-normal">Choose a template to start with</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Select onValueChange={handleTemplateChange} defaultValue={selectedTemplate.id}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground mt-2">{selectedTemplate.description}</p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="h-[500px] flex flex-col lg:w-[310px]">
+            <CardHeader>
+              <CardTitle className="font-normal">Template Selection</CardTitle>
+              <CardDescription className="font-normal">Choose a template to start with</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-hidden">
+              <Select onValueChange={handleTemplateChange} defaultValue={selectedTemplate.id}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <ScrollArea className="h-full w-full mt-4">
+                <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+              </ScrollArea>
+            </CardContent>
+          </Card>
 
           <div className="lg:col-span-3 space-y-6">
-            <Card>
+            <Card className="h-[500px] flex flex-col">
               <CardHeader>
                 <CardTitle className="font-normal">Content Editing</CardTitle>
                 <CardDescription className="font-normal">Edit your message while preserving Liquid syntax</CardDescription>
               </CardHeader>
-              <CardContent>
-                <HighlightedLiquidEditor
-                  initialContent={editedContent}
-                  onChange={handleContentChange}
-                />
+              <CardContent className="flex-grow overflow-hidden">
+                <div className="h-full">
+                  <HighlightedLiquidEditor
+                    initialContent={editedContent}
+                    onChange={handleContentChange}
+                  />
+                </div>
               </CardContent>
               <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
                 <Button 
@@ -232,13 +234,13 @@ export function LiquidSyntaxEditor() {
               </CardFooter>
             </Card>
 
-            <Card>
+            <Card className="h-[400px] flex flex-col">
               <CardHeader>
                 <CardTitle className="font-normal">Preview</CardTitle>
                 <CardDescription className="font-normal">Preview your message with Liquid syntax</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+              <CardContent className="flex-grow overflow-hidden">
+                <ScrollArea className="h-full w-full rounded-md border p-4">
                   <pre className="font-mono text-sm whitespace-pre-wrap">
                     {editedContent}
                   </pre>
