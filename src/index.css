@@ -180,3 +180,50 @@ button:focus-visible {
 .dark .hover\:text-red-700:hover {
   color: #ef4444;
 }
+
+/* Add this to your global CSS file */
+.highlighted-liquid-editor,
+.highlighted-liquid-editor > div,
+.highlighted-liquid-editor .editor-container {
+  border: none !important;
+}
+
+/* Add this to your global CSS file */
+.highlighted-liquid-editor-container,
+.highlighted-liquid-editor-container > div,
+.highlighted-liquid-editor-container .editor-container,
+.highlighted-liquid-editor-container textarea,
+.highlighted-liquid-editor-container .CodeMirror {
+  border: none !important;
+  outline: none !important;
+}
+
+.highlighted-liquid-editor-container textarea:focus,
+.highlighted-liquid-editor-container .CodeMirror-focused {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Add these new rules */
+.highlighted-liquid-editor-container {
+  position: relative;
+}
+
+.highlighted-liquid-editor-container > div,
+.highlighted-liquid-editor-container .editor-container,
+.highlighted-liquid-editor-container .CodeMirror {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.highlighted-liquid-editor-container .CodeMirror-lines {
+  padding: 4px 0; /* Adjust as needed */
+}
+
+.highlighted-liquid-editor-container .CodeMirror pre.CodeMirror-line,
+.highlighted-liquid-editor-container .CodeMirror pre.CodeMirror-line-like {
+  padding: 0 4px; /* Adjust as needed */
+}

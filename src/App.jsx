@@ -1,146 +1,214 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { ThemeProvider } from 'next-themes'  // Add this import
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { AlertCircle, Copy, RotateCcw, Moon, Sun } from 'lucide-react'
-import LiquidEditor from './components/LiquidEditor'
+import { Copy, RotateCcw } from 'lucide-react'
 import HighlightedLiquidEditor from './components/HighlightedLiquidEditor'
-import { ThemeProvider, useTheme } from 'next-themes'
+import { Liquid } from 'liquidjs';
+import ThemeToggle from './components/ThemeToggle';  // Add this import
 
-// Sample templates - in a real application, these would be more extensive and possibly fetched from an API
+const engine = new Liquid({
+  dateFormat: '%Y-%m-%d %H:%M:%S',
+  timezoneOffset: 0
+});
+
+const getCurrentDate = () => {
+  const now = new Date();
+  return now.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+};
+
 const templates = [
   {
     id: 'personal',
     name: 'Personalized Greeting',
     description: 'A simple personalized greeting using customer\'s first name',
-    content: 'Hello {{${first_name}}},\n\nWelcome to our service!'
+    content: 'Hello {{ first_name }},\n\nWelcome to our service!',
+    sampleData: {
+      first_name: 'John'
+    }
   },
   {
     id: 'product',
     name: 'Product Recommendation',
     description: 'Recommend a product based on customer\'s past purchases',
-    content: 'Hi {{${first_name}}},\n\nBased on your purchase of {{${last_purchased_item}}}, we think you\'ll love our new {{${recommended_product}}}!'
+    content: 'Hi {{ first_name }},\n\nBased on your purchase of {{ last_purchased_item }}, we think you\'ll love our new {{ recommended_product }}!',
+    sampleData: {
+      first_name: 'Alice',
+      last_purchased_item: 'Running Shoes',
+      recommended_product: 'Fitness Tracker'
+    }
   },
   {
     id: 'event',
     name: 'Event Reminder',
     description: 'Reminder for an upcoming event',
-    content: 'Dear {{${first_name}}},\n\nDon\'t forget about {{${event_name}}} on {{${event_date}}}. We\'re excited to see you there!'
+    content: 'Dear {{ first_name }},\n\nDon\'t forget about {{ event_name }} on {{ event_date }}. We\'re excited to see you there!',
+    sampleData: {
+      first_name: 'Emma',
+      event_name: 'Annual Tech Conference',
+      event_date: 'September 15, 2023'
+    }
   },
   {
     id: 'anniversary',
     name: 'App Anniversary',
     description: 'Personalize messages based on a user\'s app anniversary year',
-    content: `\\{\\% assign this_month = 'now' | date: "%B" \\%\\}
-\\{\\% assign this_day = 'now' | date: "%d" \\%\\}
-\\{\\% assign anniversary_month = \\{\\{custom_attribute.\${registration_date}\\}\\} | date: "%B" \\%\\}
-\\{\\% assign anniversary_day = \\{\\{custom_attribute.\${registration_date}\\}\\} | date: "%d" \\%\\}
-\\{\\% assign anniversary_year = \\{\\{custom_attribute.\${registration_date}\\}\\} | date: "%Y" \\%\\}
+    content: `{% assign this_month = 'now' | date: "%B" %}
+{% assign this_day = 'now' | date: "%d" %}
+{% assign anniversary_month = custom_attribute.registration_date | date: "%B" %}
+{% assign anniversary_day = custom_attribute.registration_date | date: "%d" %}
+{% assign anniversary_year = custom_attribute.registration_date | date: "%Y" %}
 
-\\{\\% if this_month == anniversary_month and this_day == anniversary_day \\%\\}
-\\{\\% if anniversary_year == '2021' \\%\\}
+{% if this_month == anniversary_month and this_day == anniversary_day %}
+{% if anniversary_year == '2022' %}
 Exactly one year ago today we met for the first time!
-\\{\\% elsif anniversary_year == '2020' \\%\\}
+{% elsif anniversary_year == '2021' %}
 Exactly two years ago today we met for the first time!
-\\{\\% elsif anniversary_year == '2019' \\%\\}
+{% elsif anniversary_year == '2020' %}
 Exactly three years ago today we met for the first time!
-\\{\\% else \\%\\}
+{% else %}
 Happy app anniversary!
-\\{\\% endif \\%\\}
-\\{\\% endif \\%\\}`
+{% endif %}
+{% endif %}`,
+    sampleData: {
+      custom_attribute: {
+        registration_date: '2022-07-15'
+      },
+      now: getCurrentDate()
+    }
   },
   {
     id: 'app_usage',
     name: 'Recent App Usage',
     description: 'Personalize messages based on when a user last opened the app',
-    content: `\\{\\% assign last_used_date = \\{\\{custom_attribute.\${last_used_app_date}\\}\\} | date: "%s" \\%\\}
-\\{\\% assign now = 'now' | date: "%s" \\%\\}
-\\{\\% assign difference_in_days = \\{\\{now\\}\\} | minus: \\{\\{last_used_date\\}\\} | divided_by: 86400 \\%\\}
+    content: `{% assign last_used_date = custom_attribute.last_used_app_date | date: "%s" %}
+{% assign now = 'now' | date: "%s" %}
+{% assign difference_in_days = now | minus: last_used_date | divided_by: 86400 %}
 
-\\{\\% if \\{\\{difference_in_days\\}\\} < 3 \\%\\}
+{% if difference_in_days < 3 %}
 Happy to see you again so soon!
-\\{\\% else \\%\\}
+{% else %}
 It's been a while; here are some of our latest updates.
-\\{\\% endif \\%\\}`
+{% endif %}`,
+    sampleData: {
+      custom_attribute: {
+        last_used_app_date: '2023-07-12'
+      },
+      now: getCurrentDate()
+    }
   },
   {
     id: 'countdown',
     name: 'Event Countdown',
     description: 'Calculate a countdown from a set point in time',
-    content: `\\{\\% assign event_date = '2023-12-31' | date: "%s" \\%\\}
-\\{\\% assign today = 'now' | date: "%s" \\%\\}
-\\{\\% assign difference = event_date | minus: today \\%\\}
-\\{\\% assign difference_days = difference | divided_by: 86400 \\%\\}
+    content: `{% assign event_date = '2023-12-31' | date: '%s' %}
+{% assign today = 'now' | date: '%s' %}
+{% assign difference = event_date | minus: today %}
+{% assign difference_days = difference | divided_by: 86400 %}
 
-You have \\{\\{ difference_days \\}\\} days left until the big event!`
+You have {{ difference_days }} days left until the big event!`,
+    sampleData: {
+      now: getCurrentDate()
+    }
   },
   {
     id: 'platform',
     name: 'Platform-Specific Message',
     description: 'Differentiate copy by device OS',
-    content: `\\{\\% if \\{\\{targeted_device.\${platform}\\}\\} == "ios" \\%\\}
+    content: `{% if targeted_device.platform == "ios" %}
 Check out our new features in the App Store!
-\\{\\% elsif \\{\\{targeted_device.\${platform}\\}\\} == "android" \\%\\}
+{% elsif targeted_device.platform == "android" %}
 Discover our latest updates on Google Play!
-\\{\\% else \\%\\}
+{% else %}
 Visit our website for the newest features!
-\\{\\% endif \\%\\}`
+{% endif %}`,
+    sampleData: {
+      targeted_device: {
+        platform: 'ios'
+      }
+    }
   },
   {
     id: 'timezone',
     name: 'Time Zone Personalization',
     description: 'Send different messages based on time of day in a user\'s local time zone',
-    content: `\\{\\% assign time = 'now' | time_zone: \${time_zone} \\%\\}
-\\{\\% assign hour = time | date: '%H' | plus: 0 \\%\\}
+    content: `{% assign time = 'now' | time_zone: time_zone %}
+{% assign hour = time | date: '%H' | plus: 0 %}
 
-\\{\\% if hour >= 5 and hour < 12 \\%\\}
+{% if hour >= 5 and hour < 12 %}
 Good morning! Start your day with our app.
-\\{\\% elsif hour >= 12 and hour < 18 \\%\\}
+{% elsif hour >= 12 and hour < 18 %}
 Good afternoon! Take a break with our app.
-\\{\\% elsif hour >= 18 and hour < 22 \\%\\}
+{% elsif hour >= 18 and hour < 22 %}
 Good evening! Relax with our app.
-\\{\\% else \\%\\}
+{% else %}
 Having trouble sleeping? Our app can help you unwind.
-\\{\\% endif \\%\\}`
+{% endif %}`,
+    sampleData: {
+      time_zone: 'America/New_York',
+      now: '2023-07-15T14:30:00'
+    }
   }
 ]
 
-function unescapeLiquid(content) {
-  return content
-    .replace(/\\{\\%/g, '{%')
-    .replace(/\\%\\}/g, '%}')
-    .replace(/\\{\\{/g, '{{')
-    .replace(/\\}\\}/g, '}}');
-}
+function SampleDataEditor({ sampleData, onChange }) {
+  console.log("SampleDataEditor received data:", sampleData);
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const renderField = (key, value, path = []) => {
+    if (typeof value === 'object' && value !== null) {
+      return (
+        <div key={key} className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">{key}</h4>
+          <div className="pl-4 border-l border-gray-200">
+            {Object.entries(value).map(([subKey, subValue]) =>
+              renderField(subKey, subValue, [...path, key])
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div key={key} className="mb-3">
+        <label className="block text-sm text-gray-700 mb-1">{path.concat(key).join('.')}</label>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(path.concat(key).join('.'), e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="w-9 h-9 px-0"
-    >
-      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
-  )
+    <div className="space-y-4">
+      {sampleData && Object.keys(sampleData).length > 0 ? (
+        Object.entries(sampleData).map(([key, value]) => renderField(key, value))
+      ) : (
+        <p className="text-gray-500 italic">No sample data available</p>
+      )}
+    </div>
+  );
 }
 
 export function LiquidSyntaxEditor() {
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0])
-  const [editedContent, setEditedContent] = useState(unescapeLiquid(templates[0].content))
+  const [editedContent, setEditedContent] = useState(selectedTemplate.content)
+  const [editableSampleData, setEditableSampleData] = useState(selectedTemplate.sampleData)
+  const [previewContent, setPreviewContent] = useState('')
 
   useEffect(() => {
-    setEditedContent(unescapeLiquid(selectedTemplate.content))
+    setEditedContent(selectedTemplate.content)
+    setEditableSampleData(selectedTemplate.sampleData)
+    console.log("Selected template:", selectedTemplate)
+    console.log("Editable sample data:", selectedTemplate.sampleData)
+    updatePreview(selectedTemplate.content, selectedTemplate.sampleData)
   }, [selectedTemplate])
 
   const handleTemplateChange = (templateId) => {
@@ -150,6 +218,36 @@ export function LiquidSyntaxEditor() {
 
   const handleContentChange = (newContent) => {
     setEditedContent(newContent)
+    updatePreview(newContent, editableSampleData)
+  }
+
+  const handleSampleDataChange = (path, value) => {
+    console.log("Updating sample data:", path, value);
+    setEditableSampleData(prevData => {
+      const newData = { ...prevData };
+      let current = newData;
+      const keys = path.split('.');
+      for (let i = 0; i < keys.length - 1; i++) {
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value;
+      console.log("New sample data:", newData);
+      return newData;
+    });
+    updatePreview(editedContent, editableSampleData);
+  }
+
+  const updatePreview = async (content, data) => {
+    try {
+      const renderedContent = await engine.parseAndRender(content, {
+        ...data,
+        now: getCurrentDate() // Ensure 'now' is always current
+      });
+      setPreviewContent(renderedContent.trim());
+    } catch (error) {
+      console.error('Error rendering template:', error);
+      setPreviewContent('Error rendering template');
+    }
   }
 
   const handleCopy = () => {
@@ -157,8 +255,15 @@ export function LiquidSyntaxEditor() {
   }
 
   const handleReset = () => {
-    setEditedContent(unescapeLiquid(selectedTemplate.content))
-  }
+    // Reset the edited content to the original template content
+    setEditedContent(selectedTemplate.content);
+
+    // Reset the editable sample data to the original template sample data
+    setEditableSampleData(selectedTemplate.sampleData);
+
+    // Update the preview with the original content and sample data
+    updatePreview(selectedTemplate.content, selectedTemplate.sampleData);
+  };
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -176,12 +281,12 @@ export function LiquidSyntaxEditor() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <Card className="h-[500px] flex flex-col lg:w-[310px]">
+          <Card className="h-[800px] flex flex-col lg:w-[310px]">
             <CardHeader>
-              <CardTitle className="font-normal">Template Selection</CardTitle>
-              <CardDescription className="font-normal">Choose a template to start with</CardDescription>
+              <CardTitle className="text-xl">Template Selection</CardTitle>
+              <CardDescription>Choose a template to start with</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow overflow-hidden">
+            <CardContent className="flex-grow overflow-hidden flex flex-col">
               <Select onValueChange={handleTemplateChange} defaultValue={selectedTemplate.id}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a template" />
@@ -194,58 +299,59 @@ export function LiquidSyntaxEditor() {
                   ))}
                 </SelectContent>
               </Select>
-              <ScrollArea className="h-full w-full mt-4">
+              <ScrollArea className="h-32 w-full mt-4">
                 <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
               </ScrollArea>
+              <div className="mt-4 flex-grow">
+                <h3 className="font-semibold mb-2">Sample Data</h3>
+                <div className="h-[calc(100%-2rem)] overflow-auto">
+                  <SampleDataEditor
+                    sampleData={editableSampleData}
+                    onChange={handleSampleDataChange}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           <div className="lg:col-span-3 space-y-6">
-            <Card className="h-[500px] flex flex-col">
+            <Card className="h-[800px] flex flex-col">
               <CardHeader>
-                <CardTitle className="font-normal">Content Editing</CardTitle>
-                <CardDescription className="font-normal">Edit your message while preserving Liquid syntax</CardDescription>
+                <CardTitle className="text-xl">Content Editing</CardTitle>
+                <CardDescription>Edit your message and preview in real-time</CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow overflow-hidden">
-                <div className="h-full">
-                  <HighlightedLiquidEditor
-                    initialContent={editedContent}
-                    onChange={handleContentChange}
-                  />
+              <CardContent className="flex-grow flex flex-col lg:flex-row gap-6">
+                <div className="flex-1 flex flex-col">
+                  <h3 className="font-semibold mb-2">Template Content</h3>
+                  <div className="flex-grow border rounded-md overflow-hidden">
+                    <div className="h-full w-full highlighted-liquid-editor-container p-4">
+                      <HighlightedLiquidEditor
+                        initialContent={editedContent}
+                        onChange={handleContentChange}
+                        className="h-full w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col">
+                  <h3 className="font-semibold mb-2">Live Preview</h3>
+                  <div className="flex-grow border rounded-md p-4 overflow-auto">
+                    <pre className="font-mono text-sm whitespace-pre-wrap">
+                      {previewContent}
+                    </pre>
+                  </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
-                <Button 
-                  onClick={handleCopy} 
-                  variant="outline" 
-                  className="w-full sm:w-auto font-normal bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-                >
+              <CardFooter className="flex justify-end space-x-2">
+                <Button onClick={handleCopy} className="bg-green-100 text-green-700 hover:bg-green-200">
                   <Copy className="mr-2 h-4 w-4" />
                   Copy
                 </Button>
-                <Button 
-                  onClick={handleReset} 
-                  variant="outline" 
-                  className="w-full sm:w-auto font-normal bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700"
-                >
+                <Button onClick={handleReset} className="bg-red-100 text-red-700 hover:bg-red-200">
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Reset
                 </Button>
               </CardFooter>
-            </Card>
-
-            <Card className="h-[400px] flex flex-col">
-              <CardHeader>
-                <CardTitle className="font-normal">Preview</CardTitle>
-                <CardDescription className="font-normal">Preview your message with Liquid syntax</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow overflow-hidden">
-                <ScrollArea className="h-full w-full rounded-md border p-4">
-                  <pre className="font-mono text-sm whitespace-pre-wrap">
-                    {editedContent}
-                  </pre>
-                </ScrollArea>
-              </CardContent>
             </Card>
           </div>
         </div>
@@ -256,7 +362,7 @@ export function LiquidSyntaxEditor() {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class">
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <LiquidSyntaxEditor />
     </ThemeProvider>
   )

@@ -12,7 +12,7 @@ const liquidHighlight = (str: string, isDark: boolean) => {
   return str;
 };
 
-const HighlightedLiquidEditor = ({ initialContent, onChange }) => {
+const HighlightedLiquidEditor = ({ initialContent, onChange, className }) => {
   const [content, setContent] = useState(initialContent);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
@@ -48,7 +48,7 @@ const HighlightedLiquidEditor = ({ initialContent, onChange }) => {
   };
 
   return (
-    <div className="relative border rounded-md overflow-hidden">
+    <div className={`h-full w-full ${className}`}>
       <Textarea
         ref={textareaRef}
         value={content}

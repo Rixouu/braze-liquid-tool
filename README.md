@@ -91,4 +91,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Jonathan Rycx
 <https://www.linkedin.com/in/jonathanrycx/>
-# braze-liquid-tool

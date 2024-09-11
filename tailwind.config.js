@@ -56,6 +56,21 @@ module.exports = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.highlighted-liquid-editor-container *': {
+          border: 'none !important',
+          outline: 'none !important',
+        },
+        '.highlighted-liquid-editor-container *:focus': {
+          outline: 'none !important',
+          boxShadow: 'none !important',
+        },
+      }
+      addUtilities(newUtilities, ['responsive', 'hover'])
+    },
+  ],
 }
 
