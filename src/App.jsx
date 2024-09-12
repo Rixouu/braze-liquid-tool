@@ -11,6 +11,9 @@ import { Copy, RotateCcw } from 'lucide-react'
 import HighlightedLiquidEditor from './components/HighlightedLiquidEditor'
 import { Liquid } from 'liquidjs';
 import ThemeToggle from './components/ThemeToggle';  // Add this import
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Loader2 } from 'lucide-react'
 
 const engine = new Liquid({
   dateFormat: '%Y-%m-%d %H:%M:%S',
@@ -202,6 +205,8 @@ export function LiquidSyntaxEditor() {
   const [editedContent, setEditedContent] = useState(selectedTemplate.content)
   const [editableSampleData, setEditableSampleData] = useState(selectedTemplate.sampleData)
   const [previewContent, setPreviewContent] = useState('')
+  const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setEditedContent(selectedTemplate.content)
@@ -238,15 +243,20 @@ export function LiquidSyntaxEditor() {
   }
 
   const updatePreview = async (content, data) => {
+    setIsLoading(true);
     try {
       const renderedContent = await engine.parseAndRender(content, {
         ...data,
-        now: getCurrentDate() // Ensure 'now' is always current
+        now: getCurrentDate()
       });
       setPreviewContent(renderedContent.trim());
+      setError(null);
     } catch (error) {
       console.error('Error rendering template:', error);
-      setPreviewContent('Error rendering template');
+      setError(`Error rendering template: ${error.message}`);
+      setPreviewContent('');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -335,13 +345,26 @@ export function LiquidSyntaxEditor() {
                 </div>
                 <div className="flex-1 flex flex-col">
                   <h3 className="font-semibold mb-2">Live Preview</h3>
-                  <div className="flex-grow border rounded-md p-4 overflow-auto">
-                    <pre className="font-mono text-sm whitespace-pre-wrap">
-                      {previewContent}
-                    </pre>
+                  <div className="flex-grow border rounded-md p-4 overflow-auto relative">
+                    {isLoading ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                      </div>
+                    ) : (
+                      <pre className="font-mono text-sm whitespace-pre-wrap">
+                        {previewContent}
+                      </pre>
+                    )}
                   </div>
                 </div>
               </CardContent>
+              {error && (
+                <Alert variant="destructive">
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <CardFooter className="flex justify-end space-x-2">
                 <Button onClick={handleCopy} className="bg-green-100 text-green-700 hover:bg-green-200">
                   <Copy className="mr-2 h-4 w-4" />

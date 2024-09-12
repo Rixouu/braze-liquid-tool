@@ -11,6 +11,6 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['prism-react-renderer']
+    include: ['prism-react-renderer', 'framer-motion']
   }
 })

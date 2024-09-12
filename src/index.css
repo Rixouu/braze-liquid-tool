@@ -73,7 +73,7 @@ button:focus-visible {
 @tailwind utilities;
 @layer base {
   :root {
-    --background: 220 20% 96%;  /* Updated to match #F3F4F6 */
+    --background: 220 20% 96%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -100,8 +100,8 @@ button:focus-visible {
     --radius: 0.5rem;
   }
   .dark {
-    --background: 222 18% 11%;  /* Slightly lighter than pure black for better readability */
-    --foreground: 210 20% 98%;  /* Slightly off-white for reduced eye strain */
+    --background: 222 18% 11%;
+    --foreground: 210 20% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
@@ -207,6 +207,9 @@ button:focus-visible {
 /* Add these new rules */
 .highlighted-liquid-editor-container {
   position: relative;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .highlighted-liquid-editor-container > div,
@@ -226,4 +229,21 @@ button:focus-visible {
 .highlighted-liquid-editor-container .CodeMirror pre.CodeMirror-line,
 .highlighted-liquid-editor-container .CodeMirror pre.CodeMirror-line-like {
   padding: 0 4px; /* Adjust as needed */
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.highlighted-liquid-editor-container {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
 }
