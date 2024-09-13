@@ -1,23 +1,37 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ThemeProvider } from 'next-themes'  // Add this import
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ThemeProvider } from 'next-themes'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { Copy, RotateCcw } from 'lucide-react'
 import HighlightedLiquidEditor from './components/HighlightedLiquidEditor'
-import { Liquid } from 'liquidjs';
-import ThemeToggle from './components/ThemeToggle';  // Add this import
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Liquid } from 'liquidjs'
+import { DateTime } from 'luxon'
+import ThemeToggle from './components/ThemeToggle'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import { Loader2 } from 'lucide-react'
+
+// Add this type definition near the top of your file, after the imports
+type Template = {
+  id: string;
+  name: string;
+  description: string;
+  content: string;
+  sampleData: Record<string, any>;
+};
 
 const engine = new Liquid({
   dateFormat: '%Y-%m-%d %H:%M:%S',
-  timezoneOffset: 0
+  timezoneOffset: 0,
+  strictFilters: true,
+  strictVariables: true,
+});
+
+engine.registerFilter('time_zone', (time, zone) => {
+  return DateTime.fromISO(time, { zone: 'UTC' }).setZone(zone).toISO();
 });
 
 const getCurrentDate = () => {
@@ -25,7 +39,8 @@ const getCurrentDate = () => {
   return now.toISOString().split('T')[0]; // Returns YYYY-MM-DD
 };
 
-const templates = [
+// Then update the templates declaration
+const templates: Template[] = [
   {
     id: 'personal',
     name: 'Personalized Greeting',
@@ -61,37 +76,42 @@ const templates = [
     id: 'anniversary',
     name: 'App Anniversary',
     description: 'Personalize messages based on a user\'s app anniversary year',
-    content: `{% assign this_month = 'now' | date: "%B" %}
-{% assign this_day = 'now' | date: "%d" %}
-{% assign anniversary_month = custom_attribute.registration_date | date: "%B" %}
-{% assign anniversary_day = custom_attribute.registration_date | date: "%d" %}
-{% assign anniversary_year = custom_attribute.registration_date | date: "%Y" %}
+    content: `{% assign today = now | date: '%Y-%m-%d' %}
+{% assign anniversary = custom_attribute.registration_date | date: '%m-%d' %}
+{% assign today_month_day = today | date: '%m-%d' %}
+{% assign registration_year = custom_attribute.registration_date | date: '%Y' | plus: 0 %}
+{% assign current_year = today | date: '%Y' | plus: 0 %}
+{% assign years_difference = current_year | minus: registration_year %}
 
-{% if this_month == anniversary_month and this_day == anniversary_day %}
-{% if anniversary_year == '2022' %}
-Exactly one year ago today we met for the first time!
-{% elsif anniversary_year == '2021' %}
-Exactly two years ago today we met for the first time!
-{% elsif anniversary_year == '2020' %}
-Exactly three years ago today we met for the first time!
+{% if today_month_day == anniversary %}
+  {% case years_difference %}
+    {% when 1 %}
+      Exactly one year ago today we met for the first time!
+    {% when 2 %}
+      Exactly two years ago today we met for the first time!
+    {% when 3 %}
+      Exactly three years ago today we met for the first time!
+    {% else %}
+      Happy {{ years_difference }}th app anniversary!
+  {% endcase %}
 {% else %}
-Happy app anniversary!
-{% endif %}
+  It's not your app anniversary today.
 {% endif %}`,
     sampleData: {
       custom_attribute: {
         registration_date: '2022-07-15'
       },
-      now: getCurrentDate()
+      now: '2024-07-15'
     }
   },
   {
     id: 'app_usage',
     name: 'Recent App Usage',
     description: 'Personalize messages based on when a user last opened the app',
-    content: `{% assign last_used_date = custom_attribute.last_used_app_date | date: "%s" %}
-{% assign now = 'now' | date: "%s" %}
-{% assign difference_in_days = now | minus: last_used_date | divided_by: 86400 %}
+    content: `{% assign last_used_date = custom_attribute.last_used_app_date | date: '%s' %}
+{% assign current_date = now | date: '%s' %}
+{% assign difference_in_seconds = current_date | minus: last_used_date %}
+{% assign difference_in_days = difference_in_seconds | divided_by: 86400 | round %}
 
 {% if difference_in_days < 3 %}
 Happy to see you again so soon!
@@ -102,7 +122,7 @@ It's been a while; here are some of our latest updates.
       custom_attribute: {
         last_used_app_date: '2023-07-12'
       },
-      now: getCurrentDate()
+      now: '2023-07-15'
     }
   },
   {
@@ -110,13 +130,13 @@ It's been a while; here are some of our latest updates.
     name: 'Event Countdown',
     description: 'Calculate a countdown from a set point in time',
     content: `{% assign event_date = '2023-12-31' | date: '%s' %}
-{% assign today = 'now' | date: '%s' %}
+{% assign today = now | date: '%s' %}
 {% assign difference = event_date | minus: today %}
-{% assign difference_days = difference | divided_by: 86400 %}
+{% assign difference_days = difference | divided_by: 86400 | round %}
 
 You have {{ difference_days }} days left until the big event!`,
     sampleData: {
-      now: getCurrentDate()
+      now: '2023-07-15'
     }
   },
   {
@@ -140,8 +160,8 @@ Visit our website for the newest features!
     id: 'timezone',
     name: 'Time Zone Personalization',
     description: 'Send different messages based on time of day in a user\'s local time zone',
-    content: `{% assign time = 'now' | time_zone: time_zone %}
-{% assign hour = time | date: '%H' | plus: 0 %}
+    content: `{% assign local_time = now | time_zone: time_zone %}
+{% assign hour = local_time | date: '%H' | plus: 0 %}
 
 {% if hour >= 5 and hour < 12 %}
 Good morning! Start your day with our app.
@@ -154,20 +174,25 @@ Having trouble sleeping? Our app can help you unwind.
 {% endif %}`,
     sampleData: {
       time_zone: 'America/New_York',
-      now: '2023-07-15T14:30:00'
+      now: '2023-07-15'
     }
   }
 ]
 
-function SampleDataEditor({ sampleData, onChange }) {
-  console.log("SampleDataEditor received data:", sampleData);
+interface SampleDataEditorProps {
+  sampleData: Record<string, any>;
+  onChange: (path: string, value: string) => void;
+}
+
+function SampleDataEditor({ sampleData, onChange }: SampleDataEditorProps) {
+  console.log('SampleDataEditor received data:', sampleData);
 
   const renderField = (key, value, path = []) => {
     if (typeof value === 'object' && value !== null) {
       return (
-        <div key={key} className="mb-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">{key}</h4>
-          <div className="pl-4 border-l border-gray-200">
+        <div key={key} className='mb-4'>
+          <h4 className='text-sm font-medium text-gray-700 mb-2'>{key}</h4>
+          <div className='pl-4 border-l border-gray-200'>
             {Object.entries(value).map(([subKey, subValue]) =>
               renderField(subKey, subValue, [...path, key])
             )}
@@ -177,48 +202,50 @@ function SampleDataEditor({ sampleData, onChange }) {
     }
 
     return (
-      <div key={key} className="mb-3">
-        <label className="block text-sm text-gray-700 mb-1">{path.concat(key).join('.')}</label>
+      <div key={key} className='mb-3'>
+        <label className='block text-sm text-gray-700 mb-1'>{path.concat(key).join('.')}</label>
         <input
-          type="text"
+          type='text'
           value={value}
           onChange={(e) => onChange(path.concat(key).join('.'), e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500'
         />
       </div>
     );
   };
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {sampleData && Object.keys(sampleData).length > 0 ? (
         Object.entries(sampleData).map(([key, value]) => renderField(key, value))
       ) : (
-        <p className="text-gray-500 italic">No sample data available</p>
+        <p className='text-gray-500 italic'>No sample data available</p>
       )}
     </div>
   );
 }
 
 export function LiquidSyntaxEditor() {
-  const [selectedTemplate, setSelectedTemplate] = useState(templates[0])
-  const [editedContent, setEditedContent] = useState(selectedTemplate.content)
-  const [editableSampleData, setEditableSampleData] = useState(selectedTemplate.sampleData)
-  const [previewContent, setPreviewContent] = useState('')
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template>(templates[0])
+  const [editedContent, setEditedContent] = useState<string>(selectedTemplate.content)
+  const [editableSampleData, setEditableSampleData] = useState<Record<string, any>>(selectedTemplate.sampleData)
+  const [previewContent, setPreviewContent] = useState<string>('')
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setEditedContent(selectedTemplate.content)
     setEditableSampleData(selectedTemplate.sampleData)
-    console.log("Selected template:", selectedTemplate)
-    console.log("Editable sample data:", selectedTemplate.sampleData)
+    console.log('Selected template:', selectedTemplate)
+    console.log('Editable sample data:', selectedTemplate.sampleData)
     updatePreview(selectedTemplate.content, selectedTemplate.sampleData)
   }, [selectedTemplate])
 
-  const handleTemplateChange = (templateId) => {
+  const handleTemplateChange = (templateId: string) => {
     const newTemplate = templates.find(t => t.id === templateId)
-    setSelectedTemplate(newTemplate)
+    if (newTemplate) {
+      setSelectedTemplate(newTemplate)
+    }
   }
 
   const handleContentChange = (newContent) => {
@@ -227,7 +254,7 @@ export function LiquidSyntaxEditor() {
   }
 
   const handleSampleDataChange = (path, value) => {
-    console.log("Updating sample data:", path, value);
+    console.log('Updating sample data:', path, value);
     setEditableSampleData(prevData => {
       const newData = { ...prevData };
       let current = newData;
@@ -236,7 +263,7 @@ export function LiquidSyntaxEditor() {
         current = current[keys[i]];
       }
       current[keys[keys.length - 1]] = value;
-      console.log("New sample data:", newData);
+      console.log('New sample data:', newData);
       return newData;
     });
     updatePreview(editedContent, editableSampleData);
@@ -245,10 +272,17 @@ export function LiquidSyntaxEditor() {
   const updatePreview = async (content, data) => {
     setIsLoading(true);
     try {
-      const renderedContent = await engine.parseAndRender(content, {
-        ...data,
-        now: getCurrentDate()
-      });
+      const currentData = { ...data };
+      if (!currentData.now) {
+        currentData.now = new Date().toISOString().split('T')[0];
+      }
+      if (currentData.custom_attribute && currentData.custom_attribute.last_used_app_date) {
+        currentData.custom_attribute.last_used_app_date = new Date(currentData.custom_attribute.last_used_app_date).toISOString().split('T')[0];
+      }
+      if (currentData.custom_attribute && currentData.custom_attribute.registration_date) {
+        currentData.custom_attribute.registration_date = new Date(currentData.custom_attribute.registration_date).toISOString().split('T')[0];
+      }
+      const renderedContent = await engine.parseAndRender(content, currentData);
       setPreviewContent(renderedContent.trim());
       setError(null);
     } catch (error) {
@@ -276,30 +310,30 @@ export function LiquidSyntaxEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row justify-between items-center py-6 border-b">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">Liquid Syntax Editor for Braze</h1>
+    <div className='min-h-screen bg-background p-4'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='flex flex-col space-y-2 md:space-y-0 md:flex-row justify-between items-center py-6 border-b'>
+          <div className='flex-1'>
+            <h1 className='text-2xl font-bold text-foreground'>Liquid Syntax Editor for Braze</h1>
           </div>
-          <p className="text-sm text-muted-foreground flex-1 max-w-xl text-center md:text-left md:px-4">
+          <p className='text-sm text-muted-foreground flex-1 max-w-xl text-center md:text-left md:px-4'>
             Create and edit personalized messages with Liquid syntax. Choose a template, customize, and preview in real-time.
           </p>
-          <div className="flex-shrink-0">
+          <div className='flex-shrink-0'>
             <ThemeToggle />
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <Card className="h-[800px] flex flex-col lg:w-[310px]">
+        <div className='mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6'>
+          <Card className='h-[800px] flex flex-col lg:w-[310px]'>
             <CardHeader>
-              <CardTitle className="text-xl">Template Selection</CardTitle>
+              <CardTitle className='text-xl'>Template Selection</CardTitle>
               <CardDescription>Choose a template to start with</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow overflow-hidden flex flex-col">
+            <CardContent className='flex-grow overflow-hidden flex flex-col'>
               <Select onValueChange={handleTemplateChange} defaultValue={selectedTemplate.id}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a template" />
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Select a template' />
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((template) => (
@@ -309,12 +343,12 @@ export function LiquidSyntaxEditor() {
                   ))}
                 </SelectContent>
               </Select>
-              <ScrollArea className="h-32 w-full mt-4">
-                <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
-              </ScrollArea>
-              <div className="mt-4 flex-grow">
-                <h3 className="font-semibold mb-2">Sample Data</h3>
-                <div className="h-[calc(100%-2rem)] overflow-auto">
+              <div className='h-32 w-full mt-4 overflow-auto'>
+                <p className='text-sm text-muted-foreground'>{selectedTemplate.description}</p>
+              </div>
+              <div className='mt-4 flex-grow'>
+                <h3 className='font-semibold mb-2'>Sample Data</h3>
+                <div className='h-[calc(100%-2rem)] overflow-auto'>
                   <SampleDataEditor
                     sampleData={editableSampleData}
                     onChange={handleSampleDataChange}
@@ -324,34 +358,34 @@ export function LiquidSyntaxEditor() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 space-y-6">
-            <Card className="h-[800px] flex flex-col">
+          <div className='lg:col-span-3 space-y-6'>
+            <Card className='h-[800px] flex flex-col'>
               <CardHeader>
-                <CardTitle className="text-xl">Content Editing</CardTitle>
+                <CardTitle className='text-xl'>Content Editing</CardTitle>
                 <CardDescription>Edit your message and preview in real-time</CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 flex flex-col">
-                  <h3 className="font-semibold mb-2">Template Content</h3>
-                  <div className="flex-grow border rounded-md overflow-hidden">
-                    <div className="h-full w-full highlighted-liquid-editor-container p-4">
+              <CardContent className='flex-grow flex flex-col lg:flex-row gap-6'>
+                <div className='flex-1 flex flex-col'>
+                  <h3 className='font-semibold mb-2'>Template Content</h3>
+                  <div className='flex-grow border rounded-md overflow-hidden'>
+                    <div className='h-full w-full highlighted-liquid-editor-container p-4'>
                       <HighlightedLiquidEditor
                         initialContent={editedContent}
                         onChange={handleContentChange}
-                        className="h-full w-full"
+                        className='h-full w-full'
                       />
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 flex flex-col">
-                  <h3 className="font-semibold mb-2">Live Preview</h3>
-                  <div className="flex-grow border rounded-md p-4 overflow-auto relative">
+                <div className='flex-1 flex flex-col'>
+                  <h3 className='font-semibold mb-2'>Live Preview</h3>
+                  <div className='flex-grow border rounded-md p-4 overflow-auto relative'>
                     {isLoading ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-                        <Loader2 className="h-8 w-8 animate-spin" />
+                      <div className='absolute inset-0 flex items-center justify-center bg-background/50'>
+                        <Loader2 className='h-8 w-8 animate-spin' />
                       </div>
                     ) : (
-                      <pre className="font-mono text-sm whitespace-pre-wrap">
+                      <pre className='font-mono text-sm whitespace-pre-wrap'>
                         {previewContent}
                       </pre>
                     )}
@@ -359,19 +393,19 @@ export function LiquidSyntaxEditor() {
                 </div>
               </CardContent>
               {error && (
-                <Alert variant="destructive">
-                  <ExclamationTriangleIcon className="h-4 w-4" />
+                <Alert variant='destructive'>
+                  <ExclamationTriangleIcon className='h-4 w-4' />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <CardFooter className="flex justify-end space-x-2">
-                <Button onClick={handleCopy} className="bg-green-100 text-green-700 hover:bg-green-200">
-                  <Copy className="mr-2 h-4 w-4" />
+              <CardFooter className='flex justify-end space-x-2'>
+                <Button onClick={handleCopy} className='bg-green-100 text-green-700 hover:bg-green-200'>
+                  <Copy className='mr-2 h-4 w-4' />
                   Copy
                 </Button>
-                <Button onClick={handleReset} className="bg-red-100 text-red-700 hover:bg-red-200">
-                  <RotateCcw className="mr-2 h-4 w-4" />
+                <Button onClick={handleReset} className='bg-red-100 text-red-700 hover:bg-red-200'>
+                  <RotateCcw className='mr-2 h-4 w-4' />
                   Reset
                 </Button>
               </CardFooter>
@@ -385,7 +419,7 @@ export function LiquidSyntaxEditor() {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
       <LiquidSyntaxEditor />
     </ThemeProvider>
   )
