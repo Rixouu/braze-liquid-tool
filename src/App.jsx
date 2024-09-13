@@ -1,18 +1,19 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react'
-import { ThemeProvider } from 'next-themes'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
-import { Button } from "../components/ui/button"
-import { ScrollArea } from "../components/ui/scroll-area"
+import React, { useState, useEffect } from 'react'
+import { ThemeProvider } from 'next-themes'  // Add this import
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Copy, RotateCcw } from 'lucide-react'
+import HighlightedLiquidEditor from './components/HighlightedLiquidEditor'
 import { Liquid } from 'liquidjs';
-import ThemeToggle from '../components/ThemeToggle';
-import { Alert, AlertTitle, AlertDescription } from "../components/ui/alert"
+import ThemeToggle from './components/ThemeToggle';  // Add this import
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-
-const HighlightedLiquidEditor = lazy(() => import('../components/HighlightedLiquidEditor'))
+import { Loader2 } from 'lucide-react'
 
 const engine = new Liquid({
   dateFormat: '%Y-%m-%d %H:%M:%S',
@@ -215,17 +216,17 @@ export function LiquidSyntaxEditor() {
     updatePreview(selectedTemplate.content, selectedTemplate.sampleData)
   }, [selectedTemplate])
 
-  const handleTemplateChange = useCallback((templateId) => {
+  const handleTemplateChange = (templateId) => {
     const newTemplate = templates.find(t => t.id === templateId)
     setSelectedTemplate(newTemplate)
-  }, []);
+  }
 
-  const handleContentChange = useCallback((newContent) => {
+  const handleContentChange = (newContent) => {
     setEditedContent(newContent)
     updatePreview(newContent, editableSampleData)
-  }, [editableSampleData, updatePreview]);
+  }
 
-  const handleSampleDataChange = useCallback((path, value) => {
+  const handleSampleDataChange = (path, value) => {
     console.log("Updating sample data:", path, value);
     setEditableSampleData(prevData => {
       const newData = { ...prevData };
@@ -239,7 +240,7 @@ export function LiquidSyntaxEditor() {
       return newData;
     });
     updatePreview(editedContent, editableSampleData);
-  }, [editedContent, updatePreview]);
+  }
 
   const updatePreview = async (content, data) => {
     setIsLoading(true);
@@ -259,11 +260,11 @@ export function LiquidSyntaxEditor() {
     }
   }
 
-  const handleCopy = useCallback(() => {
+  const handleCopy = () => {
     navigator.clipboard.writeText(editedContent)
-  }, [editedContent]);
+  }
 
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     // Reset the edited content to the original template content
     setEditedContent(selectedTemplate.content);
 
@@ -272,14 +273,7 @@ export function LiquidSyntaxEditor() {
 
     // Update the preview with the original content and sample data
     updatePreview(selectedTemplate.content, selectedTemplate.sampleData);
-  }, [selectedTemplate, updatePreview]);
-
-  const memoizedSampleDataEditor = useMemo(() => (
-    <SampleDataEditor
-      sampleData={editableSampleData}
-      onChange={handleSampleDataChange}
-    />
-  ), [editableSampleData, handleSampleDataChange]);
+  };
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -321,7 +315,10 @@ export function LiquidSyntaxEditor() {
               <div className="mt-4 flex-grow">
                 <h3 className="font-semibold mb-2">Sample Data</h3>
                 <div className="h-[calc(100%-2rem)] overflow-auto">
-                  {memoizedSampleDataEditor}
+                  <SampleDataEditor
+                    sampleData={editableSampleData}
+                    onChange={handleSampleDataChange}
+                  />
                 </div>
               </div>
             </CardContent>
@@ -338,13 +335,11 @@ export function LiquidSyntaxEditor() {
                   <h3 className="font-semibold mb-2">Template Content</h3>
                   <div className="flex-grow border rounded-md overflow-hidden">
                     <div className="h-full w-full highlighted-liquid-editor-container p-4">
-                      <Suspense fallback={<div>Loading editor...</div>}>
-                        <HighlightedLiquidEditor
-                          initialContent={editedContent}
-                          onChange={handleContentChange}
-                          className="h-full w-full"
-                        />
-                      </Suspense>
+                      <HighlightedLiquidEditor
+                        initialContent={editedContent}
+                        onChange={handleContentChange}
+                        className="h-full w-full"
+                      />
                     </div>
                   </div>
                 </div>
