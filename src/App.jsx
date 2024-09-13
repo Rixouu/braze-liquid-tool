@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import { ThemeProvider } from 'next-themes'  // Add this import
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { Button } from "../components/ui/button"
+import { ScrollArea } from "../components/ui/scroll-area"
 import { Copy, RotateCcw } from 'lucide-react'
-import HighlightedLiquidEditor from './components/HighlightedLiquidEditor'
+import HighlightedLiquidEditor from '../components/HighlightedLiquidEditor'
 import { Liquid } from 'liquidjs';
-import ThemeToggle from './components/ThemeToggle';  // Add this import
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import ThemeToggle from '../components/ThemeToggle';  // Add this import
+import { Alert, AlertTitle, AlertDescription } from "../components/ui/alert"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Loader2 } from 'lucide-react'
 
