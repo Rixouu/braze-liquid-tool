@@ -55,6 +55,9 @@ const config = {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				}
+			},
+			gray: {
+				600: 'rgb(0 33 80)',
 			}
 		}
 	},

@@ -25,6 +25,8 @@ import {
   DialogDescription,
   DialogOverlay,
 } from "@radix-ui/react-dialog";
+import { Badge } from "@/components/ui/badge"
+import { Eye, Lightbulb, BookOpen, Variable, Code, AlertTriangle } from 'lucide-react'
 
 interface Template {
   id: string;
@@ -46,6 +48,8 @@ interface Template {
 interface VariableType {
   name: string;
   description: string;
+  type?: string;
+  example?: string;
 }
 
 const engine = new Liquid({
@@ -120,8 +124,8 @@ It's been {{years_since}} years since we first met. Time flies!
       overview: `This template creates personalized messages for user anniversaries. It compares the current date with the user's registration date and generates an appropriate message based on the number of years that have passed.`,
       usage: `Use this template for anniversary-related campaigns or to add a personal touch to regular communications.`,
       variables: [
-        { name: 'custom_attribute.registration_date', description: 'The date when the user registered (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'custom_attribute.registration_date', description: 'The date when the user registered', type: 'Date', example: '2022-07-15' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
       notes: `Ensure the user's registration date is stored as a custom attribute.\nUpdate the anniversary messages as needed for your brand voice.`
     },
@@ -172,8 +176,8 @@ now = '2023-07-15'`,
       overview: `This template allows you to create personalized messages based on the user's recent app usage. It calculates the number of days since the last app usage and generates an appropriate message.`,
       usage: `Use this template to send targeted messages to users who haven't used the app in a while, or to welcome back frequent users.`,
       variables: [
-        { name: 'custom_attribute.last_app_open', description: 'The date when the user last opened the app (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'custom_attribute.last_app_open', description: 'The date when the user last opened the app', type: 'Date', example: '2023-07-12' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
       notes: `Make sure to have the user's last app usage date stored as a custom attribute.`
     },
@@ -210,8 +214,8 @@ You have {{ difference_days }} days left until the big event!`,
       overview: `This template calculates and displays the number of days remaining until a specified event date.`,
       usage: `Use this template for creating excitement around upcoming events, promotions, or product launches.`,
       variables: [
-        { name: 'event_date', description: 'The date of the event (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'event_date', description: 'The date of the event', type: 'Date', example: '2023-12-31' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
       notes: `Remember to update the event_date in the template for each specific use case.\nConsider adding conditional messages for different time ranges (e.g., "Only 1 week left!" for 7 days or less).`
     },
@@ -257,10 +261,10 @@ now = '2023-07-15'`,
       overview: `This template allows you to create platform-specific messages. It checks the user's device platform and generates a message accordingly.`,
       usage: `Use this template to send platform-specific messages, such as app store links or website URLs.`,
       variables: [
-        { name: 'custom_attribute.device_type', description: 'The user\'s device platform (e.g., "ios", "android", or "web")' },
-        { name: 'custom_attribute.subscription_status', description: 'The user\'s subscription status (e.g., "active", "trial", or "none")' },
-        { name: 'custom_attribute.next_billing_date', description: 'The date of the user\'s next billing cycle (format: YYYY-MM-DD)' },
-        { name: 'custom_attribute.trial_end_date', description: 'The date when the user\'s free trial ends (format: YYYY-MM-DD)' }
+        { name: 'custom_attribute.device_type', description: 'The user\'s device platform', type: 'String', example: 'ios' },
+        { name: 'custom_attribute.subscription_status', description: 'The user\'s subscription status', type: 'String', example: 'active' },
+        { name: 'custom_attribute.next_billing_date', description: 'The date of the user\'s next billing cycle', type: 'Date', example: '2023-08-01' },
+        { name: 'custom_attribute.trial_end_date', description: 'The date when the user\'s free trial ends', type: 'Date', example: '2023-07-22' }
       ],
       notes: `Make sure to have the user's device platform and subscription status stored as custom attributes or in the user profile.`
     },
@@ -323,9 +327,9 @@ custom_attribute.subscription_status = 'none'`,
       overview: 'This template allows you to create time zone-specific messages. It checks the user\'s local time and generates a message accordingly.',
       usage: 'Use this template to send personalized greetings or messages based on the time of day in the user\'s local time zone.',
       variables: [
-        { name: 'custom_attribute.timezone', description: 'The user\'s local time zone (e.g., "America/New_York")' },
-        { name: 'now', description: 'The current date and time (format: YYYY-MM-DDTHH:MM:SSZ)' },
-        { name: 'custom_attribute.local_events', description: 'A comma-separated list of local events' }
+        { name: 'custom_attribute.timezone', description: 'The user\'s local time zone', type: 'String', example: 'America/New_York' },
+        { name: 'now', description: 'The current date and time', type: 'Date', example: '2023-07-15T14:30:00Z' },
+        { name: 'custom_attribute.local_events', description: 'A comma-separated list of local events', type: 'String', example: 'Concert in Central Park,Food Festival,Art Exhibition' }
       ],
       notes: 'Make sure to have the user\'s local time zone stored as a custom attribute or in the user profile.'
     },
@@ -400,8 +404,8 @@ Your next anniversary milestone is in about {{months_to_milestone}} months. We c
       overview: 'This template personalizes messages based on the user\'s anniversary year with the app.',
       usage: 'Use this template to send personalized anniversary messages to users.',
       variables: [
-        { name: 'custom_attribute.registration_date', description: 'The date when the user registered (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'custom_attribute.registration_date', description: 'The date when the user registered', type: 'Date', example: '2020-07-15' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
       notes: 'Make sure to update the year comparisons in the template as needed.'
     },
@@ -465,9 +469,9 @@ now = '2022-07-16'`,
       overview: 'This template personalizes messages based on the user\'s birthday week.',
       usage: 'Use this template to send birthday-related messages before, during, or after the user\'s birthday week.',
       variables: [
-        { name: 'first_name', description: 'The user\'s first name' },
-        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'first_name', description: 'The user\'s first name', type: 'String', example: 'Alex' },
+        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth', type: 'Date', example: '2023-07-20' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
       notes: 'The template uses week numbers to determine the relative position of the birthday.'
     },
@@ -517,8 +521,8 @@ now = '2023-07-15'`,
       overview: 'This template checks if the current month matches the user\'s birth month and sends a special message if it does.',
       usage: 'Use this template to send birthday month campaigns or offers to users.',
       variables: [
-        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth (format: YYYY-MM-DD)' },
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth', type: 'Date', example: '1990-07-15' },
+        { name: 'now', description: 'The current date', type: 'Date', example: '2022-07-10' }
       ],
       notes: 'Make sure to customize the message content for your specific campaign or offer.'
     },
@@ -555,7 +559,7 @@ now = '2022-08-10'`,
       overview: `This template checks if the current date is a major holiday and avoids sending messages on those days.`,
       usage: `Use this template to prevent sending messages on specific holidays when engagement might be low.`,
       variables: [
-        { name: 'now', description: 'The current date (format: YYYY-MM-DD)' }
+        { name: 'now', description: 'The current date', type: 'Date', example: '2023-12-25' }
       ],
       notes: `Update the list of holiday dates annually. You can add more dates as needed.`
     },
@@ -604,7 +608,7 @@ now = '2022-08-10'`,
       overview: `This template allows you to send different messages based on the current time of day. It demonstrates both range-based time checks and specific hour checks.`,
       usage: `Use this template to create time-sensitive messages that are relevant to the user's current time of day.`,
       variables: [
-        { name: 'now', description: 'The current date and time (format: YYYY-MM-DD HH:MM:SS)' }
+        { name: 'now', description: 'The current date and time', type: 'Date', example: '2023-07-15 14:30:00' }
       ],
       notes: `This template assumes the time is in the user's local time zone. Make sure to adjust the time ranges as needed for your specific use case.`
     },
@@ -662,9 +666,9 @@ now = '2022-08-10'`,
       overview: `This template demonstrates various ways to format dates using Liquid filters. It includes examples of common date formats, custom formatting, and date calculations.`,
       usage: `Use this template to format dates in your messages for better readability and localization. You can also perform simple date calculations for personalized content.`,
       variables: [
-        { name: 'now', description: 'The current date and time (format: YYYY-MM-DD HH:MM:SS)' },
-        { name: 'custom_attribute.registration_date', description: 'The date the user registered (format: YYYY-MM-DD)' },
-        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth (format: YYYY-MM-DD)' }
+        { name: 'now', description: 'The current date and time', type: 'Date', example: '2023-07-15 14:30:00' },
+        { name: 'custom_attribute.registration_date', description: 'The date the user registered', type: 'Date', example: '2022-01-01' },
+        { name: 'custom_attribute.birthday', description: 'The user\'s date of birth', type: 'Date', example: '1990-03-15' }
       ],
       notes: `The date formatting options shown here are just a few examples. Liquid provides many more formatting options to suit various needs.`
     },
@@ -728,10 +732,10 @@ Next birthday: March 15, 2024`
       overview: `This template demonstrates how to personalize messages based on the user's location, including country, city, and time zone.`,
       usage: `Use this template to create location-specific content, such as mentioning local stores, events, or applying region-specific offers.`,
       variables: [
-        { name: 'custom_attribute.country', description: 'The user\'s country' },
-        { name: 'custom_attribute.city', description: 'The user\'s city' },
-        { name: 'custom_attribute.timezone', description: 'The user\'s time zone' },
-        { name: 'now', description: 'The current date and time' }
+        { name: 'custom_attribute.country', description: 'The user\'s country', type: 'String', example: 'USA' },
+        { name: 'custom_attribute.city', description: 'The user\'s city', type: 'String', example: 'New York' },
+        { name: 'custom_attribute.timezone', description: 'The user\'s time zone', type: 'String', example: 'America/New_York' },
+        { name: 'now', description: 'The current date and time', type: 'Date', example: '2023-07-15 14:30:00' }
       ],
       notes: `Ensure that you have the necessary location data stored as custom attributes or user profile properties. Always respect privacy laws and user preferences when using location data.`
     },
@@ -788,7 +792,13 @@ interface SidebarProps {
   onSelectTemplate: (template: Template) => void;
 }
 
-export function Sidebar({ templates, onSelectTemplate }: SidebarProps) {
+interface SidebarProps {
+  templates: Template[];
+  onSelectTemplate: (template: Template) => void;
+  selectedTemplateId: string | null;
+}
+
+export function Sidebar({ templates, onSelectTemplate, selectedTemplateId }: SidebarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
@@ -819,7 +829,7 @@ export function Sidebar({ templates, onSelectTemplate }: SidebarProps) {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebar dark:bg-[hsl(222.2,84%,4.9%)] p-4">
       <div className="mb-4">
         <div className="relative">
           <input
@@ -844,13 +854,19 @@ export function Sidebar({ templates, onSelectTemplate }: SidebarProps) {
           {expandedCategories.includes(category) && (
             <div className="ml-4 mt-1">
               {categoryTemplates.map(template => (
-                <button
+                <Button
                   key={template.id}
+                  variant="ghost"
+                  className={`w-full justify-start mb-2 px-4 py-3 ${
+                    selectedTemplateId === template.id 
+                      ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active" 
+                      : "dark:bg-[hsl(222.2,84%,4.9%)]"
+                  }`}
                   onClick={() => onSelectTemplate(template)}
-                  className="block w-full text-left px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                 >
-                  {template.name}
-                </button>
+                  {templateIcons[template.name] || <Book size={18} />}
+                  <span className="ml-2">{template.name}</span>
+                </Button>
               ))}
             </div>
           )}
@@ -992,10 +1008,10 @@ export function LiquidSyntaxEditor() {
     }
   };
 
-  const templateIcons = templates.reduce((acc, template) => {
-    acc[template.name] = template.icon || <Book size={18} />;  // Use Book as default icon
-    return acc;
-  }, {} as Record<string, React.ReactNode>);
+  const templateIcons: Record<string, React.ReactNode> = {
+    // Add icon mappings here, e.g.:
+    // 'Template Name': <IconComponent />,
+  };
 
   const handleDocumentationClick = () => {
     setShowDocumentation(!showDocumentation);
@@ -1006,9 +1022,9 @@ export function LiquidSyntaxEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[hsl(222.2,84%,4.9%)] dark:to-[hsl(222.2,84%,2%)] flex justify-center items-center">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-full">
-        <Card className="shadow-2xl dark:shadow-blue-500/20 bg-white dark:bg-gray-800">
+        <Card className="shadow-2xl dark:shadow-blue-500/20 bg-white dark:bg-[hsl(222.2,84%,4.9%)]">
           <CardHeader className="border-b">
             <div className="flex justify-between items-center">
               <CardTitle className="text-3xl font-bold">Liquid Syntax Editor</CardTitle>
@@ -1052,10 +1068,11 @@ export function LiquidSyntaxEditor() {
                             <Button
                               key={template.id}
                               variant="ghost"
-                              className={`w-full justify-start mb-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${selectedTemplateId === template.id
-                                  ? "bg-gray-200 dark:bg-gray-600"
-                                  : ""
-                                }`}
+                              className={`w-full justify-start mb-2 px-4 py-3 ${
+                                selectedTemplateId === template.id 
+                                  ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active" 
+                                  : "dark:bg-[hsl(222.2,47%,11%)]"
+                              }`}
                               onClick={() => handleTemplateChange(template)}
                             >
                               {templateIcons[template.name] || <Book size={18} />}
@@ -1133,7 +1150,7 @@ export function LiquidSyntaxEditor() {
                         <HighlightedLiquidEditor
                           value={editedContent}
                           onChange={handleContentChange}
-                          className="w-full h-full rounded-md border border-input bg-background"
+                          className="w-full h-full rounded-md border border-input bg-white dark:bg-[hsl(222.2,84%,10%)]"
                           options={{
                             style: {
                               minHeight: '600px',
@@ -1165,7 +1182,7 @@ export function LiquidSyntaxEditor() {
                         </Button>
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-700 p-4 rounded-md border h-full overflow-auto">
+                    <div className="bg-white dark:bg-[hsl(222.2,84%,10%)] p-4 rounded-md border h-full overflow-auto">
                       {isLoading ? (
                         <div className="flex items-center justify-center h-full">
                           <Loader2 className="h-8 w-8 animate-spin" />
@@ -1193,62 +1210,109 @@ export function LiquidSyntaxEditor() {
       <Dialog open={isDocumentationOpen} onOpenChange={setIsDocumentationOpen}>
         <DialogOverlay className="fixed inset-0 bg-black/50 z-50" />
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto relative">
-            <div className="flex justify-between items-center mb-4">
-              <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                {selectedTemplate?.name} Documentation
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsDocumentationOpen(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="h-6 w-6" />
-              </Button>
+          <div className="bg-white dark:bg-[hsl(222.2,84%,4.9%)] rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-[hsl(222.2,84%,4.9%)] z-10">
+              <div className="flex justify-between items-center">
+                <div>
+                  <DialogTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                    {selectedTemplate?.name}
+                  </DialogTitle>
+                  <DialogDescription className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {selectedTemplate?.description}
+                  </DialogDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon" onClick={() => setIsDocumentationOpen(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+              <nav className="flex space-x-4 mt-4">
+                {['Overview', 'Usage', 'Variables', 'Examples'].map((section) => (
+                  <a
+                    key={section}
+                    href={`#${section.toLowerCase()}`}
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                  >
+                    {section}
+                  </a>
+                ))}
+              </nav>
             </div>
-            <DialogDescription className="text-gray-600 dark:text-gray-300 mb-4">
-              {selectedTemplate?.description}
-            </DialogDescription>
-            <div className="space-y-6">
-              <Section title="Overview">
-                <p>{selectedTemplate?.documentation.overview}</p>
+
+            <div className="p-6 space-y-8 dark:text-gray-200">
+              <Section id="overview" title="Overview" icon={<Eye className="h-6 w-6" />}>
+                <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{selectedTemplate?.documentation.overview}</p>
+                </div>
               </Section>
-              <Section title="Usage">
-                <p>{selectedTemplate?.documentation.usage}</p>
+
+              <Section id="usage" title="Usage" icon={<BookOpen className="h-6 w-6" />}>
+                <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{selectedTemplate?.documentation.usage}</p>
+                  <div className="bg-yellow-50 dark:bg-[hsl(222.2,84%,10%)] p-3 rounded-md">
+                    <h4 className="font-medium mb-2 text-sm text-yellow-800 dark:text-yellow-200 flex items-center">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Notes:
+                    </h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-yellow-700 dark:text-yellow-300">
+                      {selectedTemplate?.documentation.notes.split('\n').map((note, index) => (
+                        <li key={index}>{note}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </Section>
-              <Section title="Variables">
-                <ul className="list-disc list-inside">
+
+              <Section id="variables" title="Variables" icon={<Variable className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 gap-4">
                   {selectedTemplate?.documentation.variables.map((variable: VariableType, index: number) => (
-                    <li key={index} className="mb-2">
-                      <span className="font-medium">{variable.name}:</span> {variable.description}
-                    </li>
+                    <div key={index} className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div className="flex items-center mb-2">
+                        <span className="font-mono text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                          {variable.name}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{variable.description}</p>
+                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold">Type:</span> {variable.type || 'Not specified'}
+                      </div>
+                      {variable.example && (
+                        <div className="mt-2">
+                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Example:</span>
+                          <code className="ml-2 text-xs bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded">
+                            {variable.example}
+                          </code>
+                        </div>
+                      )}
+                    </div>
                   ))}
-                </ul>
+                </div>
               </Section>
-              <Section title="Notes">
-                <ul className="list-disc list-inside">
-                  {selectedTemplate?.documentation.notes.split('\n').map((note, index) => (
-                    <li key={index}>{note}</li>
-                  ))}
-                </ul>
-              </Section>
-              <Section title="Examples">
+
+              <Section id="examples" title="Examples" icon={<Code className="h-6 w-6" />}>
                 {selectedTemplate?.examples.map((example: any, index: number) => (
-                  <div key={index} className="mb-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
-                    <h4 className="font-medium mb-2">{example.description}</h4>
-                    <pre className="bg-gray-200 dark:bg-gray-600 p-2 rounded-md mb-2 overflow-x-auto">
-                      <code>{example.code}</code>
-                    </pre>
-                    <p><span className="font-medium">Output:</span> {example.output}</p>
+                  <div key={index} className="mb-6 last:mb-0 bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium mb-3 text-sm text-gray-700 dark:text-gray-200">{example.description}</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <h5 className="font-medium mb-1 text-xs text-gray-500 dark:text-gray-400">Input:</h5>
+                        <pre className="bg-gray-100 dark:bg-gray-600 p-3 rounded-md overflow-x-auto text-xs">
+                          <code>{example.code}</code>
+                        </pre>
+                      </div>
+                      <div>
+                        <h5 className="font-medium mb-1 text-xs text-gray-500 dark:text-gray-400">Output:</h5>
+                        <div className="bg-white dark:bg-[hsl(222.2,84%,4.9%)] p-3 rounded-md text-sm border border-gray-200 dark:border-gray-700">
+                          {example.output}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </Section>
-            </div>
-            <div className="mt-6 flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsDocumentationOpen(false)}>
-                Close
-              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1257,56 +1321,79 @@ export function LiquidSyntaxEditor() {
       <Dialog open={isGeneralDocumentationOpen} onOpenChange={setIsGeneralDocumentationOpen}>
         <DialogOverlay className="fixed inset-0 bg-black/50 z-50" />
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto relative">
-            <div className="flex justify-between items-center mb-4">
-              <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                General Documentation
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsGeneralDocumentationOpen(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="h-6 w-6" />
-              </Button>
+          <div className="bg-white dark:bg-[hsl(222.2,84%,4.9%)] rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-[hsl(222.2,84%,4.9%)] z-10">
+              <div className="flex justify-between items-center">
+                <DialogTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  General Documentation
+                </DialogTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsGeneralDocumentationOpen(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+              <DialogDescription className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                General information about Liquid syntax and usage
+              </DialogDescription>
+              <nav className="flex space-x-4 mt-4">
+                {['Introduction', 'Syntax', 'Use Cases'].map((section) => (
+                  <a
+                    key={section}
+                    href={`#general-${section.toLowerCase()}`}
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                  >
+                    {section}
+                  </a>
+                ))}
+              </nav>
             </div>
-            <DialogDescription className="text-gray-600 dark:text-gray-300 mb-4">
-              General information about Liquid syntax and usage
-            </DialogDescription>
-            <div className="space-y-6">
-              <Section title="Introduction to Liquid">
-                <p>Liquid is a template language created by Shopify and written in Ruby. It is now used by many systems, including Jekyll, a static site generator. Liquid uses a combination of tags, objects, and filters to load dynamic content.</p>
-              </Section>
-              <Section title="Basic Syntax">
-                <h4 className="font-semibold mb-2">Output</h4>
-                <p>Output tags are used to display content on the page. They are denoted by double curly braces:</p>
-                <pre className="bg-gray-200 dark:bg-gray-600 p-2 rounded-md mb-2">
-                  <code>&#123;&#123; variable_name &#125;&#125;</code>
-                </pre>
 
-                <h4 className="font-semibold mb-2 mt-4">Tags</h4>
-                <p>Tags are used for logic and control flow. They are denoted by curly brace percentage signs:</p>
-                <pre className="bg-gray-200 dark:bg-gray-600 p-2 rounded-md mb-2">
-                  <code>&#123;% if condition %&#125;
-                    // content
-                    &#123;% endif %&#125;</code>
-                </pre>
+            <div className="p-6 space-y-8 dark:text-gray-200">
+              <Section id="general-introduction" title="Introduction to Liquid" icon={<BookOpen className="h-6 w-6" />}>
+                <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Liquid is a template language created by Shopify and written in Ruby. It is now used by many systems, including Jekyll, a static site generator. Liquid uses a combination of tags, objects, and filters to load dynamic content.
+                  </p>
+                </div>
               </Section>
-              <Section title="Common Use Cases">
-                <ul className="list-disc list-inside">
-                  <li>Displaying user-specific data</li>
-                  <li>Conditional rendering based on user attributes</li>
-                  <li>Formatting dates and times</li>
-                  <li>Creating loops for repetitive content</li>
-                  <li>Applying text transformations</li>
-                </ul>
+
+              <Section id="general-syntax" title="Basic Syntax" icon={<Code className="h-6 w-6" />}>
+                <div className="space-y-4">
+                  <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-200">Output</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Output tags are used to display content on the page. They are denoted by double curly braces:</p>
+                    <pre className="bg-gray-100 dark:bg-gray-600 p-2 rounded-md text-sm">
+                      <code>&#123;&#123; variable_name &#125;&#125;</code>
+                    </pre>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-200">Tags</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Tags are used for logic and control flow. They are denoted by curly brace percentage signs:</p>
+                    <pre className="bg-gray-100 dark:bg-gray-600 p-2 rounded-md text-sm">
+                      <code>&#123;% if condition %&#125;
+                        // content
+                        &#123;% endif %&#125;</code>
+                    </pre>
+                  </div>
+                </div>
               </Section>
-            </div>
-            <div className="mt-6 flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsGeneralDocumentationOpen(false)}>
-                Close
-              </Button>
+
+              <Section id="general-use-cases" title="Common Use Cases" icon={<Lightbulb className="h-6 w-6" />}>
+                <div className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                    <li>Displaying user-specific data</li>
+                    <li>Conditional rendering based on user attributes</li>
+                    <li>Formatting dates and times</li>
+                    <li>Creating loops for repetitive content</li>
+                    <li>Applying text transformations</li>
+                  </ul>
+                </div>
+              </Section>
             </div>
           </div>
         </DialogContent>
@@ -1316,14 +1403,18 @@ export function LiquidSyntaxEditor() {
 }
 
 // Helper component for sections
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ id, title, icon, children }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div>
-      <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">{title}</h3>
-      <div className="text-gray-700 dark:text-gray-300">{children}</div>
+    <div id={id} className="mb-6">
+      <h3 className="text-xl font-semibold mb-3 flex items-center">
+        {icon}
+        <span className="ml-2">{title}</span>
+      </h3>
+      <div className="space-y-2">{children}</div>
     </div>
   );
 }
+
 
 export default function App() {
   return (
