@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { LucideIcon } from 'lucide-react'
-import { motion } from 'framer-motion';
+import { HTMLMotionProps, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils"
 
@@ -38,7 +38,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       ref={ref}
       role="alert"
       className={cn(alertVariants({ variant }), className)}
-      {...props}
+      {...props as HTMLMotionProps<"div">}
     >
       {Icon && <Icon className="h-4 w-4" />}
       {children}

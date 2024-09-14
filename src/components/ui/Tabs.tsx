@@ -1,52 +1,55 @@
-import React, { useState } from 'react';
+"use client"
 
-interface TabsProps {
-  children: React.ReactElement[];
-  defaultValue?: string;
-}
+import * as React from "react"
+import * as RadixTabs from '@radix-ui/react-tabs'
 
-interface TabsListProps {
-  children: React.ReactElement[];
-}
+import { cn } from "@/lib/utils"
 
-interface TabsTriggerProps {
-  value: string;
-  children: React.ReactNode;
-}
+const Tabs = RadixTabs.Root
 
-interface TabsContentProps {
-  value: string;
-  children: React.ReactNode;
-}
+const TabsList = React.forwardRef<
+  React.ElementRef<typeof RadixTabs.List>,
+  React.ComponentPropsWithoutRef<typeof RadixTabs.List>
+>(({ className, ...props }, ref) => (
+  <RadixTabs.List
+    ref={ref}
+    className={cn(
+      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+))
+TabsList.displayName = "TabsList"
 
-export const Tabs: React.FC<TabsProps> = ({ children, defaultValue }) => {
-  const [activeTab, setActiveTab] = useState(defaultValue || children[0].props.value);
+const TabsTrigger = React.forwardRef<
+  React.ElementRef<typeof RadixTabs.Trigger>,
+  React.ComponentPropsWithoutRef<typeof RadixTabs.Trigger>
+>(({ className, ...props }, ref) => (
+  <RadixTabs.Trigger
+    ref={ref}
+    className={cn(
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      className
+    )}
+    {...props}
+  />
+))
+TabsTrigger.displayName = "TabsTrigger"
 
-  return (
-    <div className="tabs">
-      {React.Children.map(children, (child) =>
-        React.cloneElement(child, { activeTab, setActiveTab })
-      )}
-    </div>
-  );
-};
+const TabsContent = React.forwardRef<
+  React.ElementRef<typeof RadixTabs.Content>,
+  React.ComponentPropsWithoutRef<typeof RadixTabs.Content>
+>(({ className, ...props }, ref) => (
+  <RadixTabs.Content
+    ref={ref}
+    className={cn(
+      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      className
+    )}
+    {...props}
+  />
+))
+TabsContent.displayName = "TabsContent"
 
-export const TabsList: React.FC<TabsListProps> = ({ children }) => {
-  return <div className="tabs-list">{children}</div>;
-};
-
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, activeTab, setActiveTab }) => {
-  return (
-    <button
-      className={`tabs-trigger ${activeTab === value ? 'active' : ''}`}
-      onClick={() => setActiveTab(value)}
-    >
-      {children}
-    </button>
-  );
-};
-
-export const TabsContent: React.FC<TabsContentProps> = ({ value, children, activeTab }) => {
-  if (activeTab !== value) return null;
-  return <div className="tabs-content">{children}</div>;
-};
+export { Tabs, TabsList, TabsTrigger, TabsContent }

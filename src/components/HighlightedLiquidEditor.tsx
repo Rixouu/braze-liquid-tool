@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from "@/components/ui/textarea";
-import { useTheme } from 'next-themes';
+import { useTheme } from 'next-themes';  // Replace with your custom theme hook
 
 const liquidHighlight = (str: string, isDark: boolean) => {
   const tagColor = isDark ? '#ff79c6' : '#905';
@@ -12,17 +12,17 @@ const liquidHighlight = (str: string, isDark: boolean) => {
 
   // Escape HTML characters, but preserve Liquid syntax
   str = str.replace(/&(?!amp;)/g, '&amp;')
-           .replace(/</g, '&lt;')
-           .replace(/>/g, '&gt;');
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 
   // Highlight Liquid tags
   str = str.replace(/{%.*?%}/g, (match) => {
     // Highlight keywords within tags
-    let highlightedMatch = match.replace(/\b(if|else|elsif|endif|assign|capture|endcapture)\b/g, 
+    let highlightedMatch = match.replace(/\b(if|else|elsif|endif|assign|capture|endcapture)\b/g,
       `<span style="color: ${keywordColor}">$1</span>`
     );
     // Highlight numbers within tags
-    highlightedMatch = highlightedMatch.replace(/\b(\d+)\b/g, 
+    highlightedMatch = highlightedMatch.replace(/\b(\d+)\b/g,
       `<span style="color: ${numberColor}">$1</span>`
     );
     // Highlight strings within tags, but not HTML-like attributes
@@ -33,7 +33,7 @@ const liquidHighlight = (str: string, isDark: boolean) => {
       return `'<span style="color: ${stringColor}">${p1}</span>'`;
     });
     // Highlight operators and special characters
-    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g, 
+    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g,
       `$1<span style="color: ${operatorColor}">$2</span>$3`
     );
     return `<span style="color: ${tagColor}">${highlightedMatch}</span>`;
@@ -42,15 +42,15 @@ const liquidHighlight = (str: string, isDark: boolean) => {
   // Highlight Liquid variables
   str = str.replace(/{{.*?}}/g, (match) => {
     // Highlight numbers within variables
-    let highlightedMatch = match.replace(/\b(\d+)\b/g, 
+    let highlightedMatch = match.replace(/\b(\d+)\b/g,
       `<span style="color: ${numberColor}">$1</span>`
     );
     // Highlight strings within variables
-    highlightedMatch = highlightedMatch.replace(/'([^']*?)'/g, 
+    highlightedMatch = highlightedMatch.replace(/'([^']*?)'/g,
       `'<span style="color: ${stringColor}">$1</span>'`
     );
     // Highlight operators and special characters
-    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g, 
+    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g,
       `$1<span style="color: ${operatorColor}">$2</span>$3`
     );
     return `<span style="color: ${varColor}">${highlightedMatch}</span>`;
@@ -59,16 +59,21 @@ const liquidHighlight = (str: string, isDark: boolean) => {
   return str.replace(/\n/g, '<br>');
 };
 
-const HighlightedLiquidEditor = ({ initialContent, onChange, className }) => {
-  const [content, setContent] = useState(initialContent);
+const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+  options?: { style?: React.CSSProperties };
+}) => {
+  const [content, setContent] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
 
   useEffect(() => {
-    setContent(initialContent);
-    updateHighlight(initialContent);
-  }, [initialContent]);
+    setContent(value);
+    updateHighlight(value);
+  }, [value]);
 
   useEffect(() => {
     updateHighlight(content);
@@ -93,7 +98,7 @@ const HighlightedLiquidEditor = ({ initialContent, onChange, className }) => {
   };
 
   return (
-    <div 
+    <div
       className={`relative h-full w-full ${className}`}
       role="application"
       aria-label="Liquid Syntax Editor"
@@ -108,7 +113,7 @@ const HighlightedLiquidEditor = ({ initialContent, onChange, className }) => {
         aria-label="Liquid syntax input"
         aria-multiline="true"
         aria-describedby="editor-description"
-        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', ...options.style }}
       />
       <div
         id="editor-description"
@@ -120,7 +125,7 @@ const HighlightedLiquidEditor = ({ initialContent, onChange, className }) => {
         ref={highlightRef}
         className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-auto font-mono text-sm p-[11px] m-0"
         aria-hidden="true"
-        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', ...options.style }}
       />
     </div>
   );
