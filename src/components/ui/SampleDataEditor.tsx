@@ -23,14 +23,13 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
     onChange(newData);
   }, [sampleData, onChange]);
 
-  const renderEditor = (path: string[], value: any) => {
+  const renderEditor = (path: string[], value: any, label: string) => {
     if (typeof value === 'object' && value !== null) {
       return (
-        <div className="pl-4">
+        <div className="space-y-2">
           {Object.entries(value).map(([key, val]) => (
-            <div key={key} className="space-y-2">
-              <label className="text-sm font-medium">{key}</label>
-              {renderEditor([...path, key], val)}
+            <div key={key}>
+              {renderEditor([...path, key], val, label ? `${label}.${key}` : key)}
             </div>
           ))}
         </div>
@@ -40,43 +39,44 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       // Date input
       return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start text-left font-normal">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {value || <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={new Date(value)}
-              onSelect={(date) => handleChange(path, format(date!, 'yyyy-MM-dd'))}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{label}</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {value || <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={new Date(value)}
+                onSelect={(date) => handleChange(path, format(date!, 'yyyy-MM-dd'))}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       );
     } else {
       // Default to text input
       return (
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => handleChange(path, e.target.value)}
-        />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{label}</label>
+          <Input
+            type="text"
+            value={value}
+            onChange={(e) => handleChange(path, e.target.value)}
+          />
+        </div>
       );
     }
   };
 
   return (
     <div className="space-y-4">
-      {Object.entries(sampleData).map(([key, value]) => (
-        <div key={key} className="space-y-2">
-          <label className="text-sm font-medium">{key}</label>
-          {renderEditor([key], value)}
-        </div>
-      ))}
+      {renderEditor([], sampleData, '')}
     </div>
   );
 });
