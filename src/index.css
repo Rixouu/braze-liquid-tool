@@ -269,9 +269,30 @@ button:focus-visible {
   font-size: 14px;
 }
 
-
 .braze-variable {
   color: #e91e63;
   /* or any color you prefer */
   font-weight: bold;
+}
+
+.popover-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.popover-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popover-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.popover-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.popover-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

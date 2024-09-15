@@ -857,11 +857,10 @@ export function Sidebar({ templates, onSelectTemplate, selectedTemplateId }: Sid
                 <Button
                   key={template.id}
                   variant="ghost"
-                  className={`w-full justify-start mb-2 px-4 py-3 ${
-                    selectedTemplateId === template.id 
-                      ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active" 
-                      : "dark:bg-[hsl(222.2,84%,4.9%)]"
-                  }`}
+                  className={`w-full justify-start mb-2 px-4 py-3 ${selectedTemplateId === template.id
+                    ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active"
+                    : "dark:bg-[hsl(222.2,84%,4.9%)]"
+                    }`}
                   onClick={() => onSelectTemplate(template)}
                 >
                   {templateIcons[template.name] || <Book size={18} />}
@@ -1068,11 +1067,10 @@ export function LiquidSyntaxEditor() {
                             <Button
                               key={template.id}
                               variant="ghost"
-                              className={`w-full justify-start mb-2 px-4 py-3 ${
-                                selectedTemplateId === template.id 
-                                  ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active" 
-                                  : "dark:bg-[hsl(222.2,47%,11%)]"
-                              }`}
+                              className={`w-full justify-start mb-2 px-4 py-3 ${selectedTemplateId === template.id
+                                ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active"
+                                : "dark:bg-[hsl(222.2,47%,11%)]"
+                                }`}
                               onClick={() => handleTemplateChange(template)}
                             >
                               {templateIcons[template.name] || <Book size={18} />}
@@ -1112,31 +1110,56 @@ export function LiquidSyntaxEditor() {
                       <Button variant="outline" size="sm" onClick={() => setIsDocumentationOpen(true)}>
                         Documentation
                       </Button>
-
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" size="sm">
                             Template Info
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-80">
+                        <PopoverContent className="w-96 p-4">
                           {selectedTemplate && (
-                            <>
-                              <h3 className="font-semibold mb-2">{selectedTemplate.name}</h3>
-                              <p className="text-sm mb-4">{selectedTemplate.description}</p>
-                              <h4 className="font-semibold mb-2">Available Variables:</h4>
-                              <ul className="list-disc list-inside text-sm mb-4">
-                                {selectedTemplate.documentation.variables.map((variable: VariableType, index: number) => (
-                                  <li key={index}>{variable.name}: {variable.description}</li>
-                                ))}
-                              </ul>
-                              <h4 className="font-semibold mb-2">Tips:</h4>
-                              <ul className="list-disc list-inside text-sm">
-                                {selectedTemplate.documentation.notes.split('\n').map((note, index) => (
-                                  <li key={index}>{note}</li>
-                                ))}
-                              </ul>
-                            </>
+                            <div className="space-y-4">
+                              <div>
+                                <h3 className="font-semibold text-lg mb-1">{selectedTemplate.name}</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedTemplate.description}</p>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-sm mb-2">Variables:</h4>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {selectedTemplate.documentation.variables.map((variable: VariableType, index: number) => (
+                                    <div key={index} className="bg-gray-50 dark:bg-[hsl(222.2,84%,7%)] p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                                      <div className="flex items-center mb-1">
+                                        <span className="font-mono text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded">
+                                          {variable.name}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-gray-600 dark:text-gray-300">{variable.description}</p>
+                                      {variable.example && (
+                                        <div className="mt-1">
+                                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Example:</span>
+                                          <code className="ml-1 text-xs bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded">
+                                            {variable.example}
+                                          </code>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-sm mb-2">Tips:</h4>
+                                <div className="bg-yellow-50 dark:bg-[hsl(222.2,84%,10%)] p-3 rounded-md">
+                                  <ul className="space-y-1">
+                                    {selectedTemplate.documentation.notes.split('\n').map((note, index) => (
+                                      <li key={index} className="text-xs text-yellow-700 dark:text-yellow-300 flex items-start">
+                                        <span className="text-yellow-500 mr-2">•</span>
+                                        {note}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
                           )}
                         </PopoverContent>
                       </Popover>
