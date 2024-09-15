@@ -123,7 +123,7 @@ button:focus-visible {
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;  /* Adjusted to match new blue */
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -135,12 +135,7 @@ button:focus-visible {
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 224.3 76.3% 48%;  /* Adjusted to match new blue */
   }
 }
 
@@ -295,4 +290,133 @@ button:focus-visible {
 
 .popover-content::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.dark .highlighted-liquid-editor-container {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.dark .highlighted-liquid-editor-container textarea {
+  caret-color: hsl(var(--foreground));
+}
+
+/* Add these styles to your CSS file */
+.liquid-preview-container {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 1rem;
+  background-color: hsl(210,20%,98.04%);
+  color: #1e293b;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.dark .liquid-preview-container {
+  background-color: hsl(222.2,84%,10%);
+  color: #f1f5f9;
+}
+
+/* Ensure these styles are not overridden */
+.liquid-preview-container ul {
+  list-style-type: none;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.liquid-preview-container li {
+  margin-bottom: 0.25em;
+  position: relative;
+}
+
+.liquid-preview-container li::before {
+  content: '•';
+  position: absolute;
+  left: -1em;
+  color: #64748b;
+}
+
+.liquid-preview-container p {
+  margin-bottom: 0.5em;
+}
+
+.liquid-preview-container strong {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dark .liquid-preview-container strong {
+  color: #e2e8f0;
+}
+
+/* Ensure these styles are applied */
+.liquid-preview-container .liquid-tag {
+  color: #8b5cf6;
+  font-weight: 600;
+  background-color: rgba(139, 92, 246, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.2em;
+}
+
+.liquid-preview-container .liquid-var {
+  color: #3b82f6;
+  font-weight: 600;
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.2em;
+}
+
+.liquid-preview-container .liquid-var.highlight {
+  background-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.liquid-preview-container .liquid-var.highlight:hover {
+  background-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* Add this at the end of your CSS file */
+@media (max-width: 640px) {
+  .editor-header-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .editor-header-buttons > * {
+    width: auto;
+  }
+}
+
+/* Styles for both desktop and mobile */
+.editor-header-buttons {
+  display: flex;
+  gap: 0.5rem; /* This adds space between buttons on all screen sizes */
+}
+
+/* Desktop-specific styles */
+@media (min-width: 641px) {
+  .editor-header-buttons {
+    flex-direction: row;
+  }
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  .editor-header-buttons {
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .editor-header-buttons > * {
+    width: auto;
+  }
 }

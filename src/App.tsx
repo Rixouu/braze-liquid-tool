@@ -19,14 +19,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
   DialogOverlay,
 } from "@radix-ui/react-dialog";
-import { Badge } from "@/components/ui/badge"
 import { Eye, Lightbulb, BookOpen, Variable, Code, AlertTriangle } from 'lucide-react'
+import LiquidPreview from './components/LiquidPreview';
 
 interface Template {
   id: string;
@@ -1068,8 +1067,8 @@ export function LiquidSyntaxEditor() {
                               key={template.id}
                               variant="ghost"
                               className={`w-full justify-start mb-2 px-4 py-3 ${selectedTemplateId === template.id
-                                ? "bg-gray-200 dark:bg-[hsl(222.2,84%,4.9%)] active"
-                                : "dark:bg-[hsl(222.2,47%,11%)]"
+                                ? "bg-gray-200 dark:bg-[hsl(226.67,15.79%,11.18%)] active"
+                                : "dark:bg-[hsl(222.2,84%,4.9%))]"
                                 }`}
                               onClick={() => handleTemplateChange(template)}
                             >
@@ -1106,7 +1105,7 @@ export function LiquidSyntaxEditor() {
                       <CardTitle>Editor and Preview</CardTitle>
                       <CardDescription>Write your Liquid syntax and see the result</CardDescription>
                     </div>
-                    <div className="space-x-2">
+                    <div className="editor-header-buttons">
                       <Button variant="outline" size="sm" onClick={() => setIsDocumentationOpen(true)}>
                         Documentation
                       </Button>
@@ -1205,7 +1204,7 @@ export function LiquidSyntaxEditor() {
                         </Button>
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-[hsl(222.2,84%,10%)] p-4 rounded-md border h-full overflow-auto">
+                    <div className="bg-[hsl(210,20%,98.04%);] dark:bg-[hsl(222.2,84%,10%)] p-4 rounded-md h-full overflow-auto">
                       {isLoading ? (
                         <div className="flex items-center justify-center h-full">
                           <Loader2 className="h-8 w-8 animate-spin" />
@@ -1219,7 +1218,7 @@ export function LiquidSyntaxEditor() {
                           </AlertDescription>
                         </Alert>
                       ) : (
-                        <div dangerouslySetInnerHTML={{ __html: previewContent }} />
+                        <LiquidPreview text={previewContent} />
                       )}
                     </div>
                   </div>

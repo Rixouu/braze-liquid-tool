@@ -3,12 +3,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTheme } from 'next-themes';  // Replace with your custom theme hook
 
 const liquidHighlight = (str: string, isDark: boolean) => {
-  const tagColor = isDark ? '#ff79c6' : '#905';
-  const varColor = isDark ? '#8be9fd' : '#0550ae';  // Darker blue for light mode
-  const stringColor = isDark ? '#f1fa8c' : '#690';
-  const numberColor = isDark ? '#bd93f9' : '#0000ff';  // Blue for light mode
-  const keywordColor = isDark ? '#ff79c6' : '#007a00';  // Dark green for light mode
-  const operatorColor = isDark ? '#ff79c6' : '#9a6e3a';  // Darker orange for light mode
+  const tagColor = isDark ? '#bd93f9' : '#905';  // Light purple for dark mode
+  const varColor = isDark ? '#8be9fd' : '#0550ae';  // Cyan for dark mode
+  const stringColor = isDark ? '#f1fa8c' : '#690';  // Light yellow for dark mode
+  const numberColor = isDark ? '#ff79c6' : '#0000ff';  // Pink for dark mode
+  const keywordColor = isDark ? '#ff79c6' : '#007a00';  // Pink for dark mode
+  const operatorColor = isDark ? '#f8f8f2' : '#9a6e3a';  // Light gray for dark mode
 
   // Escape HTML characters, but preserve Liquid syntax
   str = str.replace(/&(?!amp;)/g, '&amp;')
