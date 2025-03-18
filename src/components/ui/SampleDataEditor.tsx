@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Calendar } from "./Calendar";
@@ -43,12 +45,12 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
           <label className="text-sm font-medium">{label}</label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-left font-normal">
+              <Button variant="outline" className="w-full justify-start text-left font-normal bg-white dark:bg-black">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {value || <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white dark:bg-black">
               <Calendar
                 mode="single"
                 selected={new Date(value)}
@@ -68,6 +70,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
             type="text"
             value={value}
             onChange={(e) => handleChange(path, e.target.value)}
+            className="bg-white dark:bg-[#1a1a1a]"
           />
         </div>
       );
@@ -75,7 +78,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-md">
       {renderEditor([], sampleData, '')}
     </div>
   );

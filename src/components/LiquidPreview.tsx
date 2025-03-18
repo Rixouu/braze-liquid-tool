@@ -19,7 +19,7 @@ export function LiquidPreview({ text }: { text: string }) {
 
     // Wrap list items with proper HTML
     text = text.replace(/(?:^|\n)(\s*•.*(?:\n(?!\s*•).*)*)/g, (match, p1) => {
-      const items = p1.split('\n').map(item => 
+      const items = p1.split('\n').map((item: string) => 
         item.trim().startsWith('•') ? `<li>${item.trim().substring(1).trim()}</li>` : item
       ).join('');
       return `<ul class="preview-list">${items}</ul>`;
@@ -35,7 +35,7 @@ export function LiquidPreview({ text }: { text: string }) {
 
   return (
     <div 
-      className="liquid-preview-container bg-white dark:bg-[hsl(222.2,84%,10%)] p-4 h-full overflow-auto"
+      className="liquid-preview-container bg-white dark:bg-[#1a1a1a] p-4 h-full overflow-auto"
       dangerouslySetInnerHTML={{ __html: processedText }}
       onClick={(e) => {
         const target = e.target as HTMLElement;

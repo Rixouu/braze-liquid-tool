@@ -3,6 +3,7 @@
 ## Last Updated
 
 September,14th 2023
+March, 18th 2025
 
 ## Overview
 
@@ -14,7 +15,7 @@ The Liquid Syntax Editor is an advanced web-based tool designed for marketers an
 - **Syntax Highlighting**: Enhanced real-time highlighting of Liquid syntax for efficient editing.
 - **Live Preview**: Instant rendering of messages with Liquid syntax applied.
 - **Sample Data Editor**: Edit sample data in real-time to test different scenarios.
-- **Dark Mode**: Seamless toggle between light and dark themes for optimal viewing comfort.
+- **Enhanced Dark Mode**: Optimized dark theme with true black backgrounds and better contrast for reduced eye strain.
 - **Responsive Design**: Fully functional across desktop and mobile devices.
 - **Copy and Reset**: Quick actions to copy edited content or revert to the original template.
 - **Documentation**: Integrated documentation for each template and general Liquid syntax guide.
@@ -85,14 +86,15 @@ The Liquid Syntax Editor is an advanced web-based tool designed for marketers an
 8. Use the Reset button to revert to the original template content.
 9. Toggle between light and dark modes using the theme switch.
 
-## New Features and Optimizations
+## New Features and Optimizations (March 2025)
 
-- **Improved Template Management**: Templates are now organized by categories for easier navigation.
-- **Enhanced Search**: Real-time filtering of templates as you type in the search bar.
-- **Interactive Sample Data**: Edit sample data on-the-fly to see how your message adapts to different scenarios.
-- **Comprehensive Documentation**: Each template now comes with detailed documentation, usage examples, and variable explanations.
-- **Performance Optimizations**: Improved rendering performance for a smoother editing experience.
-- **Expanded Liquid Functionality**: Added support for custom Liquid tags and filters specific to Braze CRM.
+- **Modular Code Architecture**: Completely restructured codebase for better maintainability and performance.
+- **Enhanced Dark Mode**: Redesigned dark theme with true black backgrounds and improved contrast.
+- **Optimized Performance**: Reduced component re-renders and improved state management.
+- **Improved Sample Data Editor**: More intuitive interface with better date picking capabilities.
+- **Responsive Documentation Dialogs**: Redesigned documentation windows for better readability.
+- **Type Safety**: Enhanced TypeScript interfaces and type definitions.
+- **Organizational Structure**: Clear separation of templates, components, and utility functions.
 
 ## Contributing
 
