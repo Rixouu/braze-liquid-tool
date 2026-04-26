@@ -3,24 +3,122 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, RotateCcw, Book, X } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import { Copy, RotateCcw, Book, Loader2, Library, Database, Code2, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/Tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/Tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import ThemeToggle from '@/components/ThemeToggle';
 import HighlightedLiquidEditor from './HighlightedLiquidEditor';
 import LiquidPreview from './LiquidPreview';
-import { Sidebar } from './Sidebar';
 import { DocumentationDialog } from './DocumentationDialog';
 import { GeneralDocumentationDialog } from './GeneralDocumentationDialog';
 import { engine } from '@/lib/liquid-engine';
-import { Template } from '@/types';
+import type { Template } from '@/types';
 import { templates } from '@/templates/templateData';
+
+function TemplateInfoBody({ template }: { template: Template }) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="mb-1 text-lg font-semibold">{template.name}</h3>
+        <p className="text-sm text-muted-foreground">{template.description}</p>
+      </div>
+      <div>
+        <h4 className="mb-2 text-sm font-semibold">Variables</h4>
+        <div className="grid grid-cols-1 gap-2">
+          {template.documentation.variables.map((variable, index) => (
+            <div
+              key={index}
+              className="rounded-lg border border-border bg-muted/40 p-3 shadow-sm"
+            >
+              <div className="mb-1 flex items-center">
+                <span className="rounded bg-primary/15 px-2 py-0.5 font-mono text-sm text-primary">
+                  {variable.name}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">{variable.description}</p>
+              {variable.example && (
+                <div className="mt-1">
+                  <span className="text-xs font-semibold text-muted-foreground">Example:</span>
+                  <code className="ml-1 rounded bg-muted px-1 py-0.5 text-xs">{variable.example}</code>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <h4 className="mb-2 text-sm font-semibold">Tips</h4>
+        <div className="rounded-md border border-border bg-muted/30 p-3">
+          <ul className="space-y-1">
+            {template.documentation.notes.split('\n').map((note, index) => (
+              <li key={index} className="flex items-start text-xs text-foreground">
+                <span className="mr-2 text-primary">•</span>
+                {note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface TemplateLibrarySectionProps {
+  searchTerm: string;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  filteredTemplates: Template[];
+  selectedTemplateId: string | null;
+  onSelectTemplate: (template: Template) => void;
+  scrollClassName?: string;
+}
+
+function TemplateLibrarySection({
+  searchTerm,
+  onSearchChange,
+  filteredTemplates,
+  selectedTemplateId,
+  onSelectTemplate,
+  scrollClassName = 'h-[300px] w-full lg:h-[300px]',
+}: TemplateLibrarySectionProps) {
+  return (
+    <>
+      <Input
+        type="search"
+        placeholder="Search templates…"
+        className="mb-3 h-11 w-full touch-manipulation sm:mb-4"
+        value={searchTerm}
+        onChange={onSearchChange}
+      />
+      <ScrollArea className={scrollClassName}>
+        <div className="min-w-0 pr-3">
+          {filteredTemplates.length > 0 ? (
+            filteredTemplates.map((template) => (
+              <Button
+                key={template.id}
+                variant="ghost"
+                className={`mb-2 min-h-11 w-full touch-manipulation justify-start px-3 py-3 text-left text-sm font-normal text-foreground hover:bg-muted sm:px-4 ${
+                  selectedTemplateId === template.id ? 'bg-muted font-medium' : ''
+                }`}
+                onClick={() => onSelectTemplate(template)}
+              >
+                <Book className="h-[18px] w-[18px] shrink-0" />
+                <span className="ml-2 truncate">{template.name}</span>
+              </Button>
+            ))
+          ) : (
+            <p className="py-4 text-center text-sm text-muted-foreground">No templates found</p>
+          )}
+        </div>
+      </ScrollArea>
+    </>
+  );
+}
 
 export function LiquidSyntaxEditor() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
@@ -34,63 +132,69 @@ export function LiquidSyntaxEditor() {
   const [isGeneralDocumentationOpen, setIsGeneralDocumentationOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
-  // Define flattenObject function within the component
-  const flattenObject = (obj: Record<string, any>, prefix = ''): Record<string, any> => {
-    return Object.keys(obj).reduce((acc, k) => {
-      const pre = prefix.length ? `${prefix}.` : '';
-      if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-        Object.assign(acc, flattenObject(obj[k], `${pre}${k}`));
-      } else {
-        acc[`${pre}${k}`] = obj[k];
-      }
-      return acc;
-    }, {} as Record<string, any>);
-  };
-
-  const updatePreview = useCallback(async (content: string, data: Record<string, any>) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const liquidContent = content.replace(/\[\[(.*?)\]\]/g, '{{$1}}');
-      const flattenedData = flattenObject(data);
-      Object.keys(flattenedData).forEach(key => {
-        if (typeof flattenedData[key] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(flattenedData[key])) {
-          flattenedData[key] = new Date(flattenedData[key]);
+  const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
+    return Object.keys(obj).reduce(
+      (acc, k) => {
+        const pre = prefix.length ? `${prefix}.` : '';
+        const v = obj[k];
+        if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+          Object.assign(acc, flattenObject(v as Record<string, any>, `${pre}${k}`));
+        } else {
+          acc[`${pre}${k}`] = v;
         }
-      });
-      const renderedContent = await engine.parseAndRender(liquidContent, flattenedData);
-      setPreviewContent(renderedContent);
-    } catch (err: unknown) {
-      console.error("Template rendering error:", err);
-      setError(`Error rendering template: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
-      setIsLoading(false);
-    }
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }, []);
 
-  const handleSampleDataChange = useCallback((newData: Record<string, any>) => {
-    setEditableSampleData(newData);
+  const updatePreview = useCallback(
+    async (content: string, data: Record<string, any>) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const liquidContent = content.replace(/\[\[(.*?)\]\]/g, '{{$1}}');
+        const flattenedData = flattenObject(data);
+        Object.keys(flattenedData).forEach((key) => {
+          const val = flattenedData[key];
+          if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+            flattenedData[key] = new Date(val);
+          }
+        });
+        const renderedContent = await engine.parseAndRender(liquidContent, flattenedData);
+        setPreviewContent(renderedContent);
+      } catch (err: unknown) {
+        setError(`Error rendering template: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [flattenObject],
+  );
 
-    // Update the editedContent with the new sample data
-    let updatedContent = selectedTemplate ? selectedTemplate.content : editedContent;
-    const updateContentWithData = (data: Record<string, any>, prefix = '') => {
-      Object.entries(data).forEach(([key, value]) => {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (typeof value === 'object' && value !== null) {
-          updateContentWithData(value, fullKey);
-        } else {
-          const regex = new RegExp(`\\[\\[${fullKey}\\]\\]`, 'g');
-          updatedContent = updatedContent.replace(regex, String(value));
-        }
-      });
-    };
+  const handleSampleDataChange = useCallback(
+    (newData: Record<string, any>) => {
+      setEditableSampleData(newData);
 
-    updateContentWithData(newData);
-    setEditedContent(updatedContent);
+      let updatedContent = selectedTemplate ? selectedTemplate.content : editedContent;
+      const updateContentWithData = (data: Record<string, any>, prefix = '') => {
+        Object.entries(data).forEach(([key, value]) => {
+          const fullKey = prefix ? `${prefix}.${key}` : key;
+          if (typeof value === 'object' && value !== null) {
+            updateContentWithData(value as Record<string, any>, fullKey);
+          } else {
+            const regex = new RegExp(`\\[\\[${fullKey}\\]\\]`, 'g');
+            updatedContent = updatedContent.replace(regex, String(value));
+          }
+        });
+      };
 
-    // Trigger preview update with new data
-    updatePreview(updatedContent, newData);
-  }, [selectedTemplate, editedContent, updatePreview]);
+      updateContentWithData(newData);
+      setEditedContent(updatedContent);
+      updatePreview(updatedContent, newData);
+    },
+    [selectedTemplate, editedContent, updatePreview],
+  );
 
   const handleContentChange = useCallback((newContent: string) => {
     setEditedContent(newContent);
@@ -100,65 +204,104 @@ export function LiquidSyntaxEditor() {
     updatePreview(editedContent, editableSampleData);
   }, [editedContent, editableSampleData, updatePreview]);
 
-  const handleTemplateChange = useCallback((template: Template) => {
-    setSelectedTemplate(template);
-    setSelectedTemplateId(template.id);
-    setEditableSampleData(template.sampleData);
+  const handleTemplateChange = useCallback(
+    (template: Template) => {
+      setSelectedTemplate(template);
+      setSelectedTemplateId(template.id);
+      setEditableSampleData(template.sampleData);
 
-    let updatedContent = template.content;
-    const updateContentWithData = (data: Record<string, any>, prefix = '') => {
-      Object.entries(data).forEach(([key, value]) => {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (typeof value === 'object' && value !== null) {
-          updateContentWithData(value, fullKey);
-        } else {
-          const regex = new RegExp(`\\[\\[${fullKey}\\]\\]`, 'g');
-          updatedContent = updatedContent.replace(regex, String(value));
-        }
-      });
-    };
+      let updatedContent = template.content;
+      const updateContentWithData = (data: Record<string, any>, prefix = '') => {
+        Object.entries(data).forEach(([key, value]) => {
+          const fullKey = prefix ? `${prefix}.${key}` : key;
+          if (typeof value === 'object' && value !== null) {
+            updateContentWithData(value as Record<string, any>, fullKey);
+          } else {
+            const regex = new RegExp(`\\[\\[${fullKey}\\]\\]`, 'g');
+            updatedContent = updatedContent.replace(regex, String(value));
+          }
+        });
+      };
 
-    updateContentWithData(template.sampleData);
-    setEditedContent(updatedContent);
-    updatePreview(updatedContent, template.sampleData);
-  }, [updatePreview]);
+      updateContentWithData(template.sampleData as Record<string, any>);
+      setEditedContent(updatedContent);
+      updatePreview(updatedContent, template.sampleData as Record<string, any>);
+    },
+    [updatePreview],
+  );
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   }, []);
 
   const filteredTemplates = useMemo(() => {
-    return templates.filter(template =>
-      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return templates.filter(
+      (template) =>
+        template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        template.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        template.description.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm]);
 
   const handleCopy = () => {
     const finalContent = editedContent.replace(/\[\[(.*?)\]\]/g, '{{$1}}');
-    navigator.clipboard.writeText(finalContent);
-  }
+    void navigator.clipboard.writeText(finalContent);
+  };
 
   const handleReset = () => {
     if (selectedTemplate) {
       setEditedContent(selectedTemplate.content);
-      setEditableSampleData(selectedTemplate.sampleData);
+      setEditableSampleData(selectedTemplate.sampleData as Record<string, any>);
     }
   };
 
+  const editorStyle = useMemo(
+    () => ({
+      minHeight: 'min(42dvh, 520px)',
+      padding: '1rem',
+      lineHeight: '1.5',
+      fontSize: '0.875rem',
+    }),
+    [],
+  );
+
+  const editorStyleLg = useMemo(
+    () => ({
+      minHeight: '560px',
+      padding: '1rem',
+      lineHeight: '1.5',
+      fontSize: '0.875rem',
+    }),
+    [],
+  );
+
+  const templateInfoPopover = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="min-h-10 touch-manipulation sm:min-h-9">
+          Template Info
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="max-h-[min(80dvh,32rem)] w-[min(100vw-2rem,24rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto p-4">
+        {selectedTemplate ? <TemplateInfoBody template={selectedTemplate} /> : (
+          <p className="text-sm text-muted-foreground">Select a template to see details.</p>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] py-6 dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)]">
-      <div className="container mx-auto max-w-full p-4 sm:p-6 lg:p-8">
-        <Card className="border border-border bg-card text-card-foreground shadow-md shadow-primary/5">
-          <CardHeader className="border-b border-primary/20">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+    <div className="box-border flex min-h-svh flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] sm:justify-center sm:py-4 lg:items-center lg:py-6">
+      <div className="mx-auto flex w-full max-w-[100vw] flex-1 flex-col px-2 sm:max-w-full sm:px-4 lg:px-8">
+        <Card className="flex min-h-0 flex-1 flex-col border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:rounded-xl max-lg:border-x-0 sm:max-lg:mx-0 lg:min-h-0 lg:shadow-md">
+          <CardHeader className="shrink-0 space-y-3 border-b border-primary/20 p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                 <img
                   src="/imgs/braze-icon-black.svg"
                   alt=""
                   aria-hidden={true}
-                  className="h-9 w-9 shrink-0 dark:hidden"
+                  className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:hidden"
                   width={36}
                   height={36}
                 />
@@ -166,22 +309,22 @@ export function LiquidSyntaxEditor() {
                   src="/imgs/braze-icon-white.svg"
                   alt=""
                   aria-hidden={true}
-                  className="hidden h-9 w-9 shrink-0 dark:block"
+                  className="hidden h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:block"
                   width={36}
                   height={36}
                 />
-                <CardTitle className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                <CardTitle className="truncate text-lg font-semibold tracking-tight text-foreground sm:text-2xl lg:text-3xl">
                   Braze Liquid Syntax Editor
                 </CardTitle>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="border-border text-foreground hover:bg-muted"
+                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted sm:h-9 sm:w-9"
                         onClick={() => setIsGeneralDocumentationOpen(true)}
                       >
                         <Book className="h-4 w-4" />
@@ -196,152 +339,75 @@ export function LiquidSyntaxEditor() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="lg:col-span-1 space-y-6">
+
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-3 sm:p-6">
+            {/* Desktop */}
+            <div className="hidden min-h-0 flex-1 lg:grid lg:grid-cols-4 lg:gap-6">
+              <div className="space-y-6 lg:col-span-1">
                 <Card className="w-full">
-                  <CardHeader>
-                    <CardTitle>Template Library</CardTitle>
+                  <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2">
+                    <CardTitle className="text-base">Template Library</CardTitle>
                     <CardDescription>Choose a template to get started</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <Input
-                      type="search"
-                      placeholder="Search templates..."
-                      className="mb-4 w-full"
-                      value={searchTerm}
-                      onChange={handleSearchChange}
+                  <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                    <TemplateLibrarySection
+                      searchTerm={searchTerm}
+                      onSearchChange={handleSearchChange}
+                      filteredTemplates={filteredTemplates}
+                      selectedTemplateId={selectedTemplateId}
+                      onSelectTemplate={handleTemplateChange}
                     />
-                    <ScrollArea className="h-[300px] w-full">
-                      <div className="pr-4 min-w-[300px]">
-                        {filteredTemplates.length > 0 ? (
-                          filteredTemplates.map((template) => (
-                            <Button
-                              key={template.id}
-                              variant="ghost"
-                              className={`w-full justify-start mb-2 px-4 py-3 font-normal text-foreground hover:bg-muted ${selectedTemplateId === template.id
-                                ? "bg-muted font-medium"
-                                : ""
-                                }`}
-                              onClick={() => handleTemplateChange(template)}
-                            >
-                              <Book size={18} />
-                              <span className="ml-2">{template.name}</span>
-                            </Button>
-                          ))
-                        ) : (
-                          <p className="text-center text-gray-500">No templates found</p>
-                        )}
-                      </div>
-                    </ScrollArea>
                   </CardContent>
                 </Card>
 
                 <Card className="w-full">
-                  <CardHeader>
-                    <CardTitle>Sample Data</CardTitle>
+                  <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2">
+                    <CardTitle className="text-base">Sample Data</CardTitle>
                     <CardDescription>Edit to test different scenarios</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <SampleDataEditor
-                      sampleData={editableSampleData}
-                      onChange={handleSampleDataChange}
-                    />
+                  <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                    <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
                   </CardContent>
                 </Card>
               </div>
 
-              <Card className="lg:col-span-3">
-                <CardHeader>
-                  <div className="flex justify-between items-center">
+              <Card className="flex min-h-0 flex-col lg:col-span-3">
+                <CardHeader className="shrink-0 space-y-2 p-4 sm:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="space-y-1.5">
-                      <CardTitle>Editor and Preview</CardTitle>
+                      <CardTitle className="text-base lg:text-lg">Editor and Preview</CardTitle>
                       <CardDescription>Write your Liquid syntax and see the result</CardDescription>
                     </div>
-                    <div className="editor-header-buttons">
-                      <Button variant="outline" size="sm" onClick={() => setIsDocumentationOpen(true)}>
+                    <div className="editor-header-buttons flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="min-h-10 touch-manipulation sm:min-h-9"
+                        onClick={() => setIsDocumentationOpen(true)}
+                      >
                         Documentation
                       </Button>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            Template Info
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-96 p-4">
-                          {selectedTemplate && (
-                            <div className="space-y-4">
-                              <div>
-                                <h3 className="font-semibold text-lg mb-1">{selectedTemplate.name}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedTemplate.description}</p>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-sm mb-2">Variables:</h4>
-                                <div className="grid grid-cols-1 gap-2">
-                                  {selectedTemplate.documentation.variables.map((variable, index) => (
-                                    <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                                      <div className="flex items-center mb-1">
-                                        <span className="font-mono text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded">
-                                          {variable.name}
-                                        </span>
-                                      </div>
-                                      <p className="text-xs text-gray-600 dark:text-gray-300">{variable.description}</p>
-                                      {variable.example && (
-                                        <div className="mt-1">
-                                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Example:</span>
-                                          <code className="ml-1 text-xs bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded">
-                                            {variable.example}
-                                          </code>
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-sm mb-2">Tips:</h4>
-                                <div className="bg-yellow-50 dark:bg-[#1a1a1a] p-3 rounded-md">
-                                  <ul className="space-y-1">
-                                    {selectedTemplate.documentation.notes.split('\n').map((note, index) => (
-                                      <li key={index} className="text-xs text-yellow-700 dark:text-yellow-300 flex items-start">
-                                        <span className="text-yellow-500 mr-2">•</span>
-                                        {note}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </PopoverContent>
-                      </Popover>
+                      {templateInfoPopover}
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[600px]">
-                    <div className="relative h-full flex flex-col">
-                      <div className="flex-grow overflow-hidden">
+                <CardContent className="flex min-h-0 flex-1 flex-col p-4 pt-0 sm:p-6 sm:pt-0">
+                  <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4">
+                    <div className="relative flex min-h-0 flex-col">
+                      <div className="min-h-0 flex-1 overflow-hidden lg:min-h-[560px]">
                         <HighlightedLiquidEditor
                           value={editedContent}
                           onChange={handleContentChange}
-                          className="w-full h-full rounded-md border border-input bg-background"
-                          options={{
-                            style: {
-                              minHeight: '600px',
-                              padding: '1rem',
-                              lineHeight: '1.5',
-                              fontSize: '0.875rem',
-                            }
-                          }}
+                          className="h-full w-full rounded-md border border-input bg-background"
+                          options={{ style: editorStyleLg }}
                         />
                       </div>
-                      <div className="mt-4 space-x-2">
+                      <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
                         <Button
                           variant="secondary"
                           size="sm"
+                          className="min-h-11 touch-manipulation bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 dark:hover:bg-green-900/70 sm:min-h-9"
                           onClick={handleCopy}
-                          className="bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 dark:hover:bg-green-900/70"
                         >
                           <Copy className="mr-2 h-4 w-4" />
                           Copy
@@ -349,49 +415,176 @@ export function LiquidSyntaxEditor() {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="min-h-11 touch-manipulation border-red-200 bg-red-50 font-medium text-red-800 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60 sm:min-h-9"
                           onClick={handleReset}
-                          className="border-red-200 bg-red-50 font-medium text-red-800 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60"
                         >
                           <RotateCcw className="mr-2 h-4 w-4" />
                           Reset
                         </Button>
                       </div>
                     </div>
-                    <div className="rounded-md border border-border bg-muted/40 p-4 text-foreground dark:bg-card h-full overflow-auto">
-                      {isLoading ? (
-                        <div className="flex items-center justify-center h-full">
-                          <Loader2 className="h-8 w-8 animate-spin" />
-                        </div>
-                      ) : error ? (
-                        <Alert variant="destructive">
-                          <ExclamationTriangleIcon className="h-4 w-4" />
-                          <AlertTitle>Error</AlertTitle>
-                          <AlertDescription>
-                            <pre className="whitespace-pre-wrap overflow-auto max-h-40">{error}</pre>
-                          </AlertDescription>
-                        </Alert>
-                      ) : (
-                        <LiquidPreview text={previewContent} />
-                      )}
+                    <div className="flex min-h-[min(240px,40dvh)] flex-col rounded-md border border-border bg-muted/40 text-foreground dark:bg-card lg:min-h-[560px]">
+                      <div className="min-h-0 flex-1 overflow-auto p-3 sm:p-4">
+                        {isLoading ? (
+                          <div className="flex h-full min-h-[200px] items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          </div>
+                        ) : error ? (
+                          <Alert variant="destructive">
+                            <ExclamationTriangleIcon className="h-4 w-4" />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>
+                              <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
+                            </AlertDescription>
+                          </Alert>
+                        ) : (
+                          <LiquidPreview text={previewContent} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Mobile / tablet app shell */}
+            <Tabs defaultValue="edit" className="flex min-h-0 flex-1 flex-col gap-2 lg:hidden">
+              <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-muted/20">
+                <TabsContent value="library" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
+                  <div className="mb-2">
+                    <h2 className="text-base font-semibold">Template Library</h2>
+                    <p className="text-xs text-muted-foreground">Choose a template</p>
+                  </div>
+                  <TemplateLibrarySection
+                    searchTerm={searchTerm}
+                    onSearchChange={handleSearchChange}
+                    filteredTemplates={filteredTemplates}
+                    selectedTemplateId={selectedTemplateId}
+                    onSelectTemplate={handleTemplateChange}
+                    scrollClassName="h-[calc(100dvh-16rem)] w-full sm:h-[calc(100dvh-15rem)]"
+                  />
+                </TabsContent>
+
+                <TabsContent value="data" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
+                  <div className="mb-2">
+                    <h2 className="text-base font-semibold">Sample Data</h2>
+                    <p className="text-xs text-muted-foreground">Edit JSON-backed fields</p>
+                  </div>
+                  <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                </TabsContent>
+
+                <TabsContent value="edit" className="m-0 flex h-[calc(100dvh-12.5rem)] flex-col overflow-hidden p-3 sm:h-[calc(100dvh-13rem)]">
+                  <div className="mb-2 flex shrink-0 flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="min-h-10 flex-1 touch-manipulation sm:min-h-9 sm:flex-none"
+                      onClick={() => setIsDocumentationOpen(true)}
+                    >
+                      Docs
+                    </Button>
+                    <div className="min-w-0 flex-1 sm:flex-none sm:shrink-0">{templateInfoPopover}</div>
+                  </div>
+                  <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-input bg-background">
+                    <HighlightedLiquidEditor
+                      value={editedContent}
+                      onChange={handleContentChange}
+                      className="h-full w-full"
+                      options={{ style: editorStyle }}
+                    />
+                  </div>
+                  <div className="mt-2 flex shrink-0 gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="min-h-11 flex-1 touch-manipulation bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200"
+                      onClick={handleCopy}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="min-h-11 flex-1 touch-manipulation border-red-200 bg-red-50 font-medium text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
+                      onClick={handleReset}
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Reset
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="preview" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
+                  <div className="mb-2">
+                    <h2 className="text-base font-semibold">Preview</h2>
+                    <p className="text-xs text-muted-foreground">Rendered message</p>
+                  </div>
+                  <div className="min-h-[min(50dvh,420px)] rounded-md border border-border bg-card p-3">
+                    {isLoading ? (
+                      <div className="flex min-h-[200px] items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    ) : error ? (
+                      <Alert variant="destructive">
+                        <ExclamationTriangleIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      <LiquidPreview text={previewContent} />
+                    )}
+                  </div>
+                </TabsContent>
+              </div>
+
+              <TabsList className="sticky bottom-0 z-10 grid h-14 w-full shrink-0 grid-cols-4 gap-1 rounded-xl border border-border bg-card/95 p-1 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] shadow-lg backdrop-blur">
+                <TabsTrigger
+                  value="library"
+                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
+                >
+                  <Library className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
+                  <span className="sm:inline">Library</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="data"
+                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
+                >
+                  <Database className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
+                  <span className="sm:inline">Data</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="edit"
+                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
+                >
+                  <Code2 className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
+                  <span className="sm:inline">Edit</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="preview"
+                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
+                >
+                  <Eye className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
+                  <span className="sm:inline">Preview</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
 
-      <DocumentationDialog 
-        isOpen={isDocumentationOpen} 
-        onOpenChange={setIsDocumentationOpen} 
-        template={selectedTemplate} 
+      <DocumentationDialog
+        isOpen={isDocumentationOpen}
+        onOpenChange={setIsDocumentationOpen}
+        template={selectedTemplate}
       />
 
-      <GeneralDocumentationDialog 
-        isOpen={isGeneralDocumentationOpen} 
-        onOpenChange={setIsGeneralDocumentationOpen} 
+      <GeneralDocumentationDialog
+        isOpen={isGeneralDocumentationOpen}
+        onOpenChange={setIsGeneralDocumentationOpen}
       />
     </div>
   );
-} 
+}

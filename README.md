@@ -120,7 +120,15 @@ Upload the **`dist/`** output to any static host (S3 + CloudFront, Netlify, **Ve
 
 ### Progressive Web App (PWA)
 
-Production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) so the editor can be **installed** and precaches static assets. Icons use the Braze SVGs under `public/imgs/`. After deploy, open the site over **HTTPS**, use the browser **Install** / **Add to Home Screen** affordance, and confirm updates when a new build is published (the client uses `registerType: 'autoUpdate'`).
+Production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) so the editor can be **installed** and precaches static assets. **PNG icons** (`manifest-icon-*.png`) and **Apple splash screens** live under `public/pwa/` and are linked from `index.html` for iOS standalone launch. After deploy, open the site over **HTTPS**, use **Install** / **Add to Home Screen**, and rely on `registerType: 'autoUpdate'` for new builds.
+
+Regenerate splash + maskable icons (e.g. after changing the mark or canvas color):
+
+```bash
+npm run generate:pwa-assets
+```
+
+Then ensure `index.html` and `vite.config.js` still reference `/pwa/...` paths (the CLI prints tags with a duplicated path if `-a` is wrong—this repo uses `/pwa/...` only).
 
 ## 🤝 Contributing
 

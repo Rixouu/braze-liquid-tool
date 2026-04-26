@@ -73,7 +73,11 @@
   }
 
   body {
-    @apply min-h-screen bg-background text-foreground font-sans font-normal antialiased;
+    @apply min-h-svh bg-background text-foreground font-sans font-normal antialiased;
+  }
+
+  #root {
+    @apply min-h-svh;
   }
 
   button,

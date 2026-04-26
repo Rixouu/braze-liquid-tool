@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "generate:pwa-assets": "npx --yes pwa-asset-generator@latest public/imgs/braze-icon-original.svg public/pwa -b \"#f4f5fb\" -t png --portrait-only -p \"18%\" -a \"/pwa\""
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",

@@ -16,6 +16,7 @@ export default defineConfig({
         'imgs/braze-icon-white.svg',
         'imgs/braze-icon-original.svg',
         'imgs/braze-logo.svg',
+        'pwa/**/*.png',
       ],
       manifest: {
         id: '/',
@@ -32,21 +33,41 @@ export default defineConfig({
         categories: ['productivity', 'developer tools'],
         icons: [
           {
-            src: '/imgs/braze-icon-original.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
+            src: '/pwa/manifest-icon-192.maskable.png',
+            sizes: '192x192',
+            type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/imgs/braze-icon-white.svg',
+            src: '/pwa/manifest-icon-512.maskable.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: '/pwa/manifest-icon-512.maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'maskable',
+          },
+        ],
+        screenshots: [
+          {
+            src: '/pwa/apple-splash-1290-2796.png',
+            sizes: '1290x2796',
+            type: 'image/png',
+            form_factor: 'narrow',
+          },
+          {
+            src: '/pwa/apple-splash-2048-2732.png',
+            sizes: '2048x2732',
+            type: 'image/png',
+            form_factor: 'wide',
           },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png,webmanifest}'],
         navigateFallback: 'index.html',
         runtimeCaching: [
           {
