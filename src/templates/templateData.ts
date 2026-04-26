@@ -100,7 +100,10 @@ now = '2023-07-15'`,
         { name: 'custom_attribute.last_app_open', description: 'The date when the user last opened the app', type: 'Date', example: '2023-07-12' },
         { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
-      notes: `Matches Braze’s “last opened the app” pattern: epoch seconds for last_used and now, then minus and divided_by: 86400. In Braze, replace last_used_date with {{${last_used_app_date}}} inside date: "%s".\nMake sure to have the user's last app usage date stored as a custom attribute.`
+      notes:
+        `Matches Braze’s “last opened the app” pattern: epoch seconds for last_used and now, then minus and divided_by: 86400. In Braze, replace last_used_date with ` +
+        '{{${last_used_app_date}}}' +
+        ` inside date: "%s".\nMake sure to have the user's last app usage date stored as a custom attribute.`,
     },
     examples: [
       {
