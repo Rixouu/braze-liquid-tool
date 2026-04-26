@@ -9,7 +9,7 @@ interface SectionProps {
 
 export function Section({ id, title, icon, children }: SectionProps) {
   return (
-    <div id={id} className="mb-6">
+    <div id={id} className="mb-6 scroll-mt-4">
       <h3 className="text-xl font-semibold mb-3 flex items-center">
         {icon}
         <span className="ml-2">{title}</span>

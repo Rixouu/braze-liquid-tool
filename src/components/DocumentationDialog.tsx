@@ -1,17 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogDescription,
   DialogOverlay,
-} from "@radix-ui/react-dialog";
+} from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { X, Eye, BookOpen, Variable, Code, AlertTriangle } from 'lucide-react';
 import { Section } from '@/components/Section';
 import { Template, VariableType } from '@/types';
+import { cn } from '@/lib/utils';
+
+const DOC_SECTIONS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'variables', label: 'Variables' },
+  { id: 'examples', label: 'Examples' },
+] as const;
 
 interface DocumentationDialogProps {
   isOpen: boolean;
@@ -20,119 +28,190 @@ interface DocumentationDialogProps {
 }
 
 export function DocumentationDialog({ isOpen, onOpenChange, template }: DocumentationDialogProps) {
+  const scrollBodyRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<string>(DOC_SECTIONS[0].id);
+
+  const scrollToSection = useCallback((id: string) => {
+    const root = scrollBodyRef.current;
+    if (!root) return;
+    const el = root.querySelector(`#${id}`);
+    if (el instanceof HTMLElement) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setActiveSection(id);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !template) return;
+    setActiveSection(DOC_SECTIONS[0].id);
+    requestAnimationFrame(() => {
+      const root = scrollBodyRef.current;
+      if (root) root.scrollTop = 0;
+    });
+  }, [isOpen, template?.id]);
+
+  useEffect(() => {
+    if (!isOpen || !template) return;
+    let obs: IntersectionObserver | undefined;
+    const tid = window.setTimeout(() => {
+      const root = scrollBodyRef.current;
+      if (!root) return;
+      obs = new IntersectionObserver(
+        (entries) => {
+          const intersecting = entries
+            .filter((e) => e.isIntersecting && e.target.id)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+          const top = intersecting[0];
+          if (top?.target?.id) setActiveSection(top.target.id);
+        },
+        { root, rootMargin: '-12% 0px -55% 0px', threshold: [0, 0.1, 0.25, 0.5, 1] },
+      );
+      DOC_SECTIONS.forEach(({ id }) => {
+        const el = root.querySelector(`#${id}`);
+        if (el) obs?.observe(el);
+      });
+    }, 0);
+    return () => {
+      window.clearTimeout(tid);
+      obs?.disconnect();
+    };
+  }, [isOpen, template?.id]);
+
   if (!template) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogOverlay className="fixed inset-0 bg-black/50 z-50" />
-      <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="bg-white dark:bg-black rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-black z-10">
-            <div className="flex justify-between items-center">
-              <div>
-                <DialogTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+      <DialogOverlay className="fixed inset-0 z-50 bg-black/50" />
+      <DialogContent className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="flex h-[min(85dvh,720px)] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl">
+          <div className="shrink-0 border-b border-border bg-card px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <DialogTitle className="text-xl font-semibold text-foreground sm:text-2xl">
                   {template.name}
                 </DialogTitle>
-                <DialogDescription className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <DialogDescription className="mt-1.5 text-sm text-muted-foreground">
                   {template.description}
                 </DialogDescription>
               </div>
               <Button
                 variant="ghost"
-                size="icon" 
+                size="icon"
                 onClick={() => onOpenChange(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="shrink-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Close documentation"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
-            <nav className="flex space-x-4 mt-4">
-              {['Overview', 'Usage', 'Variables', 'Examples'].map((section) => (
-                <a
-                  key={section}
-                  href={`#${section.toLowerCase()}`}
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+
+            <nav
+              className="mt-4 flex flex-wrap gap-2"
+              aria-label="Documentation sections"
+            >
+              {DOC_SECTIONS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => scrollToSection(id)}
+                  aria-current={activeSection === id ? 'true' : undefined}
+                  className={cn(
+                    'touch-manipulation rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    activeSection === id
+                      ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                      : 'border-border bg-muted/60 text-foreground hover:border-primary/40 hover:bg-muted',
+                  )}
                 >
-                  {section}
-                </a>
+                  {label}
+                </button>
               ))}
             </nav>
           </div>
 
-          <div className="p-6 space-y-8 dark:text-gray-200">
-            <Section id="overview" title="Overview" icon={<Eye className="h-6 w-6" />}>
-              <div className="bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-gray-300">{template.documentation.overview}</p>
-              </div>
-            </Section>
-
-            <Section id="usage" title="Usage" icon={<BookOpen className="h-6 w-6" />}>
-              <div className="bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{template.documentation.usage}</p>
-                <div className="bg-yellow-50 dark:bg-[#1e1e1e] p-3 rounded-md">
-                  <h4 className="font-medium mb-2 text-sm text-yellow-800 dark:text-yellow-200 flex items-center">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Notes:
-                  </h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-yellow-700 dark:text-yellow-300">
-                    {template.documentation.notes.split('\n').map((note, index) => (
-                      <li key={index}>{note}</li>
-                    ))}
-                  </ul>
+          <div
+            ref={scrollBodyRef}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6"
+          >
+            <div className="space-y-8 text-foreground">
+              <Section id="overview" title="Overview" icon={<Eye className="h-6 w-6" />}>
+                <div className="rounded-lg border border-border bg-muted/40 p-4">
+                  <p className="text-sm text-muted-foreground">{template.documentation.overview}</p>
                 </div>
-              </div>
-            </Section>
+              </Section>
 
-            <Section id="variables" title="Variables" icon={<Variable className="h-6 w-6" />}>
-              <div className="grid grid-cols-1 gap-4">
-                {template.documentation.variables.map((variable: VariableType, index: number) => (
-                  <div key={index} className="bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <div className="flex items-center mb-2">
-                      <span className="font-mono text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
-                        {variable.name}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">{variable.description}</p>
-                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold">Type:</span> {variable.type || 'Not specified'}
-                    </div>
-                    {variable.example && (
-                      <div className="mt-2">
-                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Example:</span>
-                        <code className="ml-2 text-xs bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded">
-                          {variable.example}
-                        </code>
+              <Section id="usage" title="Usage" icon={<BookOpen className="h-6 w-6" />}>
+                <div className="rounded-lg border border-border bg-muted/40 p-4">
+                  <p className="mb-4 text-sm text-muted-foreground">{template.documentation.usage}</p>
+                  <div className="rounded-md border border-amber-200/80 bg-amber-50/90 p-3 dark:border-amber-900/50 dark:bg-amber-950/30">
+                    <h4 className="mb-2 flex items-center text-sm font-medium text-amber-900 dark:text-amber-200">
+                      <AlertTriangle className="mr-2 h-4 w-4 shrink-0" />
+                      Notes
+                    </h4>
+                    <ul className="list-inside list-disc space-y-1 text-sm text-amber-900/90 dark:text-amber-100/90">
+                      {template.documentation.notes.split('\n').map((note, index) => (
+                        <li key={index}>{note}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Section>
+
+              <Section id="variables" title="Variables" icon={<Variable className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 gap-4">
+                  {template.documentation.variables.map((variable: VariableType, index: number) => (
+                    <div
+                      key={index}
+                      className="rounded-lg border border-border bg-muted/40 p-4 shadow-sm"
+                    >
+                      <div className="mb-2 flex items-center">
+                        <span className="rounded bg-primary/15 px-2 py-1 font-mono text-sm text-primary">
+                          {variable.name}
+                        </span>
                       </div>
-                    )}
+                      <p className="text-sm text-muted-foreground">{variable.description}</p>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        <span className="font-semibold">Type:</span> {variable.type || 'Not specified'}
+                      </div>
+                      {variable.example && (
+                        <div className="mt-2">
+                          <span className="text-xs font-semibold text-muted-foreground">Example:</span>
+                          <code className="ml-2 rounded bg-muted px-1 py-0.5 text-xs">{variable.example}</code>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Section>
+
+              <Section id="examples" title="Examples" icon={<Code className="h-6 w-6" />}>
+                {template.examples.map((example, index) => (
+                  <div
+                    key={index}
+                    className="mb-6 last:mb-0 rounded-lg border border-border bg-muted/40 p-4"
+                  >
+                    <h4 className="mb-3 text-sm font-medium text-foreground">{example.description}</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <h5 className="mb-1 text-xs font-medium text-muted-foreground">Input</h5>
+                        <pre className="overflow-x-auto rounded-md border border-border bg-background p-3 text-xs">
+                          <code>{example.code}</code>
+                        </pre>
+                      </div>
+                      <div>
+                        <h5 className="mb-1 text-xs font-medium text-muted-foreground">Output</h5>
+                        <div className="rounded-md border border-border bg-background p-3 text-sm">
+                          {example.output}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </Section>
-
-            <Section id="examples" title="Examples" icon={<Code className="h-6 w-6" />}>
-              {template.examples.map((example, index) => (
-                <div key={index} className="mb-6 last:mb-0 bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="font-medium mb-3 text-sm text-gray-700 dark:text-gray-200">{example.description}</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <h5 className="font-medium mb-1 text-xs text-gray-500 dark:text-gray-400">Input:</h5>
-                      <pre className="bg-gray-100 dark:bg-gray-600 p-3 rounded-md overflow-x-auto text-xs">
-                        <code>{example.code}</code>
-                      </pre>
-                    </div>
-                    <div>
-                      <h5 className="font-medium mb-1 text-xs text-gray-500 dark:text-gray-400">Output:</h5>
-                      <div className="bg-white dark:bg-[#0d0d0d] p-3 rounded-md text-sm border border-gray-200 dark:border-gray-700">
-                        {example.output}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </Section>
+              </Section>
+            </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-} 
+}
