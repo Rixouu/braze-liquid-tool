@@ -12,15 +12,16 @@ const liquidHighlight = (str: string, isDark: boolean) => {
   const keywordColor = isDark ? '#6ee7b7' : '#047857'
   const operatorColor = isDark ? '#e2e8f0' : '#57534e'
 
-  // Escape HTML characters, but preserve Liquid syntax
-  str = str.replace(/&(?!amp;)/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  // Escape characters that would break the overlay HTML. Do not escape `>`:
+  // Liquid tags end with `%}`; turning `>` into `&gt;` breaks `/{%.*?%}/g` and
+  // leaves corrupted innerHTML (e.g. string highlighter matching inside spans).
+  str = str.replace(/&(?!amp;|lt;|gt;|quot;|#)/g, '&amp;').replace(/</g, '&lt;');
 
   // Highlight Liquid tags
   str = str.replace(/{%.*?%}/g, (match) => {
     // Highlight keywords within tags
-    let highlightedMatch = match.replace(/\b(if|else|elsif|endif|assign|capture|endcapture)\b/g,
+    let highlightedMatch = match.replace(
+      /\b(if|else|elsif|endif|assign|capture|endcapture|case|when|endcase|for|endfor|abort_message|tablerow|endtablerow|unless|endunless|comment|endcomment)\b/g,
       `<span style="color: ${keywordColor};${FW}">$1</span>`
     );
     // Highlight numbers within tags

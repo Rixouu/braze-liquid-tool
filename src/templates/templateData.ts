@@ -24,13 +24,13 @@ Exactly three years ago today we met for the first time!
 {% elsif years_since > 3 %}
 It's been {{years_since}} years since we first met. Time flies!
 {% else %}
-{% abort_message "Not an anniversary year" %}
+{% abort_message("Not an anniversary year") %}
 {% endif %}
 {% else %}
-{% abort_message "Not same day" %}
+{% abort_message("Not same day") %}
 {% endif %}
 {% else %}
-{% abort_message "Not same month" %}
+{% abort_message("Not same month") %}
 {% endif %}`,
     sampleData: {
       now: '2024-07-15',
@@ -45,7 +45,7 @@ It's been {{years_since}} years since we first met. Time flies!
         { name: 'custom_attribute.registration_date', description: 'The date when the user registered', type: 'Date', example: '2022-07-15' },
         { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
-      notes: `Ensure the user's registration date is stored as a custom attribute.\nUpdate the anniversary messages as needed for your brand voice.`
+      notes: `Aligned with Braze’s “Anniversaries and holidays” patterns (month/day/year checks and {% abort_message("…") %}). The live docs compare anniversary_year to fixed strings for illustration; this playground uses years_since from the current and signup years so the same sample dates work across years.\nEnsure the user's registration date is stored as a custom attribute.\nUpdate the anniversary messages as needed for your brand voice.`
     },
     examples: [
       {
@@ -67,7 +67,10 @@ now = '2023-07-15'`,
     name: 'Recent App Usage',
     category: 'App Usage',
     description: 'Personalize messages based on when a user last opened the app',
-    content: `{% assign days_since_last_use = '[[now]]' | date: '%s' | minus: '[[custom_attribute.last_app_open]]' | date: '%s' | divided_by: 86400 | round %}
+    content: `{% assign last_used_date = '[[custom_attribute.last_app_open]]' | date: "%s" %}
+{% assign now_ts = '[[now]]' | date: "%s" %}
+{% assign difference_in_days = now_ts | minus: last_used_date | divided_by: 86400 %}
+{% assign days_since_last_use = difference_in_days | round %}
 
 {% if days_since_last_use == 0 %}
   Welcome back! Glad to see you again today.
@@ -97,7 +100,7 @@ now = '2023-07-15'`,
         { name: 'custom_attribute.last_app_open', description: 'The date when the user last opened the app', type: 'Date', example: '2023-07-12' },
         { name: 'now', description: 'The current date', type: 'Date', example: '2023-07-15' }
       ],
-      notes: `Make sure to have the user's last app usage date stored as a custom attribute.`
+      notes: `Matches Braze’s “last opened the app” pattern: epoch seconds for last_used and now, then minus and divided_by: 86400. In Braze, replace last_used_date with {{${last_used_app_date}}} inside date: "%s".\nMake sure to have the user's last app usage date stored as a custom attribute.`
     },
     examples: [
       {
@@ -184,7 +187,7 @@ now = '2023-07-15'`,
         { name: 'custom_attribute.next_billing_date', description: 'The date of the user\'s next billing cycle', type: 'Date', example: '2023-08-01' },
         { name: 'custom_attribute.trial_end_date', description: 'The date when the user\'s free trial ends', type: 'Date', example: '2023-07-22' }
       ],
-      notes: `Make sure to have the user's device platform and subscription status stored as custom attributes or in the user profile.`
+      notes: `Braze often uses targeted_device.\${platform} for OS; this template uses custom_attribute.device_type so you can try ios / android / web in sample data.\nMake sure to have the user's device platform and subscription status stored as custom attributes or in the user profile.`
     },
     examples: [
       {
@@ -400,7 +403,7 @@ now = '2023-07-15'`,
   {% if this_month == birth_month %}
   Message body 
   {% else %} 
-  {% abort_message "Not their birthday month" %}
+  {% abort_message("Not their birthday month") %}
   {% endif %}`,
     sampleData: {
       custom_attribute: {
