@@ -1,118 +1,146 @@
-# Liquid Syntax Editor for Braze CRM
+# 💧 Braze Liquid Tool
 
-## Last Updated
+**Braze Liquid Tool** is a web app for marketers and developers to author and test [Liquid](https://shopify.github.io/liquid/) templates the way you use them in **Braze**: browse sample templates, edit with Liquid-aware highlighting, inject sample JSON, and preview rendered output in real time.
 
-September,14th 2023
-March, 18th 2025
+The product direction, UX, and implementation are led by [Jonathan Rycx](https://github.com/Rixouu).
 
-## Overview
+[![React 18](https://img.shields.io/badge/React-18.3-blue)](https://react.dev/)
+[![Vite 6](https://img.shields.io/badge/Vite-6.4-yellow)](https://vitejs.dev/)
+[![TypeScript 5](https://img.shields.io/badge/TypeScript-5.6-3178c6)](https://www.typescriptlang.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4.2-38bdf8)](https://tailwindcss.com/)
+[![React Router 6](https://img.shields.io/badge/React_Router-6-ef4444)](https://reactrouter.com/)
+[![LiquidJS](https://img.shields.io/badge/LiquidJS-10-0ea5e9)](https://liquidjs.com/)
 
-The Liquid Syntax Editor is an advanced web-based tool designed for marketers and developers to create and edit personalized messages using Liquid syntax for Braze CRM. This editor offers a sophisticated interface for template management, content editing with preserved Liquid syntax, and real-time preview functionality.
+## ✨ Key Features
 
-## Features
+### 📚 Templates & editing
+- **Template library**: categorized Braze-oriented samples you can load into the editor.
+- **Liquid-aware highlighting**: custom highlighter keeps tags, filters, and variables readable while you edit.
+- **Search**: find templates quickly from the sidebar.
 
-- **Template Library**: Browse and select from a categorized collection of pre-defined templates.
-- **Syntax Highlighting**: Enhanced real-time highlighting of Liquid syntax for efficient editing.
-- **Live Preview**: Instant rendering of messages with Liquid syntax applied.
-- **Sample Data Editor**: Edit sample data in real-time to test different scenarios.
-- **Enhanced Dark Mode**: Optimized dark theme with true black backgrounds and better contrast for reduced eye strain.
-- **Responsive Design**: Fully functional across desktop and mobile devices.
-- **Copy and Reset**: Quick actions to copy edited content or revert to the original template.
-- **Documentation**: Integrated documentation for each template and general Liquid syntax guide.
-- **Search Functionality**: Easily find templates with a built-in search feature.
+### 👁️ Preview & data
+- **Live preview**: LiquidJS renders the template against your current editor content.
+- **Sample data editor**: edit JSON used as context for preview (dates, nested objects, edge cases).
+- **Luxon**: realistic date handling in samples and UI where dates appear.
 
-## Technology Stack
+### 🎨 UX & docs
+- **Dark mode**: `next-themes` plus Tailwind’s class-based `dark:` variant (`.dark` on the root), tuned for long sessions.
+- **Documentation**: per-template notes plus a general Liquid / Braze-oriented guide in dialogs.
+- **Copy & reset**: one-click copy of output or body; reset restores the loaded template baseline.
+- **Responsive layout**: usable on desktop and smaller viewports.
 
-- React 18
-- Vite 4
-- TypeScript 5
-- Tailwind CSS 3
-- shadcn/ui components
-- next-themes for theme management
-- LiquidJS for Liquid syntax parsing and rendering
-- Luxon for advanced date and time handling
+## 🛠 Tech stack
 
-## Getting Started
+### Frontend
+- **React 18** + **React DOM** (`createRoot`, `StrictMode`)
+- **Vite 6** for dev server and production builds
+- **TypeScript 5**
+- **Tailwind CSS 4** (**`@tailwindcss/vite`**) + **tailwindcss-animate**
+- **React Router 6** for in-app routing
+
+### UI & motion
+- **Radix UI** primitives (dialog, popover, select, tabs, tooltip, scroll area, …)
+- **shadcn/ui–style** components under `src/components/ui` (class-variance-authority, `tailwind-merge`)
+- **lucide-react** icons
+- **Framer Motion** for transitions where used
+- **Material UI (MUI) 6** + **Emotion** for select complex surfaces
+
+### Templating & utilities
+- **LiquidJS** for parsing and rendering Liquid
+- **Luxon** for date/time
+- **react-window** for efficient long lists
+
+## 🚀 Quick start
 
 ### Prerequisites
-
-- Node.js (version 16 or later recommended)
-- npm or yarn
+- **Node.js 18+** (aligns with Vite 6 engines; **20+** recommended)
+- **npm**
 
 ### Installation
 
-1. Clone the repository:
+```bash
+npm install
+npm run dev
+```
 
-   ```bash
-   git clone https://github.com/your-username/liquid-syntax-editor.git
-   cd liquid-syntax-editor
-   ```
+Default dev URL: **http://localhost:5173**
 
-2. Install dependencies:
+There is **no** required `.env` for local development; the app runs entirely in the browser with bundled templates and client-side Liquid rendering.
 
-   ```bash
-   npm install
-   ```
+## 📁 Project structure
 
-   or if you're using yarn:
+```txt
+braze-liquid-tool/
+├── src/
+│   ├── components/       # App chrome, editors, dialogs, ThemeToggle, …
+│   ├── components/ui/    # Reusable UI primitives (shadcn-style)
+│   ├── templates/        # Liquid template sources + metadata
+│   ├── lib/              # Shared helpers
+│   ├── types/            # TypeScript types
+│   ├── assets/           # Static assets used by the UI
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+├── index.html
+├── vite.config.js        # React + @tailwindcss/vite
+├── tailwind.config.js    # Theme extensions (loaded via @config in src/index.css)
+├── components.json       # shadcn/ui generator config
+└── eslint.config.js
+```
 
-   ```bash
-   yarn install
-   ```
+## 🔧 Available scripts
 
-3. Start the development server:
+### Development
 
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev              # Vite dev server
+```
 
-   or with yarn:
+### Build / preview
 
-   ```bash
-   yarn dev
-   ```
+```bash
+npm run build            # Production bundle → dist/
+npm run preview          # Local preview of the production build
+```
 
-4. Open your browser and navigate to `http://localhost:5173` (or the port specified in your console).
+### Code quality
 
-## Usage
+```bash
+npm run lint             # ESLint across the repo
+```
 
-1. Use the search bar to find specific templates or browse the categorized template library.
-2. Select a template to load it into the editor.
-3. Edit the content in the syntax-highlighted editor while preserving the Liquid syntax.
-4. Modify sample data in the Sample Data Editor to test different scenarios.
-5. View your changes in real-time in the preview pane.
-6. Access template-specific documentation and general Liquid syntax guide using the documentation buttons.
-7. Use the Copy button to copy your edited content to the clipboard.
-8. Use the Reset button to revert to the original template content.
-9. Toggle between light and dark modes using the theme switch.
+## 🚀 Deployment
 
-## New Features and Optimizations (March 2025)
+```bash
+npm run build
+```
 
-- **Modular Code Architecture**: Completely restructured codebase for better maintainability and performance.
-- **Enhanced Dark Mode**: Redesigned dark theme with true black backgrounds and improved contrast.
-- **Optimized Performance**: Reduced component re-renders and improved state management.
-- **Improved Sample Data Editor**: More intuitive interface with better date picking capabilities.
-- **Responsive Documentation Dialogs**: Redesigned documentation windows for better readability.
-- **Type Safety**: Enhanced TypeScript interfaces and type definitions.
-- **Organizational Structure**: Clear separation of templates, components, and utility functions.
+Upload the **`dist/`** output to any static host (S3 + CloudFront, Netlify, **Vercel**, etc.). This repo includes a `.vercel` directory if you deploy with the Vercel CLI or Git integration—set the build command to `npm run build` and publish `dist` as the static output directory in your host’s settings.
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please open a PR with a short description of the change and any screenshots for UI tweaks.
 
-## License
+1. Run **`npm run lint`** before submitting.
+2. Keep Liquid samples and preview behavior backward compatible unless the PR calls out an intentional breaking change.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 License
 
-## Acknowledgments
+Intended to be **MIT**-licensed (as in prior project docs). Add a root **`LICENSE`** file to publish the full legal text; until then, confirm terms with the maintainer if you need a formal grant.
 
-- Braze CRM for inspiring this project
-- The React and Vite communities for their excellent tools and documentation
-- shadcn/ui for the beautiful UI components
-- LiquidJS for the Liquid templating engine
-- Luxon for powerful date and time manipulation
+## 👥 Team
 
-## Contact
+- **Jonathan** — Product & engineering — [Rixouu](https://github.com/Rixouu) · [LinkedIn](https://www.linkedin.com/in/jonathanrycx/)
 
-Jonathan Rycx
-<https://www.linkedin.com/in/jonathanrycx/>
+## 🙏 Acknowledgments
+
+- [Braze](https://www.braze.com/) for the CRM context that inspired the tool
+- [LiquidJS](https://github.com/harttle/liquidjs) for a solid Liquid implementation in the browser
+- [Vite](https://vitejs.dev/) and the React team for the developer experience
+- [shadcn/ui](https://ui.shadcn.com/) and [Radix UI](https://www.radix-ui.com/) for accessible primitives
+- [Luxon](https://moment.github.io/luxon/) for date and time utilities
+- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling (v4 + Vite plugin)
+
+---
+
+**Built for clearer Braze Liquid and faster message iteration.**
