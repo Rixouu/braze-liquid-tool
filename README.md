@@ -121,7 +121,7 @@ Upload the **`dist/`** output to any static host (S3 + CloudFront, Netlify, **Ve
 
 ### Progressive Web App (PWA)
 
-This app is built and shipped as a **PWA** first: production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) with **`registerType: 'autoUpdate'`**, precache rules for JS/CSS/HTML/fonts/icons/splashes, and a **Web App Manifest** (`name`, `short_name`, maskable icons, theme colors). The UI includes an **install banner** (similar in spirit to the [Split the G](https://github.com/Rixouu/split-the-g) PWA) so eligible browsers can install in one tap.
+This app is built and shipped as a **PWA** first: production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) with **`registerType: 'autoUpdate'`**, precache rules for JS/CSS/HTML/fonts/icons/splashes, and a **Web App Manifest** (`name`, `short_name`, maskable icons, theme colors). The UI includes an **install banner** so eligible browsers can install in one tap.
 
 **PNG icons** (`manifest-icon-*.png`) and **Apple splash screens** live under `public/pwa/` and are linked from `index.html` for iOS standalone launch. Deploy behind **HTTPS**, then use **Install** / **Add to Home Screen**; new deployments pick up updates when the new service worker activates.
 
