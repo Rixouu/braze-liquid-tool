@@ -134,7 +134,7 @@ function TemplateLibrarySection({
       <Input
         type="search"
         placeholder="Search templates…"
-        className="mb-2 h-10 w-full touch-manipulation sm:mb-3 sm:h-11 lg:mb-4"
+        className="mb-2 h-11 w-full touch-manipulation text-base sm:mb-3 sm:h-11 sm:text-sm lg:mb-4 lg:text-sm"
         value={searchTerm}
         onChange={onSearchChange}
       />
@@ -145,12 +145,12 @@ function TemplateLibrarySection({
               <Button
                 key={template.id}
                 variant="ghost"
-                className={`mb-2 min-h-11 w-full touch-manipulation justify-start px-3 py-3 text-left text-sm font-normal text-foreground hover:bg-muted sm:px-4 ${
+                className={`mb-2 min-h-12 w-full touch-manipulation justify-start px-3 py-3 text-left text-base font-normal text-foreground hover:bg-muted sm:min-h-11 sm:text-sm sm:px-4 ${
                   selectedTemplateId === template.id ? 'bg-muted font-medium' : ''
                 }`}
                 onClick={() => onSelectTemplate(template)}
               >
-                <Book className="h-[18px] w-[18px] shrink-0" />
+                <Book className="h-5 w-5 shrink-0" />
                 <span className="ml-2 truncate">{template.name}</span>
               </Button>
             ))
@@ -346,17 +346,64 @@ export function LiquidSyntaxEditor() {
   );
 
   return (
-    <div className="box-border flex min-h-svh flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] max-lg:pb-0 max-lg:pt-[max(0.25rem,env(safe-area-inset-top,0px))] sm:justify-center sm:py-4 lg:items-center lg:py-6">
-      <div className="mx-auto flex min-h-0 w-full max-w-[100vw] flex-1 flex-col px-2 max-lg:h-[100svh] max-lg:max-h-[100svh] max-lg:overflow-hidden sm:max-w-full sm:px-4 lg:h-auto lg:max-h-none lg:overflow-visible lg:px-8">
-        <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:h-full max-lg:min-h-0 max-lg:rounded-none max-lg:border-x-0 max-lg:shadow-none sm:max-lg:mx-0 sm:max-lg:rounded-xl sm:max-lg:shadow-md lg:min-h-0 lg:shadow-md">
-          <CardHeader className="shrink-0 space-y-3 border-b border-primary/20 p-4 max-lg:space-y-0 max-lg:p-2.5 max-lg:py-2 sm:p-6">
-            <div className="flex flex-col gap-3 max-lg:flex-row max-lg:items-center max-lg:justify-between max-lg:gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div className="flex min-w-0 flex-1 items-center gap-2 max-lg:gap-2 sm:gap-3">
+    <div className="box-border flex flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] max-lg:fixed max-lg:inset-0 max-lg:overflow-hidden lg:min-h-svh lg:items-center lg:py-6 lg:pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] lg:pt-[max(0.5rem,env(safe-area-inset-top,0px))] sm:justify-center sm:py-4">
+      <div className="mx-auto flex min-h-0 w-full max-w-[100vw] flex-1 flex-col px-2 max-lg:h-full max-lg:overflow-hidden max-lg:px-0 sm:max-w-full sm:px-4 lg:h-auto lg:max-h-none lg:overflow-visible lg:px-8">
+        <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:h-full max-lg:min-h-0 max-lg:rounded-none max-lg:border-0 max-lg:shadow-none sm:max-lg:mx-0 sm:max-lg:rounded-xl sm:max-lg:shadow-md lg:min-h-0 lg:shadow-md">
+          {/* Mobile header */}
+          <CardHeader className="shrink-0 border-b border-primary/20 p-0 lg:hidden">
+            <div className="flex items-center justify-between px-3 py-2">
+              <div className="flex items-center gap-2">
                 <img
                   src="/imgs/braze-icon-black.svg"
                   alt="Braze icon"
-                  aria-hidden={true} 
-                  className="h-8 w-8 shrink-0 max-lg:h-7 max-lg:w-7 sm:h-9 sm:w-9 dark:hidden"
+                  aria-hidden={true}
+                  className="h-7 w-7 shrink-0 dark:hidden"
+                  width={28}
+                  height={28}
+                />
+                <img
+                  src="/imgs/braze-icon-white.svg"
+                  alt="Braze icon"
+                  aria-hidden={true}
+                  className="hidden h-7 w-7 shrink-0 dark:block"
+                  width={28}
+                  height={28}
+                />
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Braze</p>
+                  <p className="-mt-0.5 text-base font-bold leading-tight text-foreground">Liquid Editor</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 touch-manipulation text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsGeneralDocumentationOpen(true)}
+                      >
+                        <Book className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Documentation</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <ThemeToggle />
+              </div>
+            </div>
+          </CardHeader>
+
+          {/* Desktop header */}
+          <CardHeader className="hidden shrink-0 space-y-3 border-b border-primary/20 p-4 lg:block sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                <img
+                  src="/imgs/braze-icon-black.svg"
+                  alt="Braze icon"
+                  aria-hidden={true}
+                  className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:hidden"
                   width={36}
                   height={36}
                 />
@@ -364,11 +411,11 @@ export function LiquidSyntaxEditor() {
                   src="/imgs/braze-icon-white.svg"
                   alt="Braze icon"
                   aria-hidden={true}
-                  className="hidden h-8 w-8 shrink-0 max-lg:h-7 max-lg:w-7 sm:h-9 sm:w-9 dark:block"
+                  className="hidden h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:block"
                   width={36}
                   height={36}
                 />
-                <CardTitle className="truncate text-lg font-semibold leading-tight tracking-tight text-foreground max-lg:text-[0.9375rem] sm:text-2xl lg:text-3xl">
+                <CardTitle className="truncate text-lg font-semibold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">
                   Braze Liquid Syntax Editor
                 </CardTitle>
               </div>
@@ -379,15 +426,13 @@ export function LiquidSyntaxEditor() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted max-lg:h-9 max-lg:w-9 sm:h-9 sm:w-9"
+                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted sm:h-9 sm:w-9"
                         onClick={() => setIsGeneralDocumentationOpen(true)}
                       >
-                        <Book className="h-4 w-4 max-lg:h-3.5 max-lg:w-3.5" />
+                        <Book className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Documentation</p>
-                    </TooltipContent>
+                    <TooltipContent><p>Documentation</p></TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <ThemeToggle />
@@ -395,7 +440,7 @@ export function LiquidSyntaxEditor() {
             </div>
           </CardHeader>
 
-          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-3 pb-2 max-lg:gap-2 max-lg:p-2 max-lg:pb-0 sm:p-6">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-3 pb-2 max-lg:gap-0 max-lg:p-0 max-lg:pb-0 sm:p-6">
             {/* Desktop */}
             <div className="hidden min-h-0 flex-1 lg:grid lg:grid-cols-4 lg:gap-6">
               <div className="space-y-6 lg:col-span-1">
@@ -506,66 +551,60 @@ export function LiquidSyntaxEditor() {
             <Tabs
               value={mobileTab}
               onValueChange={setMobileTab}
-              className="flex min-h-0 flex-1 flex-col overflow-hidden gap-1.5 lg:hidden"
+              className="flex min-h-0 flex-1 flex-col overflow-hidden lg:hidden"
             >
-              <div className="shrink-0 rounded-lg border border-dashed border-primary/20 bg-primary/[0.06] px-2 py-1.5 dark:bg-primary/10 max-lg:px-2 max-lg:py-1.5">
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-medium text-foreground max-lg:text-[10px] sm:text-[11px]">
-                  <span className="shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
-                    Steps
-                  </span>
-                  <span className="min-w-0 text-muted-foreground">
-                    {MOBILE_NAV.map((item, i) => (
-                      <span key={item.value} className="whitespace-nowrap">
-                        {i > 0 ? <span className="mx-1 text-muted-foreground/40">→</span> : null}
-                        <span
-                          className={cn(
-                            mobileTab === item.value && 'rounded-sm bg-background/90 px-1 py-0.5 text-primary shadow-sm dark:bg-background/50',
+              {!mobileHintDismissed && (
+                <div className="shrink-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent dark:from-primary/20 dark:via-primary/10 dark:to-transparent border-b border-primary/15">
+                  <div className="flex items-center justify-between px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      {MOBILE_NAV.map((item, i) => (
+                        <React.Fragment key={item.value}>
+                          <div className={cn(
+                            'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all duration-200',
+                            mobileTab === item.value
+                              ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30'
+                              : 'text-muted-foreground'
+                          )}>
+                            <span className={cn(
+                              'flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
+                              mobileTab === item.value
+                                ? 'bg-primary-foreground/20 text-primary-foreground'
+                                : 'bg-muted text-muted-foreground'
+                            )}>{item.step}</span>
+                            <span>{item.label}</span>
+                          </div>
+                          {i < MOBILE_NAV.length - 1 && (
+                            <span className="text-[10px] text-muted-foreground/40">&rsaquo;</span>
                           )}
-                        >
-                          {item.step}.{item.label}
-                        </span>
-                      </span>
-                    ))}
-                  </span>
-                </div>
-                {!mobileHintDismissed ? (
-                  <div className="mt-1.5 flex flex-col gap-1.5 border-t border-primary/10 pt-1.5 sm:flex-row sm:items-start sm:justify-between">
-                    <p className="text-[10px] leading-snug text-muted-foreground sm:text-[11px] sm:leading-relaxed">
-                      Pick a template in <strong className="font-medium text-foreground">Library</strong>
-                      —we open <strong className="font-medium text-foreground">Data</strong> next so you can tweak
-                      sample values. Then use <strong className="font-medium text-foreground">Edit</strong> for
-                      Liquid and <strong className="font-medium text-foreground">Preview</strong> for the rendered
-                      message (you can jump between tabs anytime).
-                    </p>
-                    <Button
+                        </React.Fragment>
+                      ))}
+                    </div>
+                    <button
                       type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 shrink-0 touch-manipulation self-start px-2 text-[10px] text-primary hover:bg-primary/10 sm:h-8 sm:text-xs"
+                      className="ml-2 shrink-0 touch-manipulation rounded-full p-1 text-muted-foreground/60 hover:text-muted-foreground"
                       onClick={() => {
                         setMobileHintDismissed(true);
-                        try {
-                          localStorage.setItem(MOBILE_FLOW_HINT_KEY, '1');
-                        } catch {
-                          /* ignore */
-                        }
+                        try { localStorage.setItem(MOBILE_FLOW_HINT_KEY, '1'); } catch { /* ignore */ }
                       }}
+                      aria-label="Dismiss"
                     >
-                      Got it
-                    </Button>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </button>
                   </div>
-                ) : null}
-              </div>
+                </div>
+              )}
 
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-muted/20">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
                 <TabsContent
                   value="library"
                   className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
                 >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3">
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3 pt-3 pb-1">
                     <div className="shrink-0">
-                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Template Library</h2>
-                      <p className="text-[11px] text-muted-foreground sm:text-xs">Choose a template</p>
+                      <h2 className="text-lg font-semibold leading-tight">Templates</h2>
+                      <p className="text-sm text-muted-foreground">Tap a template to start</p>
                     </div>
                     <TemplateLibrarySection
                       searchTerm={searchTerm}
@@ -582,10 +621,10 @@ export function LiquidSyntaxEditor() {
                   value="data"
                   className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
                 >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pt-3 pb-1">
                     <div className="shrink-0">
-                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Sample Data</h2>
-                      <p className="text-[11px] text-muted-foreground sm:text-xs">Edit JSON-backed fields</p>
+                      <h2 className="text-lg font-semibold leading-tight">Sample Data</h2>
+                      <p className="text-sm text-muted-foreground">Edit fields used in the preview</p>
                     </div>
                     <div className="min-h-0 flex-1 overflow-y-auto">
                       <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
@@ -597,7 +636,7 @@ export function LiquidSyntaxEditor() {
                   value="edit"
                   className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
                 >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3">
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3 pt-3 pb-1">
                     <div className="flex shrink-0 flex-wrap gap-2">
                       <Button
                         variant="outline"
@@ -644,10 +683,10 @@ export function LiquidSyntaxEditor() {
                   value="preview"
                   className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
                 >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pt-3 pb-1">
                     <div className="shrink-0">
-                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Preview</h2>
-                      <p className="text-[11px] text-muted-foreground sm:text-xs">Rendered message</p>
+                      <h2 className="text-lg font-semibold leading-tight">Preview</h2>
+                      <p className="text-sm text-muted-foreground">Rendered output</p>
                     </div>
                     <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border bg-card p-3">
                       {isLoading ? (
@@ -671,7 +710,7 @@ export function LiquidSyntaxEditor() {
               </div>
 
               <TooltipProvider delayDuration={400}>
-                <TabsList className="z-20 grid w-full shrink-0 grid-cols-4 gap-0.5 rounded-t-xl border-t border-border bg-muted/70 p-1 pt-1.5 shadow-[0_-6px_28px_rgba(15,23,42,0.1)] backdrop-blur-md dark:bg-muted/40 dark:shadow-[0_-6px_28px_rgba(0,0,0,0.4)] max-lg:rounded-none pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
+                <TabsList className="mobile-tab-bar z-20 grid h-auto w-full shrink-0 grid-cols-4 gap-1 rounded-none border-t border-border bg-card px-2 pt-1.5 pb-2 dark:bg-card">
                   {MOBILE_NAV.map(({ value, label, Icon, tooltip }) => (
                     <Tooltip key={value}>
                       <TooltipTrigger asChild>
@@ -679,15 +718,15 @@ export function LiquidSyntaxEditor() {
                           value={value}
                           title={tooltip}
                           className={cn(
-                            'touch-manipulation flex min-h-[3.75rem] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2',
-                            'text-[10px] font-semibold leading-none tracking-tight transition-colors duration-150',
-                            'text-muted-foreground data-[state=inactive]:hover:bg-background/70 data-[state=inactive]:hover:text-foreground',
-                            'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md',
-                            'data-[state=active]:ring-1 data-[state=active]:ring-primary/40',
+                            'touch-manipulation flex min-h-[2.5rem] flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1',
+                            'text-xs font-semibold leading-none tracking-tight transition-all duration-200',
+                            'text-muted-foreground',
+                            'data-[state=inactive]:hover:text-foreground',
+                            'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25',
                             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                           )}
                         >
-                          <Icon className="h-5 w-5 shrink-0 stroke-[1.85]" aria-hidden />
+                          <Icon className="h-4 w-4 shrink-0 stroke-[2]" aria-hidden />
                           <span>{label}</span>
                         </TabsTrigger>
                       </TooltipTrigger>

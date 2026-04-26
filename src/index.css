@@ -380,3 +380,14 @@
     width: auto;
   }
 }
+
+/* Mobile tab bar – safe-area-aware bottom padding */
+.mobile-tab-bar {
+  padding-bottom: 0.75rem;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-tab-bar {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+  }
+}
