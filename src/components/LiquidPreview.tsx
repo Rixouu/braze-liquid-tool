@@ -35,7 +35,7 @@ export function LiquidPreview({ text }: { text: string }) {
 
   return (
     <div 
-      className="liquid-preview-container bg-white dark:bg-[#1a1a1a] p-4 h-full overflow-auto"
+      className="liquid-preview-container h-full overflow-auto border-0 bg-transparent p-0"
       dangerouslySetInnerHTML={{ __html: processedText }}
       onClick={(e) => {
         const target = e.target as HTMLElement;

@@ -148,17 +148,24 @@ export function LiquidSyntaxEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#000000] dark:to-[#0a0a0a] flex justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-br from-muted/80 to-muted dark:from-background dark:to-card flex justify-center items-center py-6">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-full">
-        <Card className="bg-white dark:bg-black">
-          <CardHeader className="border-b">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-3xl font-bold">Liquid Syntax Editor</CardTitle>
-              <div className="flex items-center space-x-4">
+        <Card className="border border-border bg-card text-card-foreground shadow-sm">
+          <CardHeader className="border-b border-border">
+            <div className="flex justify-between items-center gap-4">
+              <CardTitle className="text-2xl sm:text-3xl font-semibold tracking-tight">
+                Liquid Syntax Editor
+              </CardTitle>
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => setIsGeneralDocumentationOpen(true)}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="border-border text-foreground hover:bg-muted"
+                        onClick={() => setIsGeneralDocumentationOpen(true)}
+                      >
                         <Book className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
@@ -194,9 +201,9 @@ export function LiquidSyntaxEditor() {
                             <Button
                               key={template.id}
                               variant="ghost"
-                              className={`w-full justify-start mb-2 px-4 py-3 ${selectedTemplateId === template.id
-                                ? "bg-gray-200 dark:bg-[#1a1a1a] active"
-                                : "dark:bg-black"
+                              className={`w-full justify-start mb-2 px-4 py-3 font-normal text-foreground hover:bg-muted ${selectedTemplateId === template.id
+                                ? "bg-muted font-medium"
+                                : ""
                                 }`}
                               onClick={() => handleTemplateChange(template)}
                             >
@@ -300,7 +307,7 @@ export function LiquidSyntaxEditor() {
                         <HighlightedLiquidEditor
                           value={editedContent}
                           onChange={handleContentChange}
-                          className="w-full h-full rounded-md border border-input bg-white dark:bg-[#1a1a1a]"
+                          className="w-full h-full rounded-md border border-input bg-background"
                           options={{
                             style: {
                               minHeight: '600px',
@@ -316,7 +323,7 @@ export function LiquidSyntaxEditor() {
                           variant="secondary"
                           size="sm"
                           onClick={handleCopy}
-                          className="bg-green-100 hover:bg-green-200 text-green-700"
+                          className="bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 dark:hover:bg-green-900/70"
                         >
                           <Copy className="mr-2 h-4 w-4" />
                           Copy
@@ -325,14 +332,14 @@ export function LiquidSyntaxEditor() {
                           variant="outline"
                           size="sm"
                           onClick={handleReset}
-                          className="bg-red-100 hover:bg-red-200 text-red-700"
+                          className="border-red-200 bg-red-50 font-medium text-red-800 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60"
                         >
                           <RotateCcw className="mr-2 h-4 w-4" />
                           Reset
                         </Button>
                       </div>
                     </div>
-                    <div className="bg-[hsl(210,20%,98.04%);] dark:bg-[#1a1a1a] p-4 rounded-md h-full overflow-auto">
+                    <div className="rounded-md border border-border bg-muted/40 p-4 text-foreground dark:bg-card h-full overflow-auto">
                       {isLoading ? (
                         <div className="flex items-center justify-center h-full">
                           <Loader2 className="h-8 w-8 animate-spin" />

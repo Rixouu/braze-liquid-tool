@@ -37,7 +37,7 @@ export function Sidebar({ templates, onSelectTemplate, selectedTemplateId }: Sid
   };
 
   return (
-    <div className="sidebar dark:bg-black p-4">
+    <div className="sidebar p-4">
       <div className="mb-4">
         <div className="relative">
           <Input
@@ -54,7 +54,7 @@ export function Sidebar({ templates, onSelectTemplate, selectedTemplateId }: Sid
         <div key={category} className="mb-2">
           <button
             onClick={() => toggleCategory(category)}
-            className="flex items-center justify-between w-full text-left px-2 py-1 bg-gray-100 dark:bg-[#1e1e1e] rounded"
+            className="flex items-center justify-between w-full text-left px-2 py-1 rounded-md bg-muted/70 text-foreground font-medium hover:bg-muted"
           >
             <span className="font-medium">{category}</span>
             {expandedCategories.includes(category) ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
@@ -65,9 +65,9 @@ export function Sidebar({ templates, onSelectTemplate, selectedTemplateId }: Sid
                 <Button
                   key={template.id}
                   variant="ghost"
-                  className={`w-full justify-start mb-2 px-4 py-3 ${selectedTemplateId === template.id
-                    ? "bg-gray-200 dark:bg-[#1a1a1a] active"
-                    : "dark:bg-black"
+                  className={`w-full justify-start mb-2 px-4 py-3 font-normal text-foreground hover:bg-muted ${selectedTemplateId === template.id
+                    ? "bg-muted font-medium"
+                    : ""
                     }`}
                   onClick={() => onSelectTemplate(template)}
                 >

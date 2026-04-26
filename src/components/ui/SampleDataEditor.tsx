@@ -45,12 +45,15 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
           <label className="text-sm font-medium">{label}</label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-left font-normal bg-white dark:bg-black">
+              <Button
+                variant="outline"
+                className="w-full justify-start text-left font-normal bg-background text-foreground border-input hover:bg-muted"
+              >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {value || <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white dark:bg-black">
+            <PopoverContent className="w-auto border border-border bg-popover p-0 text-popover-foreground">
               <Calendar
                 mode="single"
                 selected={new Date(value)}
@@ -70,7 +73,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
             type="text"
             value={value}
             onChange={(e) => handleChange(path, e.target.value)}
-            className="bg-white dark:bg-[#1a1a1a]"
+            className="bg-background text-foreground border-input"
           />
         </div>
       );
@@ -78,7 +81,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
   };
 
   return (
-    <div className="space-y-4 bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-md">
+    <div className="space-y-4 rounded-md border border-border bg-muted/30 p-4 text-foreground">
       {renderEditor([], sampleData, '')}
     </div>
   );

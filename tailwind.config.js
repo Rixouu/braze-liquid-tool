@@ -7,6 +7,10 @@ const config = {
 	content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: ['"Google Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				mono: ['"Source Code Pro"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
