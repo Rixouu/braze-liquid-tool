@@ -1,6 +1,6 @@
 # 💧 Braze Liquid Tool
 
-**Braze Liquid Tool** is a web app for marketers and developers to author and test [Liquid](https://shopify.github.io/liquid/) templates the way you use them in **Braze**: browse sample templates, edit with Liquid-aware highlighting, inject sample JSON, and preview rendered output in real time.
+**Braze Liquid Tool** is a **Progressive Web App (PWA)** and web app for marketers and developers to author and test [Liquid](https://shopify.github.io/liquid/) templates the way you use them in **Braze**: browse sample templates, edit with Liquid-aware highlighting, inject sample JSON, and preview rendered output in real time. Over **HTTPS**, you can **install** it (Chromium: use the bottom install bar or the browser’s install menu; **iOS Safari**: Share → **Add to Home Screen**) for a standalone window, faster return visits, and **offline** use of precached static assets via the service worker.
 
 The product direction, UX, and implementation are led by [Jonathan Rycx](https://github.com/Rixouu).
 
@@ -24,6 +24,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 - **Luxon**: realistic date handling in samples and UI where dates appear.
 
 ### 🎨 UX & docs
+- **PWA install prompt**: bottom banner when the browser fires `beforeinstallprompt`, plus an **iOS** hint (Share → Add to Home Screen) after a short delay; dismiss is remembered in `localStorage`.
 - **Dark mode**: `next-themes` plus Tailwind’s class-based `dark:` variant (`.dark` on the root), tuned for long sessions.
 - **Documentation**: per-template notes plus a general Liquid / Braze-oriented guide in dialogs.
 - **Copy & reset**: one-click copy of output or body; reset restores the loaded template baseline.
@@ -120,7 +121,9 @@ Upload the **`dist/`** output to any static host (S3 + CloudFront, Netlify, **Ve
 
 ### Progressive Web App (PWA)
 
-Production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) so the editor can be **installed** and precaches static assets. **PNG icons** (`manifest-icon-*.png`) and **Apple splash screens** live under `public/pwa/` and are linked from `index.html` for iOS standalone launch. After deploy, open the site over **HTTPS**, use **Install** / **Add to Home Screen**, and rely on `registerType: 'autoUpdate'` for new builds.
+This app is built and shipped as a **PWA** first: production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) with **`registerType: 'autoUpdate'`**, precache rules for JS/CSS/HTML/fonts/icons/splashes, and a **Web App Manifest** (`name`, `short_name`, maskable icons, theme colors). The UI includes an **install banner** (similar in spirit to the [Split the G](https://github.com/Rixouu/split-the-g) PWA) so eligible browsers can install in one tap.
+
+**PNG icons** (`manifest-icon-*.png`) and **Apple splash screens** live under `public/pwa/` and are linked from `index.html` for iOS standalone launch. Deploy behind **HTTPS**, then use **Install** / **Add to Home Screen**; new deployments pick up updates when the new service worker activates.
 
 Regenerate splash + maskable icons (e.g. after changing the mark or canvas color):
 

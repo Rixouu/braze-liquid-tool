@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Copy, RotateCcw, Book, Loader2, Library, Database, Code2, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/Tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
@@ -299,15 +299,15 @@ export function LiquidSyntaxEditor() {
               <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                 <img
                   src="/imgs/braze-icon-black.svg"
-                  alt=""
-                  aria-hidden={true}
+                  alt="Braze icon"
+                  aria-hidden={true} 
                   className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:hidden"
                   width={36}
                   height={36}
                 />
                 <img
                   src="/imgs/braze-icon-white.svg"
-                  alt=""
+                  alt="Braze icon"
                   aria-hidden={true}
                   className="hidden h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:block"
                   width={36}
