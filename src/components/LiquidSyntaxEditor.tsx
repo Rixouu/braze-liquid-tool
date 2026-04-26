@@ -3,7 +3,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, RotateCcw, Book, Loader2, Library, Database, Code2, Eye } from 'lucide-react';
+import {
+  Copy,
+  RotateCcw,
+  Book,
+  Loader2,
+  Library,
+  SlidersHorizontal,
+  Braces,
+  Eye,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
@@ -20,6 +29,40 @@ import { GeneralDocumentationDialog } from './GeneralDocumentationDialog';
 import { engine } from '@/lib/liquid-engine';
 import type { Template } from '@/types';
 import { templates } from '@/templates/templateData';
+import { cn } from '@/lib/utils';
+
+const MOBILE_FLOW_HINT_KEY = 'braze-liquid-tool-mobile-flow-hint-dismissed';
+
+const MOBILE_NAV = [
+  {
+    value: 'library' as const,
+    step: 1,
+    label: 'Library',
+    Icon: Library,
+    tooltip: 'Choose a template',
+  },
+  {
+    value: 'data' as const,
+    step: 2,
+    label: 'Data',
+    Icon: SlidersHorizontal,
+    tooltip: 'Adjust sample fields used in the preview',
+  },
+  {
+    value: 'edit' as const,
+    step: 3,
+    label: 'Edit',
+    Icon: Braces,
+    tooltip: 'Edit Liquid with syntax highlighting',
+  },
+  {
+    value: 'preview' as const,
+    step: 4,
+    label: 'Preview',
+    Icon: Eye,
+    tooltip: 'See rendered output',
+  },
+];
 
 function TemplateInfoBody({ template }: { template: Template }) {
   return (
@@ -131,6 +174,16 @@ export function LiquidSyntaxEditor() {
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
   const [isGeneralDocumentationOpen, setIsGeneralDocumentationOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<string>('library');
+  const [mobileHintDismissed, setMobileHintDismissed] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(MOBILE_FLOW_HINT_KEY) === '1') setMobileHintDismissed(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
     return Object.keys(obj).reduce(
@@ -226,6 +279,7 @@ export function LiquidSyntaxEditor() {
       updateContentWithData(template.sampleData as Record<string, any>);
       setEditedContent(updatedContent);
       updatePreview(updatedContent, template.sampleData as Record<string, any>);
+      setMobileTab('data');
     },
     [updatePreview],
   );
@@ -340,7 +394,7 @@ export function LiquidSyntaxEditor() {
             </div>
           </CardHeader>
 
-          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-3 sm:p-6">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-3 pb-2 sm:p-6">
             {/* Desktop */}
             <div className="hidden min-h-0 flex-1 lg:grid lg:grid-cols-4 lg:gap-6">
               <div className="space-y-6 lg:col-span-1">
@@ -448,7 +502,60 @@ export function LiquidSyntaxEditor() {
             </div>
 
             {/* Mobile / tablet app shell */}
-            <Tabs defaultValue="edit" className="flex min-h-0 flex-1 flex-col gap-2 lg:hidden">
+            <Tabs
+              value={mobileTab}
+              onValueChange={setMobileTab}
+              className="flex min-h-0 flex-1 flex-col gap-2 lg:hidden"
+            >
+              <div className="rounded-xl border border-dashed border-primary/20 bg-primary/[0.06] px-3 py-2.5 dark:bg-primary/10">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-foreground">
+                  <span className="shrink-0 rounded-md bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                    Steps
+                  </span>
+                  <span className="text-muted-foreground">
+                    {MOBILE_NAV.map((item, i) => (
+                      <span key={item.value}>
+                        {i > 0 ? <span className="mx-1.5 text-muted-foreground/50">→</span> : null}
+                        <span
+                          className={cn(
+                            mobileTab === item.value && 'rounded-sm bg-background/80 px-1 py-0.5 text-primary shadow-sm dark:bg-background/40',
+                          )}
+                        >
+                          {item.step}. {item.label}
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                </div>
+                {!mobileHintDismissed ? (
+                  <div className="mt-2 flex flex-col gap-2 border-t border-primary/10 pt-2 sm:flex-row sm:items-start sm:justify-between">
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                      Pick a template in <strong className="font-medium text-foreground">Library</strong>
+                      —we open <strong className="font-medium text-foreground">Data</strong> next so you can tweak
+                      sample values. Then use <strong className="font-medium text-foreground">Edit</strong> for
+                      Liquid and <strong className="font-medium text-foreground">Preview</strong> for the rendered
+                      message (you can jump between tabs anytime).
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 shrink-0 touch-manipulation self-start px-2 text-xs text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        setMobileHintDismissed(true);
+                        try {
+                          localStorage.setItem(MOBILE_FLOW_HINT_KEY, '1');
+                        } catch {
+                          /* ignore */
+                        }
+                      }}
+                    >
+                      Got it
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+
               <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-muted/20">
                 <TabsContent value="library" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
                   <div className="mb-2">
@@ -540,36 +647,34 @@ export function LiquidSyntaxEditor() {
                 </TabsContent>
               </div>
 
-              <TabsList className="sticky bottom-0 z-10 grid h-14 w-full shrink-0 grid-cols-4 gap-1 rounded-xl border border-border bg-card/95 p-1 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] shadow-lg backdrop-blur">
-                <TabsTrigger
-                  value="library"
-                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
-                >
-                  <Library className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
-                  <span className="sm:inline">Library</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="data"
-                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
-                >
-                  <Database className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
-                  <span className="sm:inline">Data</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="edit"
-                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
-                >
-                  <Code2 className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
-                  <span className="sm:inline">Edit</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="preview"
-                  className="touch-manipulation rounded-lg px-1 py-2 text-[11px] font-medium data-[state=active]:shadow sm:text-xs"
-                >
-                  <Eye className="mx-auto mb-0.5 block h-4 w-4 sm:hidden" />
-                  <span className="sm:inline">Preview</span>
-                </TabsTrigger>
-              </TabsList>
+              <TooltipProvider delayDuration={400}>
+                <TabsList className="sticky bottom-0 z-10 grid w-full shrink-0 grid-cols-4 gap-1 rounded-2xl border border-border bg-muted/60 p-1.5 shadow-lg backdrop-blur-sm dark:bg-muted/25 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))]">
+                  {MOBILE_NAV.map(({ value, label, Icon, tooltip }) => (
+                    <Tooltip key={value}>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={value}
+                          title={tooltip}
+                          className={cn(
+                            'touch-manipulation flex min-h-[3.75rem] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2',
+                            'text-[10px] font-semibold leading-none tracking-tight transition-colors duration-150',
+                            'text-muted-foreground data-[state=inactive]:hover:bg-background/70 data-[state=inactive]:hover:text-foreground',
+                            'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md',
+                            'data-[state=active]:ring-1 data-[state=active]:ring-primary/40',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          )}
+                        >
+                          <Icon className="h-5 w-5 shrink-0 stroke-[1.85]" aria-hidden />
+                          <span>{label}</span>
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[14rem] text-xs">
+                        <p>{tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </TabsList>
+              </TooltipProvider>
             </Tabs>
           </CardContent>
         </Card>

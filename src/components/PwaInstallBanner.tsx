@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Download, Share2, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -91,52 +91,69 @@ export function PwaInstallBanner() {
 
   return (
     <div
-      className={cn(
-        'fixed inset-x-0 bottom-0 z-[100] border-t border-border bg-card/95 px-3 py-3 shadow-lg backdrop-blur-md',
-        'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
-      )}
       role="region"
       aria-label="Install app"
+      className={cn(
+        'fixed inset-x-0 bottom-0 z-[100] border-t border-border bg-card shadow-[0_-8px_30px_rgba(15,23,42,0.12)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.45)]',
+        'supports-[backdrop-filter]:bg-card/90 supports-[backdrop-filter]:backdrop-blur-md',
+      )}
     >
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <div
-            className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary"
-            aria-hidden
-          >
-            {showChromiumInstall ? (
-              <Download className="h-5 w-5" />
-            ) : (
-              <Share2 className="h-5 w-5" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">
-              {showChromiumInstall ? 'Install Braze Liquid Editor' : 'Add to your Home Screen'}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-              {showChromiumInstall
-                ? 'Install this app for quick access, a focused window, and offline use of cached assets.'
-                : 'Tap Share, then “Add to Home Screen” to install this PWA like a native app.'}
-            </p>
-          </div>
+      {/* Single row: no extra column layout so the dismiss control stays vertically centered (no stray bottom gap). */}
+      <div
+        className={cn(
+          'mx-auto flex max-w-3xl items-center gap-3 px-4 py-3',
+          'pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3',
+        )}
+      >
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm"
+          aria-hidden
+        >
+          <img
+            src="/imgs/braze-icon-black.svg"
+            alt=""
+            className="h-8 w-8 object-contain dark:hidden"
+            width={32}
+            height={32}
+          />
+          <img
+            src="/imgs/braze-icon-white.svg"
+            alt=""
+            className="hidden h-8 w-8 object-contain dark:block"
+            width={32}
+            height={32}
+          />
         </div>
-        <div className="flex shrink-0 items-center justify-end gap-2 sm:justify-end">
+
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold leading-snug text-foreground">
+            {showChromiumInstall ? 'Install Braze Liquid Editor' : 'Add to your Home Screen'}
+          </p>
+          <p className="mt-0.5 text-xs leading-snug text-muted-foreground sm:text-[13px]">
+            {showChromiumInstall
+              ? 'Quick access, focused window, and offline use of cached assets.'
+              : 'Tap Share, then Add to Home Screen to install this app like a native experience.'}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
           {showChromiumInstall ? (
-            <Button type="button" size="sm" className="touch-manipulation" onClick={onInstallClick}>
+            <Button type="button" size="sm" className="touch-manipulation px-4" onClick={onInstallClick}>
               Install
             </Button>
           ) : null}
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 shrink-0 touch-manipulation text-muted-foreground"
             onClick={persistDismiss}
             aria-label="Dismiss install prompt"
+            className={cn(
+              'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+              'text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+              'touch-manipulation active:scale-[0.98]',
+            )}
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-5 w-5" strokeWidth={2} />
+          </button>
         </div>
       </div>
     </div>
