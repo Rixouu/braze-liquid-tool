@@ -148,14 +148,32 @@ export function LiquidSyntaxEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted/80 to-muted dark:from-background dark:to-card flex justify-center items-center py-6">
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-full">
-        <Card className="border border-border bg-card text-card-foreground shadow-sm">
-          <CardHeader className="border-b border-border">
-            <div className="flex justify-between items-center gap-4">
-              <CardTitle className="text-2xl sm:text-3xl font-semibold tracking-tight">
-                Liquid Syntax Editor
-              </CardTitle>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] py-6 dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)]">
+      <div className="container mx-auto max-w-full p-4 sm:p-6 lg:p-8">
+        <Card className="border border-border bg-card text-card-foreground shadow-md shadow-primary/5">
+          <CardHeader className="border-b border-primary/20">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <img
+                  src="/imgs/braze-icon-black.svg"
+                  alt=""
+                  aria-hidden={true}
+                  className="h-9 w-9 shrink-0 dark:hidden"
+                  width={36}
+                  height={36}
+                />
+                <img
+                  src="/imgs/braze-icon-white.svg"
+                  alt=""
+                  aria-hidden={true}
+                  className="hidden h-9 w-9 shrink-0 dark:block"
+                  width={36}
+                  height={36}
+                />
+                <CardTitle className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                  Braze Liquid Syntax Editor
+                </CardTitle>
+              </div>
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <TooltipProvider>
                   <Tooltip>

@@ -37,6 +37,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 - **TypeScript 5**
 - **Tailwind CSS 4** (**`@tailwindcss/vite`**) + **tailwindcss-animate**
 - **React Router 6** for in-app routing
+- **PWA**: `vite-plugin-pwa` (install prompt, precache, auto-update service worker)
 
 ### UI & motion
 - **Radix UI** primitives (dialog, popover, select, tabs, tooltip, scroll area, …)
@@ -116,6 +117,10 @@ npm run build
 ```
 
 Upload the **`dist/`** output to any static host (S3 + CloudFront, Netlify, **Vercel**, etc.). This repo includes a `.vercel` directory if you deploy with the Vercel CLI or Git integration—set the build command to `npm run build` and publish `dist` as the static output directory in your host’s settings.
+
+### Progressive Web App (PWA)
+
+Production builds register a **service worker** (via [`vite-plugin-pwa`](https://vite-plugin-pwa.netlify.app/)) so the editor can be **installed** and precaches static assets. Icons use the Braze SVGs under `public/imgs/`. After deploy, open the site over **HTTPS**, use the browser **Install** / **Add to Home Screen** affordance, and confirm updates when a new build is published (the client uses `registerType: 'autoUpdate'`).
 
 ## 🤝 Contributing
 
