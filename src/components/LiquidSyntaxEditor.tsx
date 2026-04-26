@@ -134,7 +134,7 @@ function TemplateLibrarySection({
       <Input
         type="search"
         placeholder="Search templates…"
-        className="mb-3 h-11 w-full touch-manipulation sm:mb-4"
+        className="mb-2 h-10 w-full touch-manipulation sm:mb-3 sm:h-11 lg:mb-4"
         value={searchTerm}
         onChange={onSearchChange}
       />
@@ -311,8 +311,9 @@ export function LiquidSyntaxEditor() {
 
   const editorStyle = useMemo(
     () => ({
-      minHeight: 'min(42dvh, 520px)',
-      padding: '1rem',
+      minHeight: 0,
+      height: '100%',
+      padding: '0.75rem',
       lineHeight: '1.5',
       fontSize: '0.875rem',
     }),
@@ -345,17 +346,17 @@ export function LiquidSyntaxEditor() {
   );
 
   return (
-    <div className="box-border flex min-h-svh flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] sm:justify-center sm:py-4 lg:items-center lg:py-6">
-      <div className="mx-auto flex w-full max-w-[100vw] flex-1 flex-col px-2 sm:max-w-full sm:px-4 lg:px-8">
-        <Card className="flex min-h-0 flex-1 flex-col border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:rounded-xl max-lg:border-x-0 sm:max-lg:mx-0 lg:min-h-0 lg:shadow-md">
-          <CardHeader className="shrink-0 space-y-3 border-b border-primary/20 p-4 sm:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+    <div className="box-border flex min-h-svh flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.5rem,env(safe-area-inset-top,0px))] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] max-lg:pb-0 max-lg:pt-[max(0.25rem,env(safe-area-inset-top,0px))] sm:justify-center sm:py-4 lg:items-center lg:py-6">
+      <div className="mx-auto flex min-h-0 w-full max-w-[100vw] flex-1 flex-col px-2 max-lg:h-[100svh] max-lg:max-h-[100svh] max-lg:overflow-hidden sm:max-w-full sm:px-4 lg:h-auto lg:max-h-none lg:overflow-visible lg:px-8">
+        <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:h-full max-lg:min-h-0 max-lg:rounded-none max-lg:border-x-0 max-lg:shadow-none sm:max-lg:mx-0 sm:max-lg:rounded-xl sm:max-lg:shadow-md lg:min-h-0 lg:shadow-md">
+          <CardHeader className="shrink-0 space-y-3 border-b border-primary/20 p-4 max-lg:space-y-0 max-lg:p-2.5 max-lg:py-2 sm:p-6">
+            <div className="flex flex-col gap-3 max-lg:flex-row max-lg:items-center max-lg:justify-between max-lg:gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-2 max-lg:gap-2 sm:gap-3">
                 <img
                   src="/imgs/braze-icon-black.svg"
                   alt="Braze icon"
                   aria-hidden={true} 
-                  className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:hidden"
+                  className="h-8 w-8 shrink-0 max-lg:h-7 max-lg:w-7 sm:h-9 sm:w-9 dark:hidden"
                   width={36}
                   height={36}
                 />
@@ -363,11 +364,11 @@ export function LiquidSyntaxEditor() {
                   src="/imgs/braze-icon-white.svg"
                   alt="Braze icon"
                   aria-hidden={true}
-                  className="hidden h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:block"
+                  className="hidden h-8 w-8 shrink-0 max-lg:h-7 max-lg:w-7 sm:h-9 sm:w-9 dark:block"
                   width={36}
                   height={36}
                 />
-                <CardTitle className="truncate text-lg font-semibold tracking-tight text-foreground sm:text-2xl lg:text-3xl">
+                <CardTitle className="truncate text-lg font-semibold leading-tight tracking-tight text-foreground max-lg:text-[0.9375rem] sm:text-2xl lg:text-3xl">
                   Braze Liquid Syntax Editor
                 </CardTitle>
               </div>
@@ -378,10 +379,10 @@ export function LiquidSyntaxEditor() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted sm:h-9 sm:w-9"
+                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted max-lg:h-9 max-lg:w-9 sm:h-9 sm:w-9"
                         onClick={() => setIsGeneralDocumentationOpen(true)}
                       >
-                        <Book className="h-4 w-4" />
+                        <Book className="h-4 w-4 max-lg:h-3.5 max-lg:w-3.5" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -394,7 +395,7 @@ export function LiquidSyntaxEditor() {
             </div>
           </CardHeader>
 
-          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-3 pb-2 sm:p-6">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-3 pb-2 max-lg:gap-2 max-lg:p-2 max-lg:pb-0 sm:p-6">
             {/* Desktop */}
             <div className="hidden min-h-0 flex-1 lg:grid lg:grid-cols-4 lg:gap-6">
               <div className="space-y-6 lg:col-span-1">
@@ -501,35 +502,35 @@ export function LiquidSyntaxEditor() {
               </Card>
             </div>
 
-            {/* Mobile / tablet app shell */}
+            {/* Mobile / tablet app shell — flex column + flex-1 panels so the tab bar stays docked (avoid 100dvh + sticky, which breaks inside the card). */}
             <Tabs
               value={mobileTab}
               onValueChange={setMobileTab}
-              className="flex min-h-0 flex-1 flex-col gap-2 lg:hidden"
+              className="flex min-h-0 flex-1 flex-col overflow-hidden gap-1.5 lg:hidden"
             >
-              <div className="rounded-xl border border-dashed border-primary/20 bg-primary/[0.06] px-3 py-2.5 dark:bg-primary/10">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-foreground">
-                  <span className="shrink-0 rounded-md bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+              <div className="shrink-0 rounded-lg border border-dashed border-primary/20 bg-primary/[0.06] px-2 py-1.5 dark:bg-primary/10 max-lg:px-2 max-lg:py-1.5">
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-medium text-foreground max-lg:text-[10px] sm:text-[11px]">
+                  <span className="shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
                     Steps
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="min-w-0 text-muted-foreground">
                     {MOBILE_NAV.map((item, i) => (
-                      <span key={item.value}>
-                        {i > 0 ? <span className="mx-1.5 text-muted-foreground/50">→</span> : null}
+                      <span key={item.value} className="whitespace-nowrap">
+                        {i > 0 ? <span className="mx-1 text-muted-foreground/40">→</span> : null}
                         <span
                           className={cn(
-                            mobileTab === item.value && 'rounded-sm bg-background/80 px-1 py-0.5 text-primary shadow-sm dark:bg-background/40',
+                            mobileTab === item.value && 'rounded-sm bg-background/90 px-1 py-0.5 text-primary shadow-sm dark:bg-background/50',
                           )}
                         >
-                          {item.step}. {item.label}
+                          {item.step}.{item.label}
                         </span>
                       </span>
                     ))}
                   </span>
                 </div>
                 {!mobileHintDismissed ? (
-                  <div className="mt-2 flex flex-col gap-2 border-t border-primary/10 pt-2 sm:flex-row sm:items-start sm:justify-between">
-                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  <div className="mt-1.5 flex flex-col gap-1.5 border-t border-primary/10 pt-1.5 sm:flex-row sm:items-start sm:justify-between">
+                    <p className="text-[10px] leading-snug text-muted-foreground sm:text-[11px] sm:leading-relaxed">
                       Pick a template in <strong className="font-medium text-foreground">Library</strong>
                       —we open <strong className="font-medium text-foreground">Data</strong> next so you can tweak
                       sample values. Then use <strong className="font-medium text-foreground">Edit</strong> for
@@ -540,7 +541,7 @@ export function LiquidSyntaxEditor() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-8 shrink-0 touch-manipulation self-start px-2 text-xs text-primary hover:bg-primary/10"
+                      className="h-7 shrink-0 touch-manipulation self-start px-2 text-[10px] text-primary hover:bg-primary/10 sm:h-8 sm:text-xs"
                       onClick={() => {
                         setMobileHintDismissed(true);
                         try {
@@ -556,99 +557,121 @@ export function LiquidSyntaxEditor() {
                 ) : null}
               </div>
 
-              <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-muted/20">
-                <TabsContent value="library" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
-                  <div className="mb-2">
-                    <h2 className="text-base font-semibold">Template Library</h2>
-                    <p className="text-xs text-muted-foreground">Choose a template</p>
-                  </div>
-                  <TemplateLibrarySection
-                    searchTerm={searchTerm}
-                    onSearchChange={handleSearchChange}
-                    filteredTemplates={filteredTemplates}
-                    selectedTemplateId={selectedTemplateId}
-                    onSelectTemplate={handleTemplateChange}
-                    scrollClassName="h-[calc(100dvh-16rem)] w-full sm:h-[calc(100dvh-15rem)]"
-                  />
-                </TabsContent>
-
-                <TabsContent value="data" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
-                  <div className="mb-2">
-                    <h2 className="text-base font-semibold">Sample Data</h2>
-                    <p className="text-xs text-muted-foreground">Edit JSON-backed fields</p>
-                  </div>
-                  <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
-                </TabsContent>
-
-                <TabsContent value="edit" className="m-0 flex h-[calc(100dvh-12.5rem)] flex-col overflow-hidden p-3 sm:h-[calc(100dvh-13rem)]">
-                  <div className="mb-2 flex shrink-0 flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="min-h-10 flex-1 touch-manipulation sm:min-h-9 sm:flex-none"
-                      onClick={() => setIsDocumentationOpen(true)}
-                    >
-                      Docs
-                    </Button>
-                    <div className="min-w-0 flex-1 sm:flex-none sm:shrink-0">{templateInfoPopover}</div>
-                  </div>
-                  <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-input bg-background">
-                    <HighlightedLiquidEditor
-                      value={editedContent}
-                      onChange={handleContentChange}
-                      className="h-full w-full"
-                      options={{ style: editorStyle }}
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-muted/20">
+                <TabsContent
+                  value="library"
+                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
+                >
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3">
+                    <div className="shrink-0">
+                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Template Library</h2>
+                      <p className="text-[11px] text-muted-foreground sm:text-xs">Choose a template</p>
+                    </div>
+                    <TemplateLibrarySection
+                      searchTerm={searchTerm}
+                      onSearchChange={handleSearchChange}
+                      filteredTemplates={filteredTemplates}
+                      selectedTemplateId={selectedTemplateId}
+                      onSelectTemplate={handleTemplateChange}
+                      scrollClassName="min-h-0 w-full flex-1"
                     />
                   </div>
-                  <div className="mt-2 flex shrink-0 gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="min-h-11 flex-1 touch-manipulation bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200"
-                      onClick={handleCopy}
-                    >
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="min-h-11 flex-1 touch-manipulation border-red-200 bg-red-50 font-medium text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
-                      onClick={handleReset}
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Reset
-                    </Button>
+                </TabsContent>
+
+                <TabsContent
+                  value="data"
+                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
+                >
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
+                    <div className="shrink-0">
+                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Sample Data</h2>
+                      <p className="text-[11px] text-muted-foreground sm:text-xs">Edit JSON-backed fields</p>
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto">
+                      <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                    </div>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="preview" className="m-0 h-[calc(100dvh-12.5rem)] overflow-y-auto p-3 sm:h-[calc(100dvh-13rem)]">
-                  <div className="mb-2">
-                    <h2 className="text-base font-semibold">Preview</h2>
-                    <p className="text-xs text-muted-foreground">Rendered message</p>
+                <TabsContent
+                  value="edit"
+                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
+                >
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3">
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="min-h-9 flex-1 touch-manipulation text-xs sm:min-h-9 sm:flex-none sm:text-sm"
+                        onClick={() => setIsDocumentationOpen(true)}
+                      >
+                        Docs
+                      </Button>
+                      <div className="min-w-0 flex-1 sm:flex-none sm:shrink-0">{templateInfoPopover}</div>
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-input bg-background">
+                      <HighlightedLiquidEditor
+                        value={editedContent}
+                        onChange={handleContentChange}
+                        className="h-full w-full"
+                        options={{ style: editorStyle }}
+                      />
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="min-h-10 flex-1 touch-manipulation bg-green-100 text-xs font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 sm:text-sm"
+                        onClick={handleCopy}
+                      >
+                        <Copy className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        Copy
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="min-h-10 flex-1 touch-manipulation border-red-200 bg-red-50 text-xs font-medium text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 sm:text-sm"
+                        onClick={handleReset}
+                      >
+                        <RotateCcw className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        Reset
+                      </Button>
+                    </div>
                   </div>
-                  <div className="min-h-[min(50dvh,420px)] rounded-md border border-border bg-card p-3">
-                    {isLoading ? (
-                      <div className="flex min-h-[200px] items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      </div>
-                    ) : error ? (
-                      <Alert variant="destructive">
-                        <ExclamationTriangleIcon className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>
-                          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
-                        </AlertDescription>
-                      </Alert>
-                    ) : (
-                      <LiquidPreview text={previewContent} />
-                    )}
+                </TabsContent>
+
+                <TabsContent
+                  value="preview"
+                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
+                >
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
+                    <div className="shrink-0">
+                      <h2 className="text-sm font-semibold leading-tight sm:text-base">Preview</h2>
+                      <p className="text-[11px] text-muted-foreground sm:text-xs">Rendered message</p>
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border bg-card p-3">
+                      {isLoading ? (
+                        <div className="flex min-h-[160px] items-center justify-center sm:min-h-[200px]">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                      ) : error ? (
+                        <Alert variant="destructive">
+                          <ExclamationTriangleIcon className="h-4 w-4" />
+                          <AlertTitle>Error</AlertTitle>
+                          <AlertDescription>
+                            <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <LiquidPreview text={previewContent} />
+                      )}
+                    </div>
                   </div>
                 </TabsContent>
               </div>
 
               <TooltipProvider delayDuration={400}>
-                <TabsList className="sticky bottom-0 z-10 grid w-full shrink-0 grid-cols-4 gap-1 rounded-2xl border border-border bg-muted/60 p-1.5 shadow-lg backdrop-blur-sm dark:bg-muted/25 pb-[max(0.35rem,env(safe-area-inset-bottom,0px))]">
+                <TabsList className="z-20 grid w-full shrink-0 grid-cols-4 gap-0.5 rounded-t-xl border-t border-border bg-muted/70 p-1 pt-1.5 shadow-[0_-6px_28px_rgba(15,23,42,0.1)] backdrop-blur-md dark:bg-muted/40 dark:shadow-[0_-6px_28px_rgba(0,0,0,0.4)] max-lg:rounded-none pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
                   {MOBILE_NAV.map(({ value, label, Icon, tooltip }) => (
                     <Tooltip key={value}>
                       <TooltipTrigger asChild>
