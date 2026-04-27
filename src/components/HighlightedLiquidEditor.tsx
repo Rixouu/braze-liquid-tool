@@ -12,55 +12,65 @@ const liquidHighlight = (str: string, isDark: boolean) => {
   const keywordColor = isDark ? '#6ee7b7' : '#047857'
   const operatorColor = isDark ? '#e2e8f0' : '#57534e'
 
-  // Escape characters that would break the overlay HTML. Do not escape `>`:
-  // Liquid tags end with `%}`; turning `>` into `&gt;` breaks `/{%.*?%}/g` and
-  // leaves corrupted innerHTML (e.g. string highlighter matching inside spans).
-  str = str.replace(/&(?!amp;|lt;|gt;|quot;|#)/g, '&amp;').replace(/</g, '&lt;');
+  const highlightContent = (content: string) => {
+    const tokens = [
+      { name: 'string', regex: /'[^']*'|"[^"]*"/ },
+      { name: 'keyword', regex: /\b(?:if|else|elsif|endif|assign|capture|endcapture|case|when|endcase|for|endfor|abort_message|tablerow|endtablerow|unless|endunless|comment|endcomment)\b/ },
+      { name: 'number', regex: /\b\d+\b/ },
+      { name: 'operator', regex: /==|!=|>=|<=|>|<|=|\+|-|\*|\/|\||:/ },
+    ];
 
-  // Highlight Liquid tags
-  str = str.replace(/{%.*?%}/g, (match) => {
-    // Highlight keywords within tags
-    let highlightedMatch = match.replace(
-      /\b(if|else|elsif|endif|assign|capture|endcapture|case|when|endcase|for|endfor|abort_message|tablerow|endtablerow|unless|endunless|comment|endcomment)\b/g,
-      `<span style="color: ${keywordColor};${FW}">$1</span>`
-    );
-    // Highlight numbers within tags
-    highlightedMatch = highlightedMatch.replace(/\b(\d+)\b/g,
-      `<span style="color: ${numberColor};${FW}">$1</span>`
-    );
-    // Highlight strings within tags, but not HTML-like attributes
-    highlightedMatch = highlightedMatch.replace(/'([^']*?)'/g, (match, p1) => {
-      if (match.includes('style') || match.includes('color:')) {
-        return match; // Don't highlight these strings
+    const combinedRegex = new RegExp(tokens.map(t => `(${t.regex.source})`).join('|'), 'g');
+    let lastIndex = 0;
+    let result = '';
+    let match;
+    
+    while ((match = combinedRegex.exec(content)) !== null) {
+      // Add text before the match, escaping HTML
+      const before = content.slice(lastIndex, match.index);
+      result += before.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      // Find which token type matched
+      const captureIndex = match.slice(1).findIndex(val => val !== undefined);
+      if (captureIndex !== -1) {
+        const token = tokens[captureIndex];
+        const color = token.name === 'string' ? stringColor :
+                      token.name === 'keyword' ? keywordColor :
+                      token.name === 'number' ? numberColor :
+                      operatorColor;
+        
+        const escapedMatch = match[0].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        result += `<span style="color: ${color};${FW}">${escapedMatch}</span>`;
       }
-      return `'<span style="color: ${stringColor};${FW}">${p1}</span>'`;
-    });
-    // Highlight operators and special characters
-    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g,
-      `$1<span style="color: ${operatorColor};${FW}">$2</span>$3`
-    );
-    return `<span style="color: ${tagColor};${FW}">${highlightedMatch}</span>`;
-  });
+      
+      lastIndex = combinedRegex.lastIndex;
+    }
+    
+    result += content.slice(lastIndex).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return result;
+  };
 
-  // Highlight Liquid variables
-  str = str.replace(/{{.*?}}/g, (match) => {
-    // Highlight numbers within variables
-    let highlightedMatch = match.replace(/\b(\d+)\b/g,
-      `<span style="color: ${numberColor};${FW}">$1</span>`
-    );
-    // Highlight strings within variables
-    highlightedMatch = highlightedMatch.replace(/'([^']*?)'/g,
-      `'<span style="color: ${stringColor};${FW}">$1</span>'`
-    );
-    // Highlight operators and special characters
-    highlightedMatch = highlightedMatch.replace(/(\s|^)(==|!=|>=|<=|>|<|=|\+|-|\*|\/|\|)(\s|$)/g,
-      `$1<span style="color: ${operatorColor};${FW}">$2</span>$3`
-    );
-    return `<span style="color: ${varColor};${FW}">${highlightedMatch}</span>`;
-  });
-
-  return str.replace(/\n/g, '<br>');
+  // Split string by tags/variables, keeping the delimiters
+  const parts = str.split(/(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/g);
+  
+  return parts.map((part, index) => {
+    if (index % 2 === 0) {
+      // Outside tag
+      return part.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    } else {
+      // Inside tag or variable
+      const isTag = part.startsWith('{%');
+      const prefix = isTag ? '{%' : '{{';
+      const suffix = isTag ? '%}' : '}}';
+      const inner = part.slice(2, -2);
+      const outerColor = isTag ? tagColor : varColor;
+      
+      return `<span style="color: ${outerColor};${FW}">${prefix}</span>${highlightContent(inner)}<span style="color: ${outerColor};${FW}">${suffix}</span>`;
+    }
+  }).join('').replace(/\n/g, '<br>');
 };
+
+
 
 const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
   value: string;
