@@ -14,16 +14,19 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 ## ✨ Key Features
 
 ### 📚 Templates & editing
+
 - **Template library**: categorized Braze-oriented samples you can load into the editor.
 - **Liquid-aware highlighting**: custom highlighter keeps tags, filters, and variables readable while you edit.
 - **Search**: find templates quickly from the sidebar.
 
 ### 👁️ Preview & data
+
 - **Live preview**: LiquidJS renders the template against your current editor content.
 - **Sample data editor**: edit JSON used as context for preview (dates, nested objects, edge cases).
 - **Luxon**: realistic date handling in samples and UI where dates appear.
 
 ### 🎨 UX & docs
+
 - **PWA install prompt**: bottom banner when the browser fires `beforeinstallprompt`, plus an **iOS** hint (Share → Add to Home Screen) after a short delay; dismiss is remembered in `localStorage`.
 - **Dark mode**: `next-themes` plus Tailwind’s class-based `dark:` variant (`.dark` on the root), tuned for long sessions.
 - **Documentation**: per-template notes plus a general Liquid / Braze-oriented guide in dialogs.
@@ -33,6 +36,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 ## 🛠 Tech stack
 
 ### Frontend
+
 - **React 18** + **React DOM** (`createRoot`, `StrictMode`)
 - **Vite 6** for dev server and production builds
 - **TypeScript 5**
@@ -41,6 +45,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 - **PWA**: `vite-plugin-pwa` (install prompt, precache, auto-update service worker)
 
 ### UI & motion
+
 - **Radix UI** primitives (dialog, popover, select, tabs, tooltip, scroll area, …)
 - **shadcn/ui–style** components under `src/components/ui` (class-variance-authority, `tailwind-merge`)
 - **lucide-react** icons
@@ -48,6 +53,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 - **Material UI (MUI) 6** + **Emotion** for select complex surfaces
 
 ### Templating & utilities
+
 - **LiquidJS** for parsing and rendering Liquid
 - **Luxon** for date/time
 - **react-window** for efficient long lists
@@ -55,6 +61,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 ## 🚀 Quick start
 
 ### Prerequisites
+
 - **Node.js 18+** (aligns with Vite 6 engines; **20+** recommended)
 - **npm**
 
@@ -65,7 +72,7 @@ npm install
 npm run dev
 ```
 
-Default dev URL: **http://localhost:5173**
+Default dev URL: **<http://localhost:5173>**
 
 There is **no** required `.env` for local development; the app runs entirely in the browser with bundled templates and client-side Liquid rendering.
 
@@ -159,4 +166,4 @@ Intended to be **MIT**-licensed (as in prior project docs). Add a root **`LICENS
 
 ---
 
-**Built for clearer Braze Liquid and faster message iteration.**
+**Built with ❤️ for clearer Braze Liquid and faster message iteration.**
