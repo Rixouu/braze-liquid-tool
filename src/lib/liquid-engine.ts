@@ -23,6 +23,8 @@ function parseAbortMessageArgs(raw: string | undefined): string {
   return s;
 }
 
+export { parseAbortMessageArgs }
+
 engine.registerTag('abort_message', {
   parse: function (tagToken, remainTokens) {
     this.message = tagToken.args;

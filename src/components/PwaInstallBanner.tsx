@@ -94,66 +94,96 @@ export function PwaInstallBanner() {
       role="region"
       aria-label="Install app"
       className={cn(
-        'fixed inset-x-0 bottom-0 z-[100] border-t border-border bg-card shadow-[0_-8px_30px_rgba(15,23,42,0.12)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.45)]',
-        'supports-[backdrop-filter]:bg-card/90 supports-[backdrop-filter]:backdrop-blur-md',
+        'fixed inset-x-0 bottom-0 z-[100]',
+        'px-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3',
       )}
     >
-      {/* Single row: no extra column layout so the dismiss control stays vertically centered (no stray bottom gap). */}
       <div
-        className={cn(
-          'mx-auto flex max-w-3xl items-center gap-3 px-4 py-3',
-          'pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3',
-        )}
+        className={cn('mx-auto w-full max-w-lg', 'animate-in fade-in slide-in-from-bottom-2 duration-200')}
       >
         <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm"
-          aria-hidden
+          className={cn(
+            'rounded-2xl p-px',
+            'bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-sky-500/30',
+            'shadow-[0_18px_60px_rgba(15,23,42,0.18)] dark:shadow-[0_18px_70px_rgba(0,0,0,0.55)]',
+          )}
         >
-          <img
-            src="/imgs/braze-icon-black.svg"
-            alt=""
-            className="h-8 w-8 object-contain dark:hidden"
-            width={32}
-            height={32}
-          />
-          <img
-            src="/imgs/braze-icon-white.svg"
-            alt=""
-            className="hidden h-8 w-8 object-contain dark:block"
-            width={32}
-            height={32}
-          />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold leading-snug text-foreground">
-            {showChromiumInstall ? 'Install Braze Liquid Editor' : 'Add to your Home Screen'}
-          </p>
-          <p className="mt-0.5 text-xs leading-snug text-muted-foreground sm:text-[13px]">
-            {showChromiumInstall
-              ? 'Quick access, focused window, and offline use of cached assets.'
-              : 'Tap Share, then Add to Home Screen to install this app like a native experience.'}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          {showChromiumInstall ? (
-            <Button type="button" size="sm" className="touch-manipulation px-4" onClick={onInstallClick}>
-              Install
-            </Button>
-          ) : null}
-          <button
-            type="button"
-            onClick={persistDismiss}
-            aria-label="Dismiss install prompt"
+          <div
             className={cn(
-              'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-              'text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
-              'touch-manipulation active:scale-[0.98]',
+              'flex items-center gap-3 rounded-[calc(1rem-1px)] border border-border/60',
+              'bg-card/90 px-4 py-3',
+              'supports-[backdrop-filter]:backdrop-blur-md',
             )}
           >
-            <X className="h-5 w-5" strokeWidth={2} />
-          </button>
+            <div
+              className={cn(
+                'flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl',
+                'bg-background shadow-sm ring-1 ring-border/60',
+              )}
+              aria-hidden
+            >
+              <img
+                src="/imgs/braze-icon-black.svg"
+                alt=""
+                className="h-7 w-7 object-contain dark:hidden"
+                width={28}
+                height={28}
+              />
+              <img
+                src="/imgs/braze-icon-white.svg"
+                alt=""
+                className="hidden h-7 w-7 object-contain dark:block"
+                width={28}
+                height={28}
+              />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold leading-snug text-foreground">
+                {showChromiumInstall ? 'Install Braze Liquid Editor' : 'Add to your Home Screen'}
+              </p>
+              <p className="mt-0.5 text-xs leading-snug text-muted-foreground sm:text-[13px]">
+                {showChromiumInstall
+                  ? 'Quick access, focused window, and offline use of cached assets.'
+                  : 'Tap Share, then Add to Home Screen to install this app like a native experience.'}
+              </p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              {showChromiumInstall ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="touch-manipulation rounded-full px-5"
+                  onClick={onInstallClick}
+                >
+                  Install
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="touch-manipulation rounded-full px-5"
+                  onClick={persistDismiss}
+                >
+                  Got it
+                </Button>
+              )}
+              <button
+                type="button"
+                onClick={persistDismiss}
+                aria-label="Dismiss install prompt"
+                className={cn(
+                  'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                  'text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+                  'touch-manipulation active:scale-[0.98]',
+                )}
+              >
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

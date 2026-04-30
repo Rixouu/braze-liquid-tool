@@ -27,7 +27,7 @@ The product direction, UX, and implementation are led by [Jonathan Rycx](https:/
 
 ### 🎨 UX & docs
 
-- **PWA install prompt**: bottom banner when the browser fires `beforeinstallprompt`, plus an **iOS** hint (Share → Add to Home Screen) after a short delay; dismiss is remembered in `localStorage`.
+- **PWA install prompt**: bottom install banner when the browser fires `beforeinstallprompt`, plus an **iOS** hint (Share → Add to Home Screen) after a short delay; dismiss is remembered in `localStorage`. The web app manifest intentionally does not include `screenshots` so the native install dialog stays clean (icon + text only).
 - **Dark mode**: `next-themes` plus Tailwind’s class-based `dark:` variant (`.dark` on the root), tuned for long sessions.
 - **Documentation**: per-template notes plus a general Liquid / Braze-oriented guide in dialogs.
 - **Copy & reset**: one-click copy of output or body; reset restores the loaded template baseline.
@@ -116,6 +116,12 @@ npm run preview          # Local preview of the production build
 
 ```bash
 npm run lint             # ESLint across the repo
+```
+
+### Tests
+
+```bash
+npm test                 # Unit tests (Vitest)
 ```
 
 ## 🚀 Deployment

@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
     "generate:pwa-assets": "npx --yes pwa-asset-generator@latest public/imgs/braze-icon-original.svg public/pwa -b \"#f4f5fb\" -t png --portrait-only -p \"18%\" -a \"/pwa\""
   },
   "dependencies": {
@@ -56,6 +57,7 @@
     "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^4.2.4",
     "vite": "^6.4.2",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^2.1.8"
   }
 }

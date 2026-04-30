@@ -55,20 +55,6 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
-        screenshots: [
-          {
-            src: '/pwa/apple-splash-1290-2796.png',
-            sizes: '1290x2796',
-            type: 'image/png',
-            form_factor: 'narrow',
-          },
-          {
-            src: '/pwa/apple-splash-2048-2732.png',
-            sizes: '2048x2732',
-            type: 'image/png',
-            form_factor: 'wide',
-          },
-        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png,webmanifest}'],
