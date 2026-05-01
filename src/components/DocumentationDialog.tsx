@@ -102,7 +102,7 @@ export function TemplateDocumentationContent({
                 'touch-manipulation rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 activeSection === id
-                  ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                  ? 'border-[#32026A] bg-[#32026A] text-white shadow-sm'
                   : 'border-border bg-muted/60 text-foreground hover:border-primary/40 hover:bg-muted',
               )}
             >
