@@ -545,32 +545,20 @@ export function LiquidSyntaxEditor() {
                 <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-5 py-3">
                   <div className="flex items-center gap-2">
                     <div className="text-sm font-semibold text-[#1A0E3A]">Documentation</div>
-                    <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
-                      <button
-                        type="button"
-                        onClick={() => setDesktopDocsMode('general')}
-                        className={cn(
-                          'rounded-md px-3 py-1.5 text-xs font-semibold',
-                          desktopDocsMode === 'general'
-                            ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                            : 'text-[#8B7BAA]',
-                        )}
-                      >
-                        General
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDesktopDocsMode('template')}
-                        className={cn(
-                          'rounded-md px-3 py-1.5 text-xs font-semibold',
-                          desktopDocsMode === 'template'
-                            ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                            : 'text-[#8B7BAA]',
-                        )}
-                      >
-                        Template
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
+                      onClick={() => setDesktopDocsMode('general')}
+                    >
+                      General Docs
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
+                      onClick={() => setDesktopDocsMode('template')}
+                    >
+                      Template Docs
+                    </button>
                   </div>
                   <button
                     type="button"
@@ -582,9 +570,9 @@ export function LiquidSyntaxEditor() {
                 </div>
                 <div className="min-h-0 flex-1 overflow-hidden">
                   {desktopDocsMode === 'general' ? (
-                    <GeneralDocumentationContent />
+                    <GeneralDocumentationContent className="h-full" />
                   ) : selectedTemplate ? (
-                    <TemplateDocumentationContent template={selectedTemplate} />
+                    <TemplateDocumentationContent template={selectedTemplate} className="h-full" />
                   ) : (
                     <div className="p-6 text-sm text-[#8B7BAA]">
                       Select a template on the left to view template-specific documentation.

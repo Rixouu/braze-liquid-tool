@@ -162,6 +162,30 @@
   background: #555;
 }
 
+* {
+  scrollbar-color: #1E1434 transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #1E1434;
+  border-radius: 999px;
+  border: 2px solid rgba(240, 237, 248, 0.8);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #1E1434;
+}
+
 /* Add these styles to your CSS file */
 .liquid-preview-container {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
