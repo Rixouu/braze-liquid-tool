@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Loader2, Library, SlidersHorizontal, Braces, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import HighlightedLiquidEditor from './HighlightedLiquidEditor';
@@ -35,8 +34,7 @@ export function LiquidSyntaxEditor() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [mobilePage, setMobilePage] = useState<MobilePage>('snippets');
-  const [desktopTab, setDesktopTab] = useState<'editor' | 'snippets' | 'docs'>('editor');
-  const [docsPane, setDocsPane] = useState<'general' | 'template'>('general');
+  const [desktopDocsMode, setDesktopDocsMode] = useState<null | 'general' | 'template'>(null);
 
   const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
     return Object.keys(obj).reduce(
@@ -187,6 +185,7 @@ export function LiquidSyntaxEditor() {
   const variableCount = useMemo(() => Object.keys(flatSampleData).length, [flatSampleData]);
   const lineCount = useMemo(() => (editedContent ? editedContent.split('\n').length : 0), [editedContent]);
   const errorCount = useMemo(() => (error ? 1 : 0), [error]);
+  const flatEntries = useMemo(() => Object.entries(flatSampleData).sort(([a], [b]) => a.localeCompare(b)), [flatSampleData]);
 
   const groupedTemplates = useMemo(() => {
     const groups = new Map<string, Template[]>();
@@ -209,9 +208,34 @@ export function LiquidSyntaxEditor() {
 
   const onRender = useCallback(() => {
     void updatePreview(editedContent, editableSampleData);
-    setDesktopTab('editor');
     setMobilePage('preview');
   }, [editedContent, editableSampleData, updatePreview]);
+
+  const isDateString = useCallback((val: unknown) => {
+    return typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val);
+  }, []);
+
+  const setValueAtPath = useCallback((obj: Record<string, any>, path: string, value: any) => {
+    const parts = path.split('.');
+    let cur: any = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const key = parts[i];
+      if (cur[key] == null || typeof cur[key] !== 'object' || Array.isArray(cur[key])) cur[key] = {};
+      cur = cur[key];
+    }
+    cur[parts[parts.length - 1]] = value;
+  }, []);
+
+  const updateFlatSampleValue = useCallback(
+    (path: string, value: string) => {
+      const nextData = typeof structuredClone === 'function'
+        ? structuredClone(editableSampleData)
+        : JSON.parse(JSON.stringify(editableSampleData));
+      setValueAtPath(nextData, path, value);
+      handleSampleDataChange(nextData);
+    },
+    [editableSampleData, handleSampleDataChange, setValueAtPath],
+  );
 
   return (
     <div className="min-h-svh bg-[#F0EDF8] text-[#1A0E3A]">
@@ -235,55 +259,12 @@ export function LiquidSyntaxEditor() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
-            <button
-              type="button"
-              onClick={() => setDesktopTab('editor')}
-              className={cn(
-                'rounded-md px-4 py-1.5 text-xs font-semibold',
-                desktopTab === 'editor'
-                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                  : 'text-[#8B7BAA]',
-              )}
-            >
-              Editor
-            </button>
-            <button
-              type="button"
-              onClick={() => setDesktopTab('snippets')}
-              className={cn(
-                'rounded-md px-4 py-1.5 text-xs font-semibold',
-                desktopTab === 'snippets'
-                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                  : 'text-[#8B7BAA]',
-              )}
-            >
-              Snippets
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'rounded-md px-4 py-1.5 text-xs font-semibold',
-                desktopTab === 'docs'
-                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                  : 'text-[#8B7BAA]',
-              )}
-              onClick={() => {
-                setDesktopTab('docs');
-                setDocsPane('general');
-              }}
-            >
-              Docs
-            </button>
-          </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
               className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
               onClick={() => {
-                setDesktopTab('docs');
-                setDocsPane('template');
+                setDesktopDocsMode('template');
               }}
             >
               Template Docs
@@ -292,8 +273,7 @@ export function LiquidSyntaxEditor() {
               type="button"
               className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
               onClick={() => {
-                setDesktopTab('docs');
-                setDocsPane('general');
+                setDesktopDocsMode('general');
               }}
             >
               General Docs
@@ -307,7 +287,7 @@ export function LiquidSyntaxEditor() {
             </button>
             <button
               type="button"
-              className="rounded-lg bg-[#3C3C3C] px-3 py-1.5 text-xs font-semibold text-white"
+              className="rounded-lg bg-[#320269] px-3 py-1.5 text-xs font-semibold text-white"
               onClick={onRender}
             >
               Render
@@ -315,8 +295,7 @@ export function LiquidSyntaxEditor() {
           </div>
           </div>
 
-        {desktopTab === 'editor' ? (
-          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_260px] overflow-hidden">
+          <div className="relative grid flex-1 grid-cols-[220px_minmax(0,1fr)_300px] overflow-hidden">
             <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
               <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
                 <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
@@ -471,7 +450,49 @@ export function LiquidSyntaxEditor() {
 
             <ScrollArea className="min-h-0 flex-1">
               <div className="px-4 py-4">
-                <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                <div className="rounded-2xl border border-[#E4DFF4] bg-white p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">Variables</div>
+                  <div className="mt-3 space-y-2">
+                    {flatEntries.length === 0 ? (
+                      <div className="text-sm text-[#A89CC8]">No variables for this template.</div>
+                    ) : (
+                      flatEntries.map(([key, value]) => (
+                        <div
+                          key={key}
+                          className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2"
+                        >
+                          <div className="min-w-0">
+                            <div className="max-w-full break-all rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#3C3C3C]">
+                              {key}
+                            </div>
+                          </div>
+                          <div className="shrink-0 text-xs text-[#C4B8E0]">=</div>
+                          <div className="min-w-0">
+                            {isDateString(value) ? (
+                              <input
+                                type="date"
+                                value={String(value)}
+                                onChange={(e) => updateFlatSampleValue(key, e.target.value)}
+                                aria-label={key}
+                                title={key}
+                                className="h-9 w-full rounded-lg border border-[#DDD6FE] bg-white px-3 font-mono text-[12px] text-[#2D1B6B] outline-none focus:ring-2 focus:ring-[#320269]/20"
+                              />
+                            ) : (
+                              <input
+                                type="text"
+                                value={String(value ?? '')}
+                                onChange={(e) => updateFlatSampleValue(key, e.target.value)}
+                                aria-label={key}
+                                title={key}
+                                className="h-9 w-full rounded-lg border border-[#DDD6FE] bg-white px-3 font-mono text-[12px] text-[#2D1B6B] outline-none focus:ring-2 focus:ring-[#320269]/20"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <div className="rounded-xl border border-[#E4DFF4] bg-white px-3 py-2 text-center">
                     <div className="font-mono text-lg font-semibold text-[#3B1D7A]">{variableCount}</div>
@@ -496,7 +517,7 @@ export function LiquidSyntaxEditor() {
             <div className="px-4 pb-4">
               <button
                 type="button"
-                className="w-full rounded-xl bg-[#3C3C3C] px-4 py-3 text-sm font-semibold text-white"
+                className="w-full rounded-xl bg-[#320269] px-4 py-3 text-sm font-semibold text-white"
                 onClick={onRender}
               >
                 Render preview
@@ -507,7 +528,7 @@ export function LiquidSyntaxEditor() {
                   className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#3C3C3C]"
                   onClick={handleCopy}
                 >
-                  Copy template
+                  Copy
                 </button>
                 <button
                   type="button"
@@ -519,229 +540,48 @@ export function LiquidSyntaxEditor() {
               </div>
             </div>
           </div>
-          </div>
-        ) : desktopTab === 'snippets' ? (
-          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)] overflow-hidden">
-            <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
-              <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
-                  Snippets
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
-                  <Input
-                    type="search"
-                    placeholder="Search templates…"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="px-0 py-2">
-                  {groupedTemplates.length === 0 ? (
-                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
-                  ) : (
-                    groupedTemplates.map(([category, items]) => (
-                      <div key={category} className="mb-2">
-                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
-                          {category}
-                        </div>
-                        {items.map((t) => {
-                          const active = selectedTemplateId === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              type="button"
-                              onClick={() => handleTemplateChange(t)}
-                              className={cn(
-                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
-                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
-                              )}
-                            >
-                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
-                              <span
-                                className={cn(
-                                  'truncate text-sm',
-                                  active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]',
-                                )}
-                              >
-                                {t.name}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            <div className="min-h-0 overflow-auto p-6">
-              <div className="mx-auto max-w-3xl">
-                <div className="rounded-2xl border border-[#E4DFF4] bg-white p-6">
-                  {selectedTemplate ? (
-                    <div className="space-y-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <h2 className="truncate text-lg font-semibold text-[#1A0E3A]">{selectedTemplate.name}</h2>
-                          <p className="mt-1 text-sm text-[#8B7BAA]">{selectedTemplate.description}</p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <button
-                            type="button"
-                            className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-xs font-semibold text-[#3C3C3C]"
-                            onClick={() => {
-                              setDesktopTab('docs');
-                              setDocsPane('template');
-                            }}
-                          >
-                            Template Docs
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-lg bg-[#3C3C3C] px-3 py-2 text-xs font-semibold text-white"
-                            onClick={() => setDesktopTab('editor')}
-                          >
-                            Open in Editor
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-[#EDE9FE] bg-[#FAFAFA] p-4">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
-                          Variables
-                        </div>
-                        <div className="mt-3 grid grid-cols-1 gap-2">
-                          {Object.keys(flatSampleData).length === 0 ? (
-                            <div className="text-sm text-[#A89CC8]">No sample data for this template.</div>
-                          ) : (
-                            Object.entries(flatSampleData).map(([k, v]) => (
-                              <div key={k} className="flex min-w-0 items-center gap-2">
-                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#3C3C3C]">
-                                  {k}
-                                </span>
-                                <span className="shrink-0 text-xs text-[#C4B8E0]">=</span>
-                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-white px-2 py-1 font-mono text-[11px] text-[#2D1B6B]">
-                                  {String(v)}
-                                </span>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-[#E4DFF4] bg-white p-4">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
-                          Sample Data
-                        </div>
-                        <div className="mt-3">
-                          <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
-                        </div>
-                      </div>
+            {desktopDocsMode ? (
+              <div className="absolute inset-y-0 left-[220px] right-0 z-30 flex flex-col overflow-hidden border-l border-[#E4DFF4] bg-white">
+                <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm font-semibold text-[#1A0E3A]">Documentation</div>
+                    <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
+                      <button
+                        type="button"
+                        onClick={() => setDesktopDocsMode('general')}
+                        className={cn(
+                          'rounded-md px-3 py-1.5 text-xs font-semibold',
+                          desktopDocsMode === 'general'
+                            ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
+                            : 'text-[#8B7BAA]',
+                        )}
+                      >
+                        General
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDesktopDocsMode('template')}
+                        className={cn(
+                          'rounded-md px-3 py-1.5 text-xs font-semibold',
+                          desktopDocsMode === 'template'
+                            ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
+                            : 'text-[#8B7BAA]',
+                        )}
+                      >
+                        Template
+                      </button>
                     </div>
-                  ) : (
-                    <div className="text-sm text-[#8B7BAA]">Select a template on the left to see details.</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)] overflow-hidden">
-            <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
-              <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
-                  Snippets
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
-                  <Input
-                    type="search"
-                    placeholder="Search templates…"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="px-0 py-2">
-                  {groupedTemplates.length === 0 ? (
-                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
-                  ) : (
-                    groupedTemplates.map(([category, items]) => (
-                      <div key={category} className="mb-2">
-                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
-                          {category}
-                        </div>
-                        {items.map((t) => {
-                          const active = selectedTemplateId === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              type="button"
-                              onClick={() => handleTemplateChange(t)}
-                              className={cn(
-                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
-                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
-                              )}
-                            >
-                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
-                              <span
-                                className={cn(
-                                  'truncate text-sm',
-                                  active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]',
-                                )}
-                              >
-                                {t.name}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            <div className="min-h-0 overflow-hidden p-6">
-              <div className="mx-auto flex h-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#E4DFF4] bg-white">
-                <div className="flex items-center justify-between gap-3 border-b border-[#E4DFF4] bg-white px-5 py-4">
-                  <div className="text-sm font-semibold text-[#1A0E3A]">Docs</div>
-                  <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
-                    <button
-                      type="button"
-                      onClick={() => setDocsPane('general')}
-                      className={cn(
-                        'rounded-md px-3 py-1.5 text-xs font-semibold',
-                        docsPane === 'general'
-                          ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                          : 'text-[#8B7BAA]',
-                      )}
-                    >
-                      General
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDocsPane('template')}
-                      className={cn(
-                        'rounded-md px-3 py-1.5 text-xs font-semibold',
-                        docsPane === 'template'
-                          ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
-                          : 'text-[#8B7BAA]',
-                      )}
-                    >
-                      Template
-                    </button>
                   </div>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
+                    onClick={() => setDesktopDocsMode(null)}
+                  >
+                    Close
+                  </button>
                 </div>
-
                 <div className="min-h-0 flex-1 overflow-hidden">
-                  {docsPane === 'general' ? (
+                  {desktopDocsMode === 'general' ? (
                     <GeneralDocumentationContent />
                   ) : selectedTemplate ? (
                     <TemplateDocumentationContent template={selectedTemplate} />
@@ -752,9 +592,8 @@ export function LiquidSyntaxEditor() {
                   )}
                 </div>
               </div>
-            </div>
+            ) : null}
           </div>
-        )}
         </div>
       </div>
 
@@ -778,7 +617,7 @@ export function LiquidSyntaxEditor() {
             </div>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-lg bg-[#3C3C3C] px-3 py-2 text-xs font-semibold text-white"
+              className="flex items-center gap-2 rounded-lg bg-[#320269] px-3 py-2 text-xs font-semibold text-white"
               onClick={onRender}
             >
               Render
@@ -947,7 +786,51 @@ export function LiquidSyntaxEditor() {
                     <div className="mt-1 text-xs text-[#A89CC8]">Override attribute values for preview</div>
                   </div>
                   <div className="p-3">
-                    <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                    <div className="rounded-2xl border border-[#E4DFF4] bg-white p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                        Variables
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        {flatEntries.length === 0 ? (
+                          <div className="text-sm text-[#A89CC8]">No variables for this template.</div>
+                        ) : (
+                          flatEntries.map(([key, value]) => (
+                            <div
+                              key={key}
+                              className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2"
+                            >
+                              <div className="min-w-0">
+                                <div className="max-w-full break-all rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#3C3C3C]">
+                                  {key}
+                                </div>
+                              </div>
+                              <div className="shrink-0 text-xs text-[#C4B8E0]">=</div>
+                              <div className="min-w-0">
+                                {isDateString(value) ? (
+                                  <input
+                                    type="date"
+                                    value={String(value)}
+                                    onChange={(e) => updateFlatSampleValue(key, e.target.value)}
+                                    aria-label={key}
+                                    title={key}
+                                    className="h-9 w-full rounded-lg border border-[#DDD6FE] bg-white px-3 font-mono text-[12px] text-[#2D1B6B] outline-none focus:ring-2 focus:ring-[#320269]/20"
+                                  />
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={String(value ?? '')}
+                                    onChange={(e) => updateFlatSampleValue(key, e.target.value)}
+                                    aria-label={key}
+                                    title={key}
+                                    className="h-9 w-full rounded-lg border border-[#DDD6FE] bg-white px-3 font-mono text-[12px] text-[#2D1B6B] outline-none focus:ring-2 focus:ring-[#320269]/20"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -973,7 +856,7 @@ export function LiquidSyntaxEditor() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="flex-1 rounded-xl bg-[#3C3C3C] px-4 py-3 text-sm font-semibold text-white"
+                    className="flex-1 rounded-xl bg-[#320269] px-4 py-3 text-sm font-semibold text-white"
                     onClick={onRender}
                   >
                     Render preview
