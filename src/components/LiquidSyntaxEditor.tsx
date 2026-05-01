@@ -200,7 +200,7 @@ export function LiquidSyntaxEditor() {
   }, [filteredTemplates]);
 
   const categoryDotClass = useCallback((category: string) => {
-    const palette = ['bg-violet-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500'] as const;
+    const palette = ['bg-[#3C3C3C]', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500'] as const;
     let hash = 0;
     for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) | 0;
     const idx = Math.abs(hash) % palette.length;
@@ -217,15 +217,19 @@ export function LiquidSyntaxEditor() {
     <div className="min-h-svh bg-[#F0EDF8] text-[#1A0E3A]">
       <div className="hidden min-h-svh items-center justify-center px-6 py-6 lg:flex">
         <div className="flex h-[min(calc(100dvh-3rem),980px)] w-full max-w-[1400px] flex-col overflow-hidden rounded-2xl border border-[#E4DFF4] bg-white shadow-[0_18px_60px_rgba(15,23,42,0.10)]">
-        <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-6 py-3">
+          <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-6 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-800">
-              <img src="/imgs/braze-icon-white.svg" alt="" className="h-3.5 w-3.5" />
-            </div>
+            <img
+              src="/imgs/braze-icon-original.png"
+              alt="Braze Liquid Editor"
+              className="h-7 w-7 rounded-lg"
+              width={28}
+              height={28}
+            />
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold text-[#1A0E3A]">Braze Liquid Editor</span>
               <div className="h-4 w-px bg-[#E4DFF4]" />
-              <span className="rounded-full border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold tracking-widest text-[#6D28D9]">
+              <span className="rounded-full border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold tracking-widest text-[#3C3C3C]">
                 LIQUID 5
               </span>
             </div>
@@ -238,7 +242,7 @@ export function LiquidSyntaxEditor() {
               className={cn(
                 'rounded-md px-4 py-1.5 text-xs font-semibold',
                 desktopTab === 'editor'
-                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
                   : 'text-[#8B7BAA]',
               )}
             >
@@ -250,7 +254,7 @@ export function LiquidSyntaxEditor() {
               className={cn(
                 'rounded-md px-4 py-1.5 text-xs font-semibold',
                 desktopTab === 'snippets'
-                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
                   : 'text-[#8B7BAA]',
               )}
             >
@@ -261,7 +265,7 @@ export function LiquidSyntaxEditor() {
               className={cn(
                 'rounded-md px-4 py-1.5 text-xs font-semibold',
                 desktopTab === 'docs'
-                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
                   : 'text-[#8B7BAA]',
               )}
               onClick={() => {
@@ -276,7 +280,7 @@ export function LiquidSyntaxEditor() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
               onClick={() => {
                 setDesktopTab('docs');
                 setDocsPane('template');
@@ -286,7 +290,7 @@ export function LiquidSyntaxEditor() {
             </button>
             <button
               type="button"
-              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
               onClick={() => {
                 setDesktopTab('docs');
                 setDocsPane('general');
@@ -296,20 +300,20 @@ export function LiquidSyntaxEditor() {
             </button>
             <button
               type="button"
-              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#3C3C3C]"
               onClick={handleCopy}
             >
               Copy
             </button>
             <button
               type="button"
-              className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white"
+              className="rounded-lg bg-[#3C3C3C] px-3 py-1.5 text-xs font-semibold text-white"
               onClick={onRender}
             >
               Render
             </button>
           </div>
-        </div>
+          </div>
 
         {desktopTab === 'editor' ? (
           <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_260px] overflow-hidden">
@@ -355,7 +359,7 @@ export function LiquidSyntaxEditor() {
                               <span
                                 className={cn(
                                   'truncate text-sm',
-                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                  active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]',
                                 )}
                               >
                                 {t.name}
@@ -379,14 +383,14 @@ export function LiquidSyntaxEditor() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#3C3C3C]"
                     onClick={handleCopy}
                   >
                     Copy
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#3C3C3C]"
                     onClick={handleReset}
                   >
                     Reset
@@ -426,7 +430,7 @@ export function LiquidSyntaxEditor() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#3C3C3C]"
                     onClick={onRender}
                   >
                     Re-render
@@ -436,7 +440,7 @@ export function LiquidSyntaxEditor() {
               <div className="min-h-0 flex-1 overflow-auto bg-white">
                 {isLoading ? (
                   <div className="flex h-full min-h-[200px] items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#3C3C3C]" />
                   </div>
                 ) : error ? (
                   <div className="p-4">
@@ -492,7 +496,7 @@ export function LiquidSyntaxEditor() {
             <div className="px-4 pb-4">
               <button
                 type="button"
-                className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white"
+                className="w-full rounded-xl bg-[#3C3C3C] px-4 py-3 text-sm font-semibold text-white"
                 onClick={onRender}
               >
                 Render preview
@@ -500,14 +504,14 @@ export function LiquidSyntaxEditor() {
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"
-                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#3C3C3C]"
                   onClick={handleCopy}
                 >
                   Copy template
                 </button>
                 <button
                   type="button"
-                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#3C3C3C]"
                   onClick={handleReset}
                 >
                   Reset
@@ -560,7 +564,7 @@ export function LiquidSyntaxEditor() {
                               <span
                                 className={cn(
                                   'truncate text-sm',
-                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                  active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]',
                                 )}
                               >
                                 {t.name}
@@ -588,7 +592,7 @@ export function LiquidSyntaxEditor() {
                         <div className="flex shrink-0 items-center gap-2">
                           <button
                             type="button"
-                            className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                            className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-xs font-semibold text-[#3C3C3C]"
                             onClick={() => {
                               setDesktopTab('docs');
                               setDocsPane('template');
@@ -598,7 +602,7 @@ export function LiquidSyntaxEditor() {
                           </button>
                           <button
                             type="button"
-                            className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white"
+                            className="rounded-lg bg-[#3C3C3C] px-3 py-2 text-xs font-semibold text-white"
                             onClick={() => setDesktopTab('editor')}
                           >
                             Open in Editor
@@ -616,7 +620,7 @@ export function LiquidSyntaxEditor() {
                           ) : (
                             Object.entries(flatSampleData).map(([k, v]) => (
                               <div key={k} className="flex min-w-0 items-center gap-2">
-                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#6D28D9]">
+                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#3C3C3C]">
                                   {k}
                                 </span>
                                 <span className="shrink-0 text-xs text-[#C4B8E0]">=</span>
@@ -689,7 +693,7 @@ export function LiquidSyntaxEditor() {
                               <span
                                 className={cn(
                                   'truncate text-sm',
-                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                  active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]',
                                 )}
                               >
                                 {t.name}
@@ -715,7 +719,7 @@ export function LiquidSyntaxEditor() {
                       className={cn(
                         'rounded-md px-3 py-1.5 text-xs font-semibold',
                         docsPane === 'general'
-                          ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                          ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
                           : 'text-[#8B7BAA]',
                       )}
                     >
@@ -727,7 +731,7 @@ export function LiquidSyntaxEditor() {
                       className={cn(
                         'rounded-md px-3 py-1.5 text-xs font-semibold',
                         docsPane === 'template'
-                          ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                          ? 'bg-white text-[#3C3C3C] shadow-[0_1px_3px_rgba(60,60,60,0.12)]'
                           : 'text-[#8B7BAA]',
                       )}
                     >
@@ -758,19 +762,23 @@ export function LiquidSyntaxEditor() {
         <div className="border-b border-[#EDE9FE] bg-[#F5F3FF] px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-800">
-                <img src="/imgs/braze-icon-white.svg" alt="" className="h-3.5 w-3.5" />
-              </div>
+              <img
+                src="/imgs/braze-icon-original.png"
+                alt="Braze Liquid Editor"
+                className="h-7 w-7 rounded-lg"
+                width={28}
+                height={28}
+              />
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-[#1A0E3A]">Liquid Editor</span>
-                <span className="rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold text-[#6D28D9]">
+                <span className="rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold text-[#3C3C3C]">
                   Liquid 5
                 </span>
               </div>
             </div>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white"
+              className="flex items-center gap-2 rounded-lg bg-[#3C3C3C] px-3 py-2 text-xs font-semibold text-white"
               onClick={onRender}
             >
               Render
@@ -788,7 +796,7 @@ export function LiquidSyntaxEditor() {
                   onClick={() => setMobilePage(value)}
                   className={cn(
                     'flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-[11px] font-semibold',
-                    mobilePage === value ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-[#A89CC8]',
+                      mobilePage === value ? 'border-[#3C3C3C] text-[#3C3C3C]' : 'border-transparent text-[#A89CC8]',
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -845,12 +853,12 @@ export function LiquidSyntaxEditor() {
             {mobilePage === 'preview' ? (
               <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
                 <div className="flex items-center justify-between border-b border-[#EDE9FE] px-4 py-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3C3C3C]">
                     Rendered preview
                   </span>
                   <button
                     type="button"
-                    className="rounded-lg border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    className="rounded-lg border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#3C3C3C]"
                     onClick={onRender}
                   >
                     Re-render
@@ -859,7 +867,7 @@ export function LiquidSyntaxEditor() {
                 <div className="max-h-[60dvh] overflow-auto px-2 py-2">
                   {isLoading ? (
                     <div className="flex min-h-[200px] items-center justify-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+                      <Loader2 className="h-8 w-8 animate-spin text-[#3C3C3C]" />
                     </div>
                   ) : error ? (
                     <div className="p-3">
@@ -881,7 +889,7 @@ export function LiquidSyntaxEditor() {
             {mobilePage === 'snippets' ? (
               <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
                 <div className="border-b border-[#EDE9FE] px-4 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3C3C3C]">
                     Templates
                   </div>
                   <div className="mt-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
@@ -916,7 +924,7 @@ export function LiquidSyntaxEditor() {
                               )}
                             >
                               <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
-                              <span className={cn('truncate text-sm', active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]')}>
+                              <span className={cn('truncate text-sm', active ? 'font-medium text-[#3C3C3C]' : 'text-[#4A3070]')}>
                                 {t.name}
                               </span>
                             </button>
@@ -933,7 +941,7 @@ export function LiquidSyntaxEditor() {
               <div className="space-y-3">
                 <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
                   <div className="border-b border-[#EDE9FE] px-4 py-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3C3C3C]">
                       Test variables
                     </div>
                     <div className="mt-1 text-xs text-[#A89CC8]">Override attribute values for preview</div>
@@ -965,14 +973,14 @@ export function LiquidSyntaxEditor() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="flex-1 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white"
+                    className="flex-1 rounded-xl bg-[#3C3C3C] px-4 py-3 text-sm font-semibold text-white"
                     onClick={onRender}
                   >
                     Render preview
                   </button>
                   <button
                     type="button"
-                    className="rounded-xl border border-[#DDD6FE] bg-white px-4 py-3 text-sm font-semibold text-[#6D28D9]"
+                    className="rounded-xl border border-[#DDD6FE] bg-white px-4 py-3 text-sm font-semibold text-[#3C3C3C]"
                     onClick={handleCopy}
                   >
                     Copy
@@ -993,9 +1001,9 @@ export function LiquidSyntaxEditor() {
                 className="flex flex-col items-center gap-1 py-2"
               >
                 <div className={cn('flex h-7 w-10 items-center justify-center rounded-lg', mobilePage === value ? 'bg-[#EDE9FE]' : '')}>
-                  <Icon className={cn('h-5 w-5', mobilePage === value ? 'text-violet-700' : 'text-[#C4B8E0]')} />
+                  <Icon className={cn('h-5 w-5', mobilePage === value ? 'text-[#3C3C3C]' : 'text-[#C4B8E0]')} />
                 </div>
-                <span className={cn('text-[10px]', mobilePage === value ? 'font-semibold text-[#6D28D9]' : 'text-[#C4B8E0]')}>
+                <span className={cn('text-[10px]', mobilePage === value ? 'font-semibold text-[#3C3C3C]' : 'text-[#C4B8E0]')}>
                   {label}
                 </span>
               </button>
