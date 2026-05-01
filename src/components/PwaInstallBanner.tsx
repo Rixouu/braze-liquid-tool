@@ -94,8 +94,9 @@ export function PwaInstallBanner() {
       role="region"
       aria-label="Install app"
       className={cn(
-        'fixed inset-x-0 bottom-0 z-[100]',
-        'px-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3',
+        'fixed inset-x-0 z-[100]',
+        'bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-0',
+        'px-3 pb-3 pt-3',
       )}
     >
       <div
@@ -105,7 +106,7 @@ export function PwaInstallBanner() {
           className={cn(
             'rounded-2xl p-px',
             'bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-sky-500/30',
-            'shadow-[0_18px_60px_rgba(15,23,42,0.18)] dark:shadow-[0_18px_70px_rgba(0,0,0,0.55)]',
+            'shadow-[0_18px_60px_rgba(15,23,42,0.18)]',
           )}
         >
           <div
@@ -125,14 +126,7 @@ export function PwaInstallBanner() {
               <img
                 src="/imgs/braze-icon-black.svg"
                 alt=""
-                className="h-7 w-7 object-contain dark:hidden"
-                width={28}
-                height={28}
-              />
-              <img
-                src="/imgs/braze-icon-white.svg"
-                alt=""
-                className="hidden h-7 w-7 object-contain dark:block"
+                className="h-7 w-7 object-contain"
                 width={28}
                 height={28}
               />

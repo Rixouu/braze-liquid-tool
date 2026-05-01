@@ -1,27 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Copy,
-  RotateCcw,
-  Book,
-  Loader2,
-  Library,
-  SlidersHorizontal,
-  Braces,
-  Eye,
-} from 'lucide-react';
+import { Loader2, Library, SlidersHorizontal, Braces, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import ThemeToggle from '@/components/ThemeToggle';
 import HighlightedLiquidEditor from './HighlightedLiquidEditor';
 import LiquidPreview from './LiquidPreview';
 import { DocumentationDialog } from './DocumentationDialog';
@@ -31,38 +18,14 @@ import type { Template } from '@/types';
 import { templates } from '@/templates/templateData';
 import { cn } from '@/lib/utils';
 
-const MOBILE_FLOW_HINT_KEY = 'braze-liquid-tool-mobile-flow-hint-dismissed';
+const MOBILE_PAGES = [
+  { value: 'editor' as const, label: 'Editor', Icon: Braces },
+  { value: 'preview' as const, label: 'Preview', Icon: Eye },
+  { value: 'snippets' as const, label: 'Snippets', Icon: Library },
+  { value: 'vars' as const, label: 'Vars', Icon: SlidersHorizontal },
+] as const;
 
-const MOBILE_NAV = [
-  {
-    value: 'library' as const,
-    step: 1,
-    label: 'Library',
-    Icon: Library,
-    tooltip: 'Choose a template',
-  },
-  {
-    value: 'data' as const,
-    step: 2,
-    label: 'Data',
-    Icon: SlidersHorizontal,
-    tooltip: 'Adjust sample fields used in the preview',
-  },
-  {
-    value: 'edit' as const,
-    step: 3,
-    label: 'Edit',
-    Icon: Braces,
-    tooltip: 'Edit Liquid with syntax highlighting',
-  },
-  {
-    value: 'preview' as const,
-    step: 4,
-    label: 'Preview',
-    Icon: Eye,
-    tooltip: 'See rendered output',
-  },
-];
+type MobilePage = (typeof MOBILE_PAGES)[number]['value'];
 
 function TemplateInfoBody({ template }: { template: Template }) {
   return (
@@ -112,57 +75,6 @@ function TemplateInfoBody({ template }: { template: Template }) {
   );
 }
 
-interface TemplateLibrarySectionProps {
-  searchTerm: string;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  filteredTemplates: Template[];
-  selectedTemplateId: string | null;
-  onSelectTemplate: (template: Template) => void;
-  scrollClassName?: string;
-}
-
-function TemplateLibrarySection({
-  searchTerm,
-  onSearchChange,
-  filteredTemplates,
-  selectedTemplateId,
-  onSelectTemplate,
-  scrollClassName = 'h-[300px] w-full lg:h-[300px]',
-}: TemplateLibrarySectionProps) {
-  return (
-    <>
-      <Input
-        type="search"
-        placeholder="Search templates…"
-        className="mb-2 h-11 w-full touch-manipulation text-base sm:mb-3 sm:h-11 sm:text-sm lg:mb-4 lg:text-sm"
-        value={searchTerm}
-        onChange={onSearchChange}
-      />
-      <ScrollArea className={scrollClassName}>
-        <div className="min-w-0 pr-3">
-          {filteredTemplates.length > 0 ? (
-            filteredTemplates.map((template) => (
-              <Button
-                key={template.id}
-                variant="ghost"
-                className={`mb-2 min-h-12 w-full touch-manipulation justify-start px-3 py-3 text-left text-base font-normal text-foreground hover:bg-muted sm:min-h-11 sm:text-sm sm:px-4 ${
-                  selectedTemplateId === template.id ? 'bg-muted font-medium' : ''
-                }`}
-                onClick={() => onSelectTemplate(template)}
-              >
-                <Book className="h-5 w-5 shrink-0" />
-                <span className="ml-2 truncate">{template.name}</span>
-              </Button>
-            ))
-          ) : (
-            <p className="py-4 text-center text-sm text-muted-foreground">No templates found</p>
-          )}
-        </div>
-      </ScrollArea>
-    </>
-  );
-}
-
 export function LiquidSyntaxEditor() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [editedContent, setEditedContent] = useState('');
@@ -174,16 +86,7 @@ export function LiquidSyntaxEditor() {
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
   const [isGeneralDocumentationOpen, setIsGeneralDocumentationOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [mobileTab, setMobileTab] = useState<string>('library');
-  const [mobileHintDismissed, setMobileHintDismissed] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(MOBILE_FLOW_HINT_KEY) === '1') setMobileHintDismissed(true);
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const [mobilePage, setMobilePage] = useState<MobilePage>('snippets');
 
   const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
     return Object.keys(obj).reduce(
@@ -279,7 +182,7 @@ export function LiquidSyntaxEditor() {
       updateContentWithData(template.sampleData as Record<string, any>);
       setEditedContent(updatedContent);
       updatePreview(updatedContent, template.sampleData as Record<string, any>);
-      setMobileTab('data');
+      setMobilePage('vars');
     },
     [updatePreview],
   );
@@ -345,413 +248,552 @@ export function LiquidSyntaxEditor() {
     </Popover>
   );
 
+  const flatSampleData = useMemo(() => flattenObject(editableSampleData), [editableSampleData, flattenObject]);
+  const variableCount = useMemo(() => Object.keys(flatSampleData).length, [flatSampleData]);
+  const lineCount = useMemo(() => (editedContent ? editedContent.split('\n').length : 0), [editedContent]);
+  const errorCount = useMemo(() => (error ? 1 : 0), [error]);
+
+  const groupedTemplates = useMemo(() => {
+    const groups = new Map<string, Template[]>();
+    for (const t of filteredTemplates) {
+      const key = t.category || 'Other';
+      const list = groups.get(key);
+      if (list) list.push(t);
+      else groups.set(key, [t]);
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredTemplates]);
+
+  const categoryDotClass = useCallback((category: string) => {
+    const palette = ['bg-violet-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500'] as const;
+    let hash = 0;
+    for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % palette.length;
+    return palette[idx];
+  }, []);
+
+  const onRender = useCallback(() => {
+    void updatePreview(editedContent, editableSampleData);
+  }, [editedContent, editableSampleData, updatePreview]);
+
   return (
-    <div className="box-border flex flex-col bg-gradient-to-br from-[hsl(232,32%,96%)] via-[hsl(238,28%,94%)] to-[hsl(252,22%,92%)] dark:from-[hsl(252,45%,6%)] dark:via-[hsl(248,38%,8%)] dark:to-[hsl(232,40%,10%)] max-lg:fixed max-lg:inset-0 max-lg:overflow-hidden lg:min-h-svh lg:items-center lg:py-6 lg:pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] lg:pt-[max(0.5rem,env(safe-area-inset-top,0px))] sm:justify-center sm:py-4">
-      <div className="mx-auto flex min-h-0 w-full max-w-[100vw] flex-1 flex-col px-2 max-lg:h-full max-lg:overflow-hidden max-lg:px-0 sm:max-w-full sm:px-4 lg:h-auto lg:max-h-none lg:overflow-visible lg:px-8">
-        <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-md shadow-primary/5 max-lg:h-full max-lg:min-h-0 max-lg:rounded-none max-lg:border-0 max-lg:shadow-none sm:max-lg:mx-0 sm:max-lg:rounded-xl sm:max-lg:shadow-md lg:min-h-0 lg:shadow-md">
-          {/* Mobile header */}
-          <CardHeader className="shrink-0 border-b border-primary/20 p-0 lg:hidden">
-            <div className="flex items-center justify-between px-3 py-2">
-              <div className="flex items-center gap-2">
-                <img
-                  src="/imgs/braze-icon-black.svg"
-                  alt="Braze icon"
-                  aria-hidden={true}
-                  className="h-7 w-7 shrink-0 dark:hidden"
-                  width={28}
-                  height={28}
+    <div className="min-h-svh bg-[#F0EDF8] text-[#1A0E3A]">
+      <div className="hidden min-h-svh flex-col lg:flex">
+        <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-800">
+              <img src="/imgs/braze-icon-white.svg" alt="" className="h-3.5 w-3.5" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-[#1A0E3A]">Braze Liquid Editor</span>
+              <div className="h-4 w-px bg-[#E4DFF4]" />
+              <span className="rounded-full border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold tracking-widest text-[#6D28D9]">
+                LIQUID 5
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
+            <button
+              type="button"
+              className="rounded-md bg-white px-4 py-1.5 text-xs font-semibold text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]"
+            >
+              Editor
+            </button>
+            <button type="button" className="rounded-md px-4 py-1.5 text-xs font-semibold text-[#8B7BAA]">
+              Snippets
+            </button>
+            <button
+              type="button"
+              className="rounded-md px-4 py-1.5 text-xs font-semibold text-[#8B7BAA]"
+              onClick={() => setIsGeneralDocumentationOpen(true)}
+            >
+              Docs
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              onClick={() => setIsDocumentationOpen(true)}
+            >
+              Template Docs
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              onClick={() => setIsGeneralDocumentationOpen(true)}
+            >
+              General Docs
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
+              onClick={handleCopy}
+            >
+              Copy
+            </button>
+            <button
+              type="button"
+              className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white"
+              onClick={onRender}
+            >
+              Render
+            </button>
+          </div>
+        </div>
+
+        <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_260px] overflow-hidden">
+          <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
+            <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                Snippets
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
+                <Input
+                  type="search"
+                  placeholder="Search templates…"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
                 />
-                <img
-                  src="/imgs/braze-icon-white.svg"
-                  alt="Braze icon"
-                  aria-hidden={true}
-                  className="hidden h-7 w-7 shrink-0 dark:block"
-                  width={28}
-                  height={28}
-                />
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Braze</p>
-                  <p className="-mt-0.5 text-base font-bold leading-tight text-foreground">Liquid Editor</p>
+              </div>
+            </div>
+
+            <ScrollArea className="min-h-0 flex-1">
+              <div className="px-0 py-2">
+                {groupedTemplates.length === 0 ? (
+                  <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
+                ) : (
+                  groupedTemplates.map(([category, items]) => (
+                    <div key={category} className="mb-2">
+                      <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
+                        {category}
+                      </div>
+                      {items.map((t) => {
+                        const active = selectedTemplateId === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => handleTemplateChange(t)}
+                            className={cn(
+                              'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
+                              active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
+                            )}
+                          >
+                            <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
+                            <span className={cn('truncate text-sm', active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]')}>
+                              {t.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+
+          <div className="grid min-h-0 grid-rows-2 overflow-hidden">
+            <div className="flex min-h-0 flex-col overflow-hidden border-b border-[#E4DFF4]">
+              <div className="flex items-center justify-between border-b border-[#EEE8FF] bg-white px-4 py-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                  Liquid template
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    onClick={handleCopy}
+                  >
+                    Copy
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 touch-manipulation text-muted-foreground hover:text-foreground"
-                        onClick={() => setIsGeneralDocumentationOpen(true)}
-                      >
-                        <Book className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Documentation</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <ThemeToggle />
-              </div>
-            </div>
-          </CardHeader>
-
-          {/* Desktop header */}
-          <CardHeader className="hidden shrink-0 space-y-3 border-b border-primary/20 p-4 lg:block sm:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-                <img
-                  src="/imgs/braze-icon-black.svg"
-                  alt="Braze icon"
-                  aria-hidden={true}
-                  className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:hidden"
-                  width={36}
-                  height={36}
+              <div className="min-h-0 flex-1 overflow-hidden bg-[#1E1433]">
+                <HighlightedLiquidEditor
+                  value={editedContent}
+                  onChange={handleContentChange}
+                  className="h-full w-full"
+                  options={{ style: editorStyleLg }}
                 />
-                <img
-                  src="/imgs/braze-icon-white.svg"
-                  alt="Braze icon"
-                  aria-hidden={true}
-                  className="hidden h-8 w-8 shrink-0 sm:h-9 sm:w-9 dark:block"
-                  width={36}
-                  height={36}
-                />
-                <CardTitle className="truncate text-lg font-semibold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">
-                  Braze Liquid Syntax Editor
-                </CardTitle>
               </div>
-              <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-11 w-11 touch-manipulation border-border text-foreground hover:bg-muted sm:h-9 sm:w-9"
-                        onClick={() => setIsGeneralDocumentationOpen(true)}
-                      >
-                        <Book className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Documentation</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <ThemeToggle />
+              <div className="flex items-center gap-2 border-t border-[#FED7AA] bg-[#FFF7ED] px-4 py-2 text-xs text-[#92400E]">
+                {error ? (
+                  <>
+                    <ExclamationTriangleIcon className="h-4 w-4" />
+                    <span className="truncate">Render error</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="truncate text-emerald-700">
+                      No errors · {lineCount} lines · {variableCount} variables
+                    </span>
+                  </>
+                )}
               </div>
             </div>
-          </CardHeader>
 
-          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-3 pb-2 max-lg:gap-0 max-lg:p-0 max-lg:pb-0 sm:p-6">
-            {/* Desktop */}
-            <div className="hidden min-h-0 flex-1 lg:grid lg:grid-cols-4 lg:gap-6">
-              <div className="space-y-6 lg:col-span-1">
-                <Card className="w-full">
-                  <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2">
-                    <CardTitle className="text-base">Template Library</CardTitle>
-                    <CardDescription>Choose a template to get started</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                    <TemplateLibrarySection
-                      searchTerm={searchTerm}
-                      onSearchChange={handleSearchChange}
-                      filteredTemplates={filteredTemplates}
-                      selectedTemplateId={selectedTemplateId}
-                      onSelectTemplate={handleTemplateChange}
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card className="w-full">
-                  <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2">
-                    <CardTitle className="text-base">Sample Data</CardTitle>
-                    <CardDescription>Edit to test different scenarios</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                    <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
-                  </CardContent>
-                </Card>
+            <div className="flex min-h-0 flex-col overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[#EEE8FF] bg-white px-4 py-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                  Rendered preview
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-md border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    onClick={onRender}
+                  >
+                    Re-render
+                  </button>
+                </div>
               </div>
+              <div className="min-h-0 flex-1 overflow-auto bg-white">
+                {isLoading ? (
+                  <div className="flex h-full min-h-[200px] items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+                  </div>
+                ) : error ? (
+                  <div className="p-4">
+                    <Alert variant="destructive">
+                      <ExclamationTriangleIcon className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>
+                        <pre className="max-h-56 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ) : (
+                  <div className="p-2">
+                    <LiquidPreview text={previewContent} />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-              <Card className="flex min-h-0 flex-col lg:col-span-3">
-                <CardHeader className="shrink-0 space-y-2 p-4 sm:p-6">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-1.5">
-                      <CardTitle className="text-base lg:text-lg">Editor and Preview</CardTitle>
-                      <CardDescription>Write your Liquid syntax and see the result</CardDescription>
-                    </div>
-                    <div className="editor-header-buttons flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-10 touch-manipulation sm:min-h-9"
-                        onClick={() => setIsDocumentationOpen(true)}
-                      >
-                        Documentation
-                      </Button>
-                      {templateInfoPopover}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col p-4 pt-0 sm:p-6 sm:pt-0">
-                  <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4">
-                    <div className="relative flex min-h-0 flex-col">
-                      <div className="min-h-0 flex-1 overflow-hidden lg:min-h-[560px]">
-                        <HighlightedLiquidEditor
-                          value={editedContent}
-                          onChange={handleContentChange}
-                          className="h-full w-full rounded-md border border-input bg-background"
-                          options={{ style: editorStyleLg }}
-                        />
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="min-h-11 touch-manipulation bg-green-100 font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 dark:hover:bg-green-900/70 sm:min-h-9"
-                          onClick={handleCopy}
-                        >
-                          <Copy className="mr-2 h-4 w-4" />
-                          Copy
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="min-h-11 touch-manipulation border-red-200 bg-red-50 font-medium text-red-800 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60 sm:min-h-9"
-                          onClick={handleReset}
-                        >
-                          <RotateCcw className="mr-2 h-4 w-4" />
-                          Reset
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex min-h-[min(240px,40dvh)] flex-col rounded-md border border-border bg-muted/40 text-foreground dark:bg-card lg:min-h-[560px]">
-                      <div className="min-h-0 flex-1 overflow-auto p-3 sm:p-4">
-                        {isLoading ? (
-                          <div className="flex h-full min-h-[200px] items-center justify-center">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                          </div>
-                        ) : error ? (
-                          <Alert variant="destructive">
-                            <ExclamationTriangleIcon className="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>
-                              <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
-                            </AlertDescription>
-                          </Alert>
-                        ) : (
-                          <LiquidPreview text={previewContent} />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="flex flex-col overflow-hidden border-l border-[#E4DFF4] bg-[#FAFAFA]">
+            <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                Test variables
+              </div>
+              <div className="mt-1 text-[11px] text-[#A89CC8]">Override attribute values for preview</div>
             </div>
 
-            {/* Mobile / tablet app shell — flex column + flex-1 panels so the tab bar stays docked (avoid 100dvh + sticky, which breaks inside the card). */}
-            <Tabs
-              value={mobileTab}
-              onValueChange={setMobileTab}
-              className="flex min-h-0 flex-1 flex-col overflow-hidden lg:hidden"
+            <ScrollArea className="min-h-0 flex-1">
+              <div className="px-4 py-4">
+                <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-[#E4DFF4] bg-white px-3 py-2 text-center">
+                    <div className="font-mono text-lg font-semibold text-[#3B1D7A]">{variableCount}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Variables</div>
+                  </div>
+                  <div className="rounded-xl border border-[#E4DFF4] bg-white px-3 py-2 text-center">
+                    <div className="font-mono text-lg font-semibold text-[#3B1D7A]">{lineCount}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Lines</div>
+                  </div>
+                  <div className="rounded-xl border border-[#E4DFF4] bg-white px-3 py-2 text-center">
+                    <div className="font-mono text-lg font-semibold text-[#3B1D7A]">{errorCount}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Errors</div>
+                  </div>
+                  <div className="rounded-xl border border-[#E4DFF4] bg-white px-3 py-2 text-center">
+                    <div className="font-mono text-lg font-semibold text-[#3B1D7A]">{selectedTemplate ? '1' : '0'}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Template</div>
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+
+            <div className="px-4 pb-4">
+              <button
+                type="button"
+                className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white"
+                onClick={onRender}
+              >
+                Render preview
+              </button>
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                  onClick={handleCopy}
+                >
+                  Copy template
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 rounded-xl border border-[#DDD6FE] bg-[#F5F3FF] px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                  onClick={handleReset}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex min-h-svh flex-col bg-[#E8E2F8] lg:hidden">
+        <div className="border-b border-[#EDE9FE] bg-[#F5F3FF] px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-800">
+                <img src="/imgs/braze-icon-white.svg" alt="" className="h-3.5 w-3.5" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-[#1A0E3A]">Liquid Editor</span>
+                <span className="rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold text-[#6D28D9]">
+                  Liquid 5
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white"
+              onClick={onRender}
             >
-              {!mobileHintDismissed && (
-                <div className="shrink-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent dark:from-primary/20 dark:via-primary/10 dark:to-transparent border-b border-primary/15">
-                  <div className="flex items-center justify-between px-3 py-2.5">
-                    <div className="flex items-center gap-1.5">
-                      {MOBILE_NAV.map((item, i) => (
-                        <React.Fragment key={item.value}>
-                          <div className={cn(
-                            'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all duration-200',
-                            mobileTab === item.value
-                              ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30'
-                              : 'text-muted-foreground'
-                          )}>
-                            <span className={cn(
-                              'flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
-                              mobileTab === item.value
-                                ? 'bg-primary-foreground/20 text-primary-foreground'
-                                : 'bg-muted text-muted-foreground'
-                            )}>{item.step}</span>
-                            <span>{item.label}</span>
-                          </div>
-                          {i < MOBILE_NAV.length - 1 && (
-                            <span className="text-[10px] text-muted-foreground/40">&rsaquo;</span>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
+              Render
+            </button>
+          </div>
+        </div>
+
+        <div className="flex border-b border-[#EDE9FE] bg-white">
+          {MOBILE_PAGES.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setMobilePage(value)}
+              className={cn(
+                'flex-1 border-b-2 px-2 py-3 text-xs font-semibold',
+                mobilePage === value ? 'border-violet-600 text-violet-700' : 'border-transparent text-[#A89CC8]',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-hidden bg-[#EDE9FE]">
+          <div className="h-full overflow-y-auto px-3 py-3">
+            {mobilePage === 'editor' ? (
+              <div className="overflow-hidden rounded-2xl border border-[#2D1F50] bg-[#1E1433]">
+                <div className="flex items-center justify-between border-b border-[#2D1F50] bg-[#281A48] px-4 py-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#A78BFA]">
+                    Liquid template
+                  </span>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      className="ml-2 shrink-0 touch-manipulation rounded-full p-1 text-muted-foreground/60 hover:text-muted-foreground"
-                      onClick={() => {
-                        setMobileHintDismissed(true);
-                        try { localStorage.setItem(MOBILE_FLOW_HINT_KEY, '1'); } catch { /* ignore */ }
-                      }}
-                      aria-label="Dismiss"
+                      className="rounded-lg border border-[#3D2870] bg-[#2D1F50] px-2 py-1 text-[11px] font-semibold text-[#C084FC]"
+                      onClick={handleCopy}
                     >
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#3D2870] bg-[#2D1F50] px-2 py-1 text-[11px] font-semibold text-[#C084FC]"
+                      onClick={handleReset}
+                    >
+                      Clear
                     </button>
                   </div>
                 </div>
-              )}
+                <div className="h-[42dvh] min-h-[260px] overflow-hidden">
+                  <HighlightedLiquidEditor
+                    value={editedContent}
+                    onChange={handleContentChange}
+                    className="h-full w-full"
+                    options={{ style: editorStyle }}
+                  />
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 text-xs">
+                  {error ? (
+                    <span className="text-amber-200">Error</span>
+                  ) : (
+                    <span className="text-emerald-200">
+                      No errors · {lineCount} lines · {variableCount} vars
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : null}
 
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                <TabsContent
-                  value="library"
-                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
-                >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3 pt-3 pb-1">
-                    <div className="shrink-0">
-                      <h2 className="text-lg font-semibold leading-tight">Templates</h2>
-                      <p className="text-sm text-muted-foreground">Tap a template to start</p>
+            {mobilePage === 'preview' ? (
+              <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
+                <div className="flex items-center justify-between border-b border-[#EDE9FE] px-4 py-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                    Rendered preview
+                  </span>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-[#DDD6FE] bg-[#F5F3FF] px-2 py-1 text-[11px] font-semibold text-[#7C3AED]"
+                    onClick={onRender}
+                  >
+                    Re-render
+                  </button>
+                </div>
+                <div className="max-h-[60dvh] overflow-auto px-2 py-2">
+                  {isLoading ? (
+                    <div className="flex min-h-[200px] items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
                     </div>
-                    <TemplateLibrarySection
-                      searchTerm={searchTerm}
-                      onSearchChange={handleSearchChange}
-                      filteredTemplates={filteredTemplates}
-                      selectedTemplateId={selectedTemplateId}
-                      onSelectTemplate={handleTemplateChange}
-                      scrollClassName="min-h-0 w-full flex-1"
+                  ) : error ? (
+                    <div className="p-3">
+                      <Alert variant="destructive">
+                        <ExclamationTriangleIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                          <pre className="max-h-56 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  ) : (
+                    <LiquidPreview text={previewContent} />
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            {mobilePage === 'snippets' ? (
+              <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
+                <div className="border-b border-[#EDE9FE] px-4 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                    Templates
+                  </div>
+                  <div className="mt-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
+                    <Input
+                      type="search"
+                      placeholder="Search templates…"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
                     />
                   </div>
-                </TabsContent>
-
-                <TabsContent
-                  value="data"
-                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
-                >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pt-3 pb-1">
-                    <div className="shrink-0">
-                      <h2 className="text-lg font-semibold leading-tight">Sample Data</h2>
-                      <p className="text-sm text-muted-foreground">Edit fields used in the preview</p>
-                    </div>
-                    <div className="min-h-0 flex-1 overflow-y-auto">
-                      <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent
-                  value="edit"
-                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
-                >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3 pt-3 pb-1">
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-9 flex-1 touch-manipulation text-xs sm:min-h-9 sm:flex-none sm:text-sm"
-                        onClick={() => setIsDocumentationOpen(true)}
-                      >
-                        Docs
-                      </Button>
-                      <div className="min-w-0 flex-1 sm:flex-none sm:shrink-0">{templateInfoPopover}</div>
-                    </div>
-                    <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-input bg-background">
-                      <HighlightedLiquidEditor
-                        value={editedContent}
-                        onChange={handleContentChange}
-                        className="h-full w-full"
-                        options={{ style: editorStyle }}
-                      />
-                    </div>
-                    <div className="flex shrink-0 gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="min-h-10 flex-1 touch-manipulation bg-green-100 text-xs font-medium text-green-800 hover:bg-green-200 dark:bg-green-950/60 dark:text-green-200 sm:text-sm"
-                        onClick={handleCopy}
-                      >
-                        <Copy className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        Copy
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-10 flex-1 touch-manipulation border-red-200 bg-red-50 text-xs font-medium text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200 sm:text-sm"
-                        onClick={handleReset}
-                      >
-                        <RotateCcw className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        Reset
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent
-                  value="preview"
-                  className="m-0 mt-0 flex min-h-0 flex-1 flex-col overflow-hidden p-0 outline-none data-[state=inactive]:hidden"
-                >
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pt-3 pb-1">
-                    <div className="shrink-0">
-                      <h2 className="text-lg font-semibold leading-tight">Preview</h2>
-                      <p className="text-sm text-muted-foreground">Rendered output</p>
-                    </div>
-                    <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border bg-card p-3">
-                      {isLoading ? (
-                        <div className="flex min-h-[160px] items-center justify-center sm:min-h-[200px]">
-                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <div className="max-h-[60dvh] overflow-auto py-2">
+                  {groupedTemplates.length === 0 ? (
+                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
+                  ) : (
+                    groupedTemplates.map(([category, items]) => (
+                      <div key={category} className="mb-2">
+                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
+                          {category}
                         </div>
-                      ) : error ? (
-                        <Alert variant="destructive">
-                          <ExclamationTriangleIcon className="h-4 w-4" />
-                          <AlertTitle>Error</AlertTitle>
-                          <AlertDescription>
-                            <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">{error}</pre>
-                          </AlertDescription>
-                        </Alert>
-                      ) : (
-                        <LiquidPreview text={previewContent} />
-                      )}
-                    </div>
-                  </div>
-                </TabsContent>
+                        {items.map((t) => {
+                          const active = selectedTemplateId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleTemplateChange(t)}
+                              className={cn(
+                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
+                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
+                              )}
+                            >
+                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
+                              <span className={cn('truncate text-sm', active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]')}>
+                                {t.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
+            ) : null}
 
-              <TooltipProvider delayDuration={400}>
-                <TabsList className="mobile-tab-bar z-20 grid h-auto w-full shrink-0 grid-cols-4 gap-1 rounded-none border-t border-border bg-card px-2 pt-1.5 pb-2 dark:bg-card">
-                  {MOBILE_NAV.map(({ value, label, Icon, tooltip }) => (
-                    <Tooltip key={value}>
-                      <TooltipTrigger asChild>
-                        <TabsTrigger
-                          value={value}
-                          title={tooltip}
-                          className={cn(
-                            'touch-manipulation flex min-h-[2.5rem] flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1',
-                            'text-xs font-semibold leading-none tracking-tight transition-all duration-200',
-                            'text-muted-foreground',
-                            'data-[state=inactive]:hover:text-foreground',
-                            'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                          )}
-                        >
-                          <Icon className="h-4 w-4 shrink-0 stroke-[2]" aria-hidden />
-                          <span>{label}</span>
-                        </TabsTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[14rem] text-xs">
-                        <p>{tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </TabsList>
-              </TooltipProvider>
-            </Tabs>
-          </CardContent>
-        </Card>
+            {mobilePage === 'vars' ? (
+              <div className="space-y-3">
+                <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white">
+                  <div className="border-b border-[#EDE9FE] px-4 py-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6D28D9]">
+                      Test variables
+                    </div>
+                    <div className="mt-1 text-xs text-[#A89CC8]">Override attribute values for preview</div>
+                  </div>
+                  <div className="p-3">
+                    <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="rounded-xl border border-[#DDD6FE] bg-white px-2 py-2 text-center">
+                    <div className="font-mono text-base font-semibold text-[#3B1D7A]">{variableCount}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Vars</div>
+                  </div>
+                  <div className="rounded-xl border border-[#DDD6FE] bg-white px-2 py-2 text-center">
+                    <div className="font-mono text-base font-semibold text-[#3B1D7A]">{lineCount}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Lines</div>
+                  </div>
+                  <div className="rounded-xl border border-[#DDD6FE] bg-white px-2 py-2 text-center">
+                    <div className="font-mono text-base font-semibold text-[#3B1D7A]">{errorCount}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Errors</div>
+                  </div>
+                  <div className="rounded-xl border border-[#DDD6FE] bg-white px-2 py-2 text-center">
+                    <div className="font-mono text-base font-semibold text-[#3B1D7A]">{selectedTemplate ? '1' : '0'}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#A89CC8]">Tpl</div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="flex-1 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white"
+                    onClick={onRender}
+                  >
+                    Render preview
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-xl border border-[#DDD6FE] bg-white px-4 py-3 text-sm font-semibold text-[#6D28D9]"
+                    onClick={() => setIsGeneralDocumentationOpen(true)}
+                  >
+                    Docs
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="border-t border-[#DDD6FE] bg-white pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-2">
+          <div className="grid grid-cols-4 gap-1 px-3">
+            {MOBILE_PAGES.map(({ value, label, Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMobilePage(value)}
+                className="flex flex-col items-center gap-1 py-2"
+              >
+                <div className={cn('flex h-7 w-10 items-center justify-center rounded-lg', mobilePage === value ? 'bg-[#EDE9FE]' : '')}>
+                  <Icon className={cn('h-5 w-5', mobilePage === value ? 'text-violet-700' : 'text-[#C4B8E0]')} />
+                </div>
+                <span className={cn('text-[10px]', mobilePage === value ? 'font-semibold text-[#6D28D9]' : 'text-[#C4B8E0]')}>
+                  {label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <DocumentationDialog
-        isOpen={isDocumentationOpen}
-        onOpenChange={setIsDocumentationOpen}
-        template={selectedTemplate}
-      />
-
-      <GeneralDocumentationDialog
-        isOpen={isGeneralDocumentationOpen}
-        onOpenChange={setIsGeneralDocumentationOpen}
-      />
+      <DocumentationDialog isOpen={isDocumentationOpen} onOpenChange={setIsDocumentationOpen} template={selectedTemplate} />
+      <GeneralDocumentationDialog isOpen={isGeneralDocumentationOpen} onOpenChange={setIsGeneralDocumentationOpen} />
     </div>
   );
 }

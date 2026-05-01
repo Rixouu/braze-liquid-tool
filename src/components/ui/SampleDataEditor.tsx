@@ -81,7 +81,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
   };
 
   return (
-    <div className="space-y-4 rounded-md border border-border bg-muted/30 p-4 text-foreground">
+    <div className="space-y-4 rounded-xl border border-[#DDD6FE] bg-white p-4 text-[#2D1B6B]">
       {renderEditor([], sampleData, '')}
     </div>
   );

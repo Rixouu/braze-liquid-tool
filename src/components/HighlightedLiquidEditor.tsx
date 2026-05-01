@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from "@/components/ui/textarea";
-import { useTheme } from 'next-themes';  // Replace with your custom theme hook
 
 const FW = 'font-weight:400;'
 
-const liquidHighlight = (str: string, isDark: boolean) => {
-  const tagColor = isDark ? '#c4b5fd' : '#5b21b6'
-  const varColor = isDark ? '#7dd3fc' : '#0369a1'
-  const stringColor = isDark ? '#fde68a' : '#854d0e'
-  const numberColor = isDark ? '#fda4af' : '#9f1239'
-  const keywordColor = isDark ? '#6ee7b7' : '#047857'
-  const operatorColor = isDark ? '#e2e8f0' : '#57534e'
+const liquidHighlight = (str: string) => {
+  const tagColor = '#c084fc'
+  const varColor = '#67e8f9'
+  const stringColor = '#86efac'
+  const numberColor = '#fda4af'
+  const keywordColor = '#c084fc'
+  const operatorColor = '#e2d9f3'
 
   const highlightContent = (content: string) => {
     const tokens = [
@@ -81,7 +80,6 @@ const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
   const [content, setContent] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
 
   useEffect(() => {
     setContent(value);
@@ -90,11 +88,11 @@ const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
 
   useEffect(() => {
     updateHighlight(content);
-  }, [theme, content]);
+  }, [content]);
 
   const updateHighlight = (text: string) => {
     if (highlightRef.current) {
-      highlightRef.current.innerHTML = liquidHighlight(text, theme === 'dark');
+      highlightRef.current.innerHTML = liquidHighlight(text);
     }
   };
 
@@ -121,7 +119,7 @@ const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
         value={content}
         onChange={handleChange}
         onScroll={handleScroll}
-        className="font-mono text-sm font-normal w-full h-full resize-none bg-transparent text-transparent caret-foreground z-10 absolute top-0 left-0 p-[11px]"
+        className="absolute left-0 top-0 z-10 h-full w-full resize-none bg-transparent p-[11px] font-mono text-sm font-normal text-transparent caret-[#A78BFA]"
         placeholder="Edit your Liquid syntax here..."
         aria-label="Liquid syntax input"
         aria-multiline="true"
@@ -136,7 +134,7 @@ const HighlightedLiquidEditor = ({ value, onChange, className, options = {} }: {
       </div>
       <div
         ref={highlightRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-auto font-mono text-sm font-normal text-foreground p-[11px] m-0"
+        className="pointer-events-none absolute left-0 top-0 m-0 h-full w-full overflow-auto p-[11px] font-mono text-sm font-normal text-[#E2D9F3]"
         aria-hidden="true"
         style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', ...options.style }}
       />
