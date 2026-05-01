@@ -209,6 +209,8 @@ export function LiquidSyntaxEditor() {
 
   const onRender = useCallback(() => {
     void updatePreview(editedContent, editableSampleData);
+    setDesktopTab('editor');
+    setMobilePage('preview');
   }, [editedContent, editableSampleData, updatePreview]);
 
   return (
