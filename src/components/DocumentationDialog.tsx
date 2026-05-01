@@ -36,13 +36,26 @@ export function TemplateDocumentationContent({
 }) {
   const scrollBodyRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>(DOC_SECTIONS[0].id);
+  const rafRef = useRef<number | null>(null);
+
+  const updateActiveFromScroll = useCallback(() => {
+    const root = scrollBodyRef.current;
+    if (!root) return;
+    const y = root.scrollTop + 24;
+    let current: string = DOC_SECTIONS[0].id;
+    for (const { id } of DOC_SECTIONS) {
+      const el = root.querySelector(`#${id}`);
+      if (el instanceof HTMLElement && el.offsetTop <= y) current = id;
+    }
+    setActiveSection(current);
+  }, []);
 
   const scrollToSection = useCallback((id: string) => {
     const root = scrollBodyRef.current;
     if (!root) return;
     const el = root.querySelector(`#${id}`);
     if (el instanceof HTMLElement) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      root.scrollTo({ top: Math.max(0, el.offsetTop - 12), behavior: 'smooth' });
     }
     setActiveSection(id);
   }, []);
@@ -56,30 +69,25 @@ export function TemplateDocumentationContent({
   }, [template.id]);
 
   useEffect(() => {
-    let obs: IntersectionObserver | undefined;
-    const tid = window.setTimeout(() => {
-      const root = scrollBodyRef.current;
-      if (!root) return;
-      obs = new IntersectionObserver(
-        (entries) => {
-          const intersecting = entries
-            .filter((e) => e.isIntersecting && e.target.id)
-            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-          const top = intersecting[0];
-          if (top?.target?.id) setActiveSection(top.target.id);
-        },
-        { root, rootMargin: '-12% 0px -55% 0px', threshold: [0, 0.1, 0.25, 0.5, 1] },
-      );
-      DOC_SECTIONS.forEach(({ id }) => {
-        const el = root.querySelector(`#${id}`);
-        if (el) obs?.observe(el);
+    const root = scrollBodyRef.current;
+    if (!root) return;
+    const onScroll = () => {
+      if (rafRef.current != null) return;
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = null;
+        updateActiveFromScroll();
       });
-    }, 0);
-    return () => {
-      window.clearTimeout(tid);
-      obs?.disconnect();
     };
-  }, [template.id]);
+    root.addEventListener('scroll', onScroll, { passive: true });
+    updateActiveFromScroll();
+    return () => {
+      root.removeEventListener('scroll', onScroll);
+      if (rafRef.current != null) {
+        window.cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [template.id, updateActiveFromScroll]);
 
   return (
     <div className={cn('flex min-h-0 flex-1 flex-col overflow-hidden', className)}>
