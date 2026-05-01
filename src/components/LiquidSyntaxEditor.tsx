@@ -87,6 +87,7 @@ export function LiquidSyntaxEditor() {
   const [isGeneralDocumentationOpen, setIsGeneralDocumentationOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [mobilePage, setMobilePage] = useState<MobilePage>('snippets');
+  const [desktopTab, setDesktopTab] = useState<'editor' | 'snippets' | 'docs'>('editor');
 
   const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
     return Object.keys(obj).reduce(
@@ -296,17 +297,40 @@ export function LiquidSyntaxEditor() {
           <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
             <button
               type="button"
-              className="rounded-md bg-white px-4 py-1.5 text-xs font-semibold text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]"
+              onClick={() => setDesktopTab('editor')}
+              className={cn(
+                'rounded-md px-4 py-1.5 text-xs font-semibold',
+                desktopTab === 'editor'
+                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  : 'text-[#8B7BAA]',
+              )}
             >
               Editor
             </button>
-            <button type="button" className="rounded-md px-4 py-1.5 text-xs font-semibold text-[#8B7BAA]">
+            <button
+              type="button"
+              onClick={() => setDesktopTab('snippets')}
+              className={cn(
+                'rounded-md px-4 py-1.5 text-xs font-semibold',
+                desktopTab === 'snippets'
+                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  : 'text-[#8B7BAA]',
+              )}
+            >
               Snippets
             </button>
             <button
               type="button"
-              className="rounded-md px-4 py-1.5 text-xs font-semibold text-[#8B7BAA]"
-              onClick={() => setIsGeneralDocumentationOpen(true)}
+              className={cn(
+                'rounded-md px-4 py-1.5 text-xs font-semibold',
+                desktopTab === 'docs'
+                  ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                  : 'text-[#8B7BAA]',
+              )}
+              onClick={() => {
+                setDesktopTab('docs');
+                setIsGeneralDocumentationOpen(true);
+              }}
             >
               Docs
             </button>
@@ -344,60 +368,66 @@ export function LiquidSyntaxEditor() {
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_260px] overflow-hidden">
-          <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
-            <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
-                Snippets
+        {desktopTab === 'editor' ? (
+          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_260px] overflow-hidden">
+            <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
+              <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                  Snippets
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
+                  <Input
+                    type="search"
+                    placeholder="Search templates…"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
-                <Input
-                  type="search"
-                  placeholder="Search templates…"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
-                />
-              </div>
+
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="px-0 py-2">
+                  {groupedTemplates.length === 0 ? (
+                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
+                  ) : (
+                    groupedTemplates.map(([category, items]) => (
+                      <div key={category} className="mb-2">
+                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
+                          {category}
+                        </div>
+                        {items.map((t) => {
+                          const active = selectedTemplateId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleTemplateChange(t)}
+                              className={cn(
+                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
+                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
+                              )}
+                            >
+                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
+                              <span
+                                className={cn(
+                                  'truncate text-sm',
+                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                )}
+                              >
+                                {t.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </div>
 
-            <ScrollArea className="min-h-0 flex-1">
-              <div className="px-0 py-2">
-                {groupedTemplates.length === 0 ? (
-                  <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
-                ) : (
-                  groupedTemplates.map(([category, items]) => (
-                    <div key={category} className="mb-2">
-                      <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
-                        {category}
-                      </div>
-                      {items.map((t) => {
-                        const active = selectedTemplateId === t.id;
-                        return (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => handleTemplateChange(t)}
-                            className={cn(
-                              'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
-                              active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
-                            )}
-                          >
-                            <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
-                            <span className={cn('truncate text-sm', active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]')}>
-                              {t.name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <div className="grid min-h-0 grid-rows-2 overflow-hidden">
+            <div className="grid min-h-0 grid-rows-2 overflow-hidden">
             <div className="flex min-h-0 flex-col overflow-hidden border-b border-[#E4DFF4]">
               <div className="flex items-center justify-between border-b border-[#EEE8FF] bg-white px-4 py-2">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
@@ -484,7 +514,7 @@ export function LiquidSyntaxEditor() {
             </div>
           </div>
 
-          <div className="flex flex-col overflow-hidden border-l border-[#E4DFF4] bg-[#FAFAFA]">
+            <div className="flex flex-col overflow-hidden border-l border-[#E4DFF4] bg-[#FAFAFA]">
             <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
                 Test variables
@@ -542,7 +572,164 @@ export function LiquidSyntaxEditor() {
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        ) : desktopTab === 'snippets' ? (
+          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)] overflow-hidden">
+            <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
+              <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                  Snippets
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
+                  <Input
+                    type="search"
+                    placeholder="Search templates…"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
+                  />
+                </div>
+              </div>
+
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="px-0 py-2">
+                  {groupedTemplates.length === 0 ? (
+                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
+                  ) : (
+                    groupedTemplates.map(([category, items]) => (
+                      <div key={category} className="mb-2">
+                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
+                          {category}
+                        </div>
+                        {items.map((t) => {
+                          const active = selectedTemplateId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleTemplateChange(t)}
+                              className={cn(
+                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
+                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
+                              )}
+                            >
+                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
+                              <span
+                                className={cn(
+                                  'truncate text-sm',
+                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                )}
+                              >
+                                {t.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="min-h-0 overflow-auto p-6">
+              <div className="mx-auto max-w-3xl">
+                <div className="rounded-2xl border border-[#E4DFF4] bg-white p-6">
+                  {selectedTemplate ? (
+                    <div className="space-y-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <h2 className="truncate text-lg font-semibold text-[#1A0E3A]">{selectedTemplate.name}</h2>
+                          <p className="mt-1 text-sm text-[#8B7BAA]">{selectedTemplate.description}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            type="button"
+                            className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-xs font-semibold text-[#6D28D9]"
+                            onClick={() => setIsDocumentationOpen(true)}
+                          >
+                            Template Docs
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white"
+                            onClick={() => setDesktopTab('editor')}
+                          >
+                            Open in Editor
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-[#EDE9FE] bg-[#FAFAFA] p-4">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                          Variables
+                        </div>
+                        <div className="mt-3 grid grid-cols-1 gap-2">
+                          {Object.keys(flatSampleData).length === 0 ? (
+                            <div className="text-sm text-[#A89CC8]">No sample data for this template.</div>
+                          ) : (
+                            Object.entries(flatSampleData).map(([k, v]) => (
+                              <div key={k} className="flex min-w-0 items-center gap-2">
+                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-[#EDE9FE] px-2 py-1 font-mono text-[11px] text-[#6D28D9]">
+                                  {k}
+                                </span>
+                                <span className="shrink-0 text-xs text-[#C4B8E0]">=</span>
+                                <span className="min-w-0 flex-1 truncate rounded-lg border border-[#DDD6FE] bg-white px-2 py-1 font-mono text-[11px] text-[#2D1B6B]">
+                                  {String(v)}
+                                </span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-[#E4DFF4] bg-white p-4">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                          Sample Data
+                        </div>
+                        <div className="mt-3">
+                          <SampleDataEditor sampleData={editableSampleData} onChange={handleSampleDataChange} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-[#8B7BAA]">Select a template on the left to see details.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-1 items-center justify-center p-6">
+            <div className="w-full max-w-xl rounded-2xl border border-[#E4DFF4] bg-white p-6">
+              <h2 className="text-lg font-semibold text-[#1A0E3A]">Documentation</h2>
+              <p className="mt-1 text-sm text-[#8B7BAA]">Open the general Liquid guide or template-specific docs.</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white"
+                  onClick={() => setIsGeneralDocumentationOpen(true)}
+                >
+                  General Docs
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg border border-[#DDD6FE] bg-white px-4 py-2 text-sm font-semibold text-[#6D28D9]"
+                  onClick={() => setIsDocumentationOpen(true)}
+                >
+                  Template Docs
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg border border-[#DDD6FE] bg-white px-4 py-2 text-sm font-semibold text-[#6D28D9]"
+                  onClick={() => setDesktopTab('editor')}
+                >
+                  Back to Editor
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex min-h-svh flex-col bg-[#E8E2F8] lg:hidden">
@@ -567,22 +754,6 @@ export function LiquidSyntaxEditor() {
               Render
             </button>
           </div>
-        </div>
-
-        <div className="flex border-b border-[#EDE9FE] bg-white">
-          {MOBILE_PAGES.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setMobilePage(value)}
-              className={cn(
-                'flex-1 border-b-2 px-2 py-3 text-xs font-semibold',
-                mobilePage === value ? 'border-violet-600 text-violet-700' : 'border-transparent text-[#A89CC8]',
-              )}
-            >
-              {label}
-            </button>
-          ))}
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden bg-[#EDE9FE]">

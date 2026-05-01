@@ -1,7 +1,6 @@
 /* eslint-disable */
 @import "tailwindcss";
 @config "../tailwind.config.js";
-@custom-variant dark (&:where(.dark, .dark *));
 /* eslint-enable */
 
 @layer base {
@@ -44,27 +43,6 @@
     --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 252 45% 7%;
-    --foreground: 220 25% 96%;
-    --card: 248 32% 12%;
-    --card-foreground: 220 25% 96%;
-    --popover: 248 30% 10%;
-    --popover-foreground: 220 25% 96%;
-    --primary: 217 88% 62%;
-    --primary-foreground: 252 45% 12%;
-    --secondary: 248 24% 18%;
-    --secondary-foreground: 220 25% 96%;
-    --muted: 246 22% 16%;
-    --muted-foreground: 220 14% 72%;
-    --accent: 248 28% 20%;
-    --accent-foreground: 220 25% 96%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 248 22% 22%;
-    --input: 248 22% 20%;
-    --ring: 12 100% 59%;
-  }
 }
 
 @layer base {
@@ -84,52 +62,6 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-}
-
-.dark body {
-  background-color: hsl(var(--background));
-}
-
-/* Add this at the end of your file */
-
-.dark .bg-green-50 {
-  background-color: rgba(0, 128, 0, 0.1);
-}
-
-.dark .bg-red-50 {
-  background-color: rgba(255, 0, 0, 0.1);
-}
-
-.dark .text-green-600 {
-  color: #4ade80;
-}
-
-.dark .text-red-600 {
-  color: #f87171;
-}
-
-.dark .border-green-200 {
-  border-color: rgba(0, 128, 0, 0.3);
-}
-
-.dark .border-red-200 {
-  border-color: rgba(255, 0, 0, 0.3);
-}
-
-.dark .hover\:bg-green-100:hover {
-  background-color: rgba(0, 128, 0, 0.2);
-}
-
-.dark .hover\:bg-red-100:hover {
-  background-color: rgba(255, 0, 0, 0.2);
-}
-
-.dark .hover\:text-green-700:hover {
-  color: #22c55e;
-}
-
-.dark .hover\:text-red-700:hover {
-  color: #ef4444;
 }
 
 /* Add this to your global CSS file */
@@ -230,15 +162,6 @@
   background: #555;
 }
 
-.dark .highlighted-liquid-editor-container {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-}
-
-.dark .highlighted-liquid-editor-container textarea {
-  caret-color: hsl(var(--foreground));
-}
-
 /* Add these styles to your CSS file */
 .liquid-preview-container {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -252,12 +175,6 @@
   color: #1e293b;
   height: 100%;
   overflow-y: auto;
-}
-
-.dark .liquid-preview-container {
-  color: #e2e8f0;
-  background-color: hsl(222 14% 16%);
-  border-color: hsl(217 16% 26%);
 }
 
 /* Ensure these styles are not overridden */
@@ -288,10 +205,6 @@
   color: #0f172a;
 }
 
-.dark .liquid-preview-container strong {
-  color: #e2e8f0;
-}
-
 /* Ensure these styles are applied */
 .liquid-preview-container .liquid-tag {
   color: #8b5cf6;
@@ -299,11 +212,6 @@
   background-color: rgba(139, 92, 246, 0.1);
   padding: 0.1em 0.3em;
   border-radius: 0.2em;
-}
-
-.dark .liquid-preview-container .liquid-tag {
-  color: #a78bfa;
-  background-color: rgba(167, 139, 250, 0.15);
 }
 
 .liquid-preview-container .liquid-var {
@@ -314,30 +222,15 @@
   border-radius: 0.2em;
 }
 
-.dark .liquid-preview-container .liquid-var {
-  color: #60a5fa;
-  background-color: rgba(96, 165, 250, 0.15);
-}
-
 .liquid-preview-container .liquid-var.highlight {
   background-color: rgba(59, 130, 246, 0.2);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.dark .liquid-preview-container .liquid-var.highlight {
-  background-color: rgba(96, 165, 250, 0.25);
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
-}
-
 .liquid-preview-container .liquid-var.highlight:hover {
   background-color: rgba(59, 130, 246, 0.3);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-
-.dark .liquid-preview-container .liquid-var.highlight:hover {
-  background-color: rgba(96, 165, 250, 0.35);
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
 }
 
 /* Add this at the end of your CSS file */

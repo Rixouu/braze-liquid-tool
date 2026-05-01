@@ -143,12 +143,12 @@ export function DocumentationDialog({ isOpen, onOpenChange, template }: Document
               <Section id="usage" title="Usage" icon={<BookOpen className="h-6 w-6" />}>
                 <div className="rounded-lg border border-border bg-muted/40 p-4">
                   <p className="mb-4 text-sm text-muted-foreground">{template.documentation.usage}</p>
-                  <div className="rounded-md border border-amber-200/80 bg-amber-50/90 p-3 dark:border-amber-900/50 dark:bg-amber-950/30">
-                    <h4 className="mb-2 flex items-center text-sm font-medium text-amber-900 dark:text-amber-200">
+                  <div className="rounded-md border border-amber-200/80 bg-amber-50/90 p-3">
+                    <h4 className="mb-2 flex items-center text-sm font-medium text-amber-900">
                       <AlertTriangle className="mr-2 h-4 w-4 shrink-0" />
                       Notes
                     </h4>
-                    <ul className="list-inside list-disc space-y-1 text-sm text-amber-900/90 dark:text-amber-100/90">
+                    <ul className="list-inside list-disc space-y-1 text-sm text-amber-900/90">
                       {template.documentation.notes.split('\n').map((note, index) => (
                         <li key={index}>{note}</li>
                       ))}

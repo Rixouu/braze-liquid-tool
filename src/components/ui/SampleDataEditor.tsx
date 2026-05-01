@@ -42,15 +42,15 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
       // Date input
       return (
         <div className="space-y-2">
-          <label className="text-sm font-medium">{label}</label>
+          <label className="block max-w-full break-all text-sm font-semibold text-[#3B1D7A]">{label}</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start text-left font-normal bg-background text-foreground border-input hover:bg-muted"
+                className="w-full justify-start overflow-hidden text-left font-normal bg-background text-foreground border-input hover:bg-muted"
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {value || <span>Pick a date</span>}
+                <span className="truncate">{value || 'Pick a date'}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto border border-border bg-popover p-0 text-popover-foreground">
@@ -68,7 +68,7 @@ const SampleDataEditor: React.FC<SampleDataEditorProps> = React.memo(({ sampleDa
       // Default to text input
       return (
         <div className="space-y-2">
-          <label className="text-sm font-medium">{label}</label>
+          <label className="block max-w-full break-all text-sm font-semibold text-[#3B1D7A]">{label}</label>
           <Input
             type="text"
             value={value}
