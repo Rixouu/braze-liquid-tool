@@ -623,7 +623,7 @@ export function LiquidSyntaxEditor() {
                   onClick={() => setMobilePage(value)}
                   className={cn(
                     'flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-[11px] font-semibold',
-                      mobilePage === value ? 'border-[#3C3C3C] text-[#3C3C3C]' : 'border-transparent text-[#A89CC8]',
+                      mobilePage === value ? 'border-[#32026A] text-[#32026A]' : 'border-transparent text-[#A89CC8]',
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -872,9 +872,9 @@ export function LiquidSyntaxEditor() {
                 className="flex flex-col items-center gap-1 py-2"
               >
                 <div className={cn('flex h-7 w-10 items-center justify-center rounded-lg', mobilePage === value ? 'bg-[#EDE9FE]' : '')}>
-                  <Icon className={cn('h-5 w-5', mobilePage === value ? 'text-[#3C3C3C]' : 'text-[#C4B8E0]')} />
+                  <Icon className={cn('h-5 w-5', mobilePage === value ? 'text-[#32026A]' : 'text-[#C4B8E0]')} />
                 </div>
-                <span className={cn('text-[10px]', mobilePage === value ? 'font-semibold text-[#3C3C3C]' : 'text-[#C4B8E0]')}>
+                <span className={cn('text-[10px]', mobilePage === value ? 'font-semibold text-[#32026A]' : 'text-[#C4B8E0]')}>
                   {label}
                 </span>
               </button>
