@@ -1,18 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
 import { Loader2, Library, SlidersHorizontal, Braces, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import SampleDataEditor from '@/components/ui/SampleDataEditor';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import HighlightedLiquidEditor from './HighlightedLiquidEditor';
 import LiquidPreview from './LiquidPreview';
-import { DocumentationDialog } from './DocumentationDialog';
-import { GeneralDocumentationDialog } from './GeneralDocumentationDialog';
+import { TemplateDocumentationContent } from './DocumentationDialog';
+import { GeneralDocumentationContent } from './GeneralDocumentationDialog';
 import { engine } from '@/lib/liquid-engine';
 import type { Template } from '@/types';
 import { templates } from '@/templates/templateData';
@@ -27,54 +25,6 @@ const MOBILE_PAGES = [
 
 type MobilePage = (typeof MOBILE_PAGES)[number]['value'];
 
-function TemplateInfoBody({ template }: { template: Template }) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="mb-1 text-lg font-semibold">{template.name}</h3>
-        <p className="text-sm text-muted-foreground">{template.description}</p>
-      </div>
-      <div>
-        <h4 className="mb-2 text-sm font-semibold">Variables</h4>
-        <div className="grid grid-cols-1 gap-2">
-          {template.documentation.variables.map((variable, index) => (
-            <div
-              key={index}
-              className="rounded-lg border border-border bg-muted/40 p-3 shadow-sm"
-            >
-              <div className="mb-1 flex items-center">
-                <span className="rounded bg-primary/15 px-2 py-0.5 font-mono text-sm text-primary">
-                  {variable.name}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">{variable.description}</p>
-              {variable.example && (
-                <div className="mt-1">
-                  <span className="text-xs font-semibold text-muted-foreground">Example:</span>
-                  <code className="ml-1 rounded bg-muted px-1 py-0.5 text-xs">{variable.example}</code>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <h4 className="mb-2 text-sm font-semibold">Tips</h4>
-        <div className="rounded-md border border-border bg-muted/30 p-3">
-          <ul className="space-y-1">
-            {template.documentation.notes.split('\n').map((note, index) => (
-              <li key={index} className="flex items-start text-xs text-foreground">
-                <span className="mr-2 text-primary">•</span>
-                {note}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function LiquidSyntaxEditor() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [editedContent, setEditedContent] = useState('');
@@ -83,11 +33,10 @@ export function LiquidSyntaxEditor() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
-  const [isGeneralDocumentationOpen, setIsGeneralDocumentationOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [mobilePage, setMobilePage] = useState<MobilePage>('snippets');
   const [desktopTab, setDesktopTab] = useState<'editor' | 'snippets' | 'docs'>('editor');
+  const [docsPane, setDocsPane] = useState<'general' | 'template'>('general');
 
   const flattenObject = useCallback((obj: Record<string, any>, prefix = ''): Record<string, any> => {
     return Object.keys(obj).reduce(
@@ -234,21 +183,6 @@ export function LiquidSyntaxEditor() {
     [],
   );
 
-  const templateInfoPopover = (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="min-h-10 touch-manipulation sm:min-h-9">
-          Template Info
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="max-h-[min(80dvh,32rem)] w-[min(100vw-2rem,24rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto p-4">
-        {selectedTemplate ? <TemplateInfoBody template={selectedTemplate} /> : (
-          <p className="text-sm text-muted-foreground">Select a template to see details.</p>
-        )}
-      </PopoverContent>
-    </Popover>
-  );
-
   const flatSampleData = useMemo(() => flattenObject(editableSampleData), [editableSampleData, flattenObject]);
   const variableCount = useMemo(() => Object.keys(flatSampleData).length, [flatSampleData]);
   const lineCount = useMemo(() => (editedContent ? editedContent.split('\n').length : 0), [editedContent]);
@@ -279,7 +213,8 @@ export function LiquidSyntaxEditor() {
 
   return (
     <div className="min-h-svh bg-[#F0EDF8] text-[#1A0E3A]">
-      <div className="hidden min-h-svh flex-col lg:flex">
+      <div className="hidden min-h-svh items-center justify-center px-6 py-6 lg:flex">
+        <div className="flex h-[min(calc(100dvh-3rem),980px)] w-full max-w-[1400px] flex-col overflow-hidden rounded-2xl border border-[#E4DFF4] bg-white shadow-[0_18px_60px_rgba(15,23,42,0.10)]">
         <div className="flex items-center justify-between border-b border-[#E4DFF4] bg-white px-6 py-3">
           <div className="flex items-center gap-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-800">
@@ -329,7 +264,7 @@ export function LiquidSyntaxEditor() {
               )}
               onClick={() => {
                 setDesktopTab('docs');
-                setIsGeneralDocumentationOpen(true);
+                setDocsPane('general');
               }}
             >
               Docs
@@ -340,14 +275,20 @@ export function LiquidSyntaxEditor() {
             <button
               type="button"
               className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
-              onClick={() => setIsDocumentationOpen(true)}
+              onClick={() => {
+                setDesktopTab('docs');
+                setDocsPane('template');
+              }}
             >
               Template Docs
             </button>
             <button
               type="button"
               className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D28D9]"
-              onClick={() => setIsGeneralDocumentationOpen(true)}
+              onClick={() => {
+                setDesktopTab('docs');
+                setDocsPane('general');
+              }}
             >
               General Docs
             </button>
@@ -646,7 +587,10 @@ export function LiquidSyntaxEditor() {
                           <button
                             type="button"
                             className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-xs font-semibold text-[#6D28D9]"
-                            onClick={() => setIsDocumentationOpen(true)}
+                            onClick={() => {
+                              setDesktopTab('docs');
+                              setDocsPane('template');
+                            }}
                           >
                             Template Docs
                           </button>
@@ -700,36 +644,112 @@ export function LiquidSyntaxEditor() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-1 items-center justify-center p-6">
-            <div className="w-full max-w-xl rounded-2xl border border-[#E4DFF4] bg-white p-6">
-              <h2 className="text-lg font-semibold text-[#1A0E3A]">Documentation</h2>
-              <p className="mt-1 text-sm text-[#8B7BAA]">Open the general Liquid guide or template-specific docs.</p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white"
-                  onClick={() => setIsGeneralDocumentationOpen(true)}
-                >
-                  General Docs
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-[#DDD6FE] bg-white px-4 py-2 text-sm font-semibold text-[#6D28D9]"
-                  onClick={() => setIsDocumentationOpen(true)}
-                >
-                  Template Docs
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-[#DDD6FE] bg-white px-4 py-2 text-sm font-semibold text-[#6D28D9]"
-                  onClick={() => setDesktopTab('editor')}
-                >
-                  Back to Editor
-                </button>
+          <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)] overflow-hidden">
+            <div className="flex flex-col overflow-hidden border-r border-[#E4DFF4] bg-[#FAFAFA]">
+              <div className="border-b border-[#EDE9FE] px-4 pb-3 pt-4">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3B1D7A]">
+                  Snippets
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-[#DDD6FE] bg-white px-3 py-2">
+                  <Input
+                    type="search"
+                    placeholder="Search templates…"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="h-auto border-0 bg-transparent p-0 text-sm text-[#3B1D7A] shadow-none focus-visible:ring-0"
+                  />
+                </div>
+              </div>
+
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="px-0 py-2">
+                  {groupedTemplates.length === 0 ? (
+                    <div className="px-4 py-6 text-sm text-[#A89CC8]">No templates found</div>
+                  ) : (
+                    groupedTemplates.map(([category, items]) => (
+                      <div key={category} className="mb-2">
+                        <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C4B8E0]">
+                          {category}
+                        </div>
+                        {items.map((t) => {
+                          const active = selectedTemplateId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleTemplateChange(t)}
+                              className={cn(
+                                'flex w-full items-center gap-2 px-4 py-2 text-left transition-colors',
+                                active ? 'bg-[#EDE9FE]' : 'hover:bg-[#F5F3FF]',
+                              )}
+                            >
+                              <span className={cn('h-2 w-2 rounded-sm', categoryDotClass(category))} aria-hidden />
+                              <span
+                                className={cn(
+                                  'truncate text-sm',
+                                  active ? 'font-medium text-[#6D28D9]' : 'text-[#4A3070]',
+                                )}
+                              >
+                                {t.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="min-h-0 overflow-hidden p-6">
+              <div className="mx-auto flex h-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#E4DFF4] bg-white">
+                <div className="flex items-center justify-between gap-3 border-b border-[#E4DFF4] bg-white px-5 py-4">
+                  <div className="text-sm font-semibold text-[#1A0E3A]">Docs</div>
+                  <div className="flex items-center gap-1 rounded-lg border border-[#E4DFF4] bg-[#F5F3FF] p-1">
+                    <button
+                      type="button"
+                      onClick={() => setDocsPane('general')}
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-xs font-semibold',
+                        docsPane === 'general'
+                          ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                          : 'text-[#8B7BAA]',
+                      )}
+                    >
+                      General
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDocsPane('template')}
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-xs font-semibold',
+                        docsPane === 'template'
+                          ? 'bg-white text-[#6D28D9] shadow-[0_1px_3px_rgba(109,40,217,0.10)]'
+                          : 'text-[#8B7BAA]',
+                      )}
+                    >
+                      Template
+                    </button>
+                  </div>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  {docsPane === 'general' ? (
+                    <GeneralDocumentationContent />
+                  ) : selectedTemplate ? (
+                    <TemplateDocumentationContent template={selectedTemplate} />
+                  ) : (
+                    <div className="p-6 text-sm text-[#8B7BAA]">
+                      Select a template on the left to view template-specific documentation.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         )}
+        </div>
       </div>
 
       <div className="flex min-h-svh flex-col bg-[#E8E2F8] lg:hidden">
@@ -757,7 +777,26 @@ export function LiquidSyntaxEditor() {
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden bg-[#EDE9FE]">
-          <div className="h-full overflow-y-auto px-3 py-3">
+          <div className="shrink-0 border-b border-[#EDE9FE] bg-white">
+            <div className="flex">
+              {MOBILE_PAGES.map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setMobilePage(value)}
+                  className={cn(
+                    'flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-[11px] font-semibold',
+                    mobilePage === value ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-[#A89CC8]',
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
             {mobilePage === 'editor' ? (
               <div className="overflow-hidden rounded-2xl border border-[#2D1F50] bg-[#1E1433]">
                 <div className="flex items-center justify-between border-b border-[#2D1F50] bg-[#281A48] px-4 py-3">
@@ -932,9 +971,9 @@ export function LiquidSyntaxEditor() {
                   <button
                     type="button"
                     className="rounded-xl border border-[#DDD6FE] bg-white px-4 py-3 text-sm font-semibold text-[#6D28D9]"
-                    onClick={() => setIsGeneralDocumentationOpen(true)}
+                    onClick={handleCopy}
                   >
-                    Docs
+                    Copy
                   </button>
                 </div>
               </div>
@@ -962,9 +1001,6 @@ export function LiquidSyntaxEditor() {
           </div>
         </div>
       </div>
-
-      <DocumentationDialog isOpen={isDocumentationOpen} onOpenChange={setIsDocumentationOpen} template={selectedTemplate} />
-      <GeneralDocumentationDialog isOpen={isGeneralDocumentationOpen} onOpenChange={setIsGeneralDocumentationOpen} />
     </div>
   );
 }
